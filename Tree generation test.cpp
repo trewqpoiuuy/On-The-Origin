@@ -28,13 +28,13 @@ float randFloat(float min, float max)
 }
 int randInt(int min, int max)
 {
-	float r=min+(rand()/(RAND_MAX/(max-min)));
+	int r=min+(rand()/(RAND_MAX/(max-min)));
 }
 int main()
 {
 	srand (static_cast <unsigned> (time(0)));
 	seed treeSeed;
-	treeSeed.branchDensity=randFloat(0,1);
+	treeSeed.branchDensity=randFloat(0,2);
 	treeSeed.angleVariance=randFloat(0,30);
 	treeSeed.featureChance=randFloat(0,1);
 	treeSeed.primaryColor[0]=randInt(0,255);
@@ -46,6 +46,7 @@ int main()
 	treeSeed.tertiaryColor[0]=randInt(0,255);
 	treeSeed.tertiaryColor[1]=randInt(0,255);
 	treeSeed.tertiaryColor[2]=randInt(0,255);
+	cout << treeSeed.branchDensity << " " << treeSeed.angleVariance << endl;
 	int sunlight=0;
 	int nutrients=0; //Will expand this later
 	bool isAlive=1;
@@ -70,7 +71,12 @@ int main()
 		while(sunlight>=10 && nutrients>=20)
 		{
 			branch newBranch;
-			newBranch.connection=(tree.size()-(rand()%tree.size()));
+			int branchWeighting=randInt(0,tree.size())*treeSeed.branchDensity;
+			if(branchWeighting>=tree.size())
+			{
+				branchWeighting=tree.size()-1;
+			}
+			newBranch.connection=(tree.size()-branchWeighting);
 			tree.at(newBranch.connection-1).children.push_back(tree.size());
 			newBranch.xAngle=randFloat(-treeSeed.angleVariance,treeSeed.angleVariance);
 			newBranch.yAngle=randFloat(-treeSeed.angleVariance,treeSeed.angleVariance);
