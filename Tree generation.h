@@ -29,6 +29,7 @@ struct seed
 	float branchDensity; //The higher the value, the lower branches attach 
 	float angleVariance; //Variation in angle
 	float featureChance; //likelihood of generating features
+	float lengthVariance; //lower value-> shorter branches
 	int primaryColor[3]; //Bark color
 	int secondaryColor[3]; //Leaf color
 	int tertiaryColor[3]; //Flower/fruit color

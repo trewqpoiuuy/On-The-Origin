@@ -15,6 +15,7 @@ int main()
 	treeSeed.branchDensity=randFloat(0.5,2);
 	treeSeed.angleVariance=randFloat(10,30);
 	treeSeed.featureChance=randFloat(0,1);
+	treeSeed.lengthVariance=randFloat(0,2);
 	treeSeed.primaryColor[0]=randInt(0,255);
 	treeSeed.primaryColor[1]=randInt(0,255);
 	treeSeed.primaryColor[2]=randInt(0,255);
@@ -28,7 +29,7 @@ int main()
 	cout << "Primary: " << treeSeed.primaryColor[0] << " " << treeSeed.primaryColor[1] << " " << treeSeed.primaryColor[2] << endl;
 	cout << "Secondary: " << treeSeed.secondaryColor[0] << " " << treeSeed.secondaryColor[1] << " " << treeSeed.secondaryColor[2] << endl;
 	cout << "Tertiary: " << treeSeed.tertiaryColor[0] << " " << treeSeed.tertiaryColor[1] << " " << treeSeed.tertiaryColor[2] << endl;
-	cout << "Branch Density: " << treeSeed.branchDensity << " Angle Variance: " << treeSeed.angleVariance << " Feature Chance: "<< treeSeed.featureChance<<endl;
+	cout << "Branch Density: " << treeSeed.branchDensity << " Angle Variance: " << treeSeed.angleVariance << " Feature Chance: "<< treeSeed.featureChance << " Length Variance: " << treeSeed.lengthVariance << endl;
 	int sunlight=0;   //
 	int water=0;      //
 	int phosphorus=0; //Resources
@@ -77,7 +78,7 @@ int main()
 			tree.at(newBranch.connection-1).children.push_back(tree.size()+1);
 			newBranch.xAngle=randFloat(-treeSeed.angleVariance,treeSeed.angleVariance);
 			newBranch.yAngle=randFloat(-treeSeed.angleVariance,treeSeed.angleVariance);
-			newBranch.length=randFloat(1,20);
+			newBranch.length=randFloat(1,20)*treeSeed.lengthVariance;
 			newBranch.feature=0;
 			int featureChance=rand()%100;
 			if(featureChance/100<treeSeed.featureChance)
