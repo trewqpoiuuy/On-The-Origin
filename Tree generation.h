@@ -5,29 +5,31 @@
 using namespace std;
 float randFloat(float min, float max)
 {
+	//Returns a random floating point number between min and max
 	float r=min+(static_cast <float> (rand())/static_cast <float> (RAND_MAX/(max-min)));
 	return r;
 }
 int randInt(int min, int max)
 {
+	//Returns a random integer between min and max
 	int r=min+(rand()/(RAND_MAX/(max-min)));
 	return r;
 }
 struct branch
 {
-	int connection;
-	float xAngle;
-	float yAngle;
-	float length;
-	int feature;
-	vector<int> children;
+	int connection; //What the branch connects to
+	float xAngle; //
+	float yAngle; //Polar coordinates relative to connection
+	float length; //
+	int feature; //0=nothing, 1=flower, 2=fruit. More to come
+	vector<int> children; //Branches connected to this one
 };
 struct seed
 {
-	float branchDensity;
-	float angleVariance;
-	float featureChance;
-	int primaryColor[3];
-	int secondaryColor[3];
-	int tertiaryColor[3];
+	float branchDensity; //The higher the value, the lower branches attach 
+	float angleVariance; //Variation in angle
+	float featureChance; //likelihood of generating features
+	int primaryColor[3]; //Bark color
+	int secondaryColor[3]; //Leaf color
+	int tertiaryColor[3]; //Flower/fruit color
 };

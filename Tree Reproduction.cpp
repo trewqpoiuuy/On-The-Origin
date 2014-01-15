@@ -48,14 +48,14 @@ int main()
 	cout << "Tertiary: " << seed2.tertiaryColor[0] << " " << seed2.tertiaryColor[1] << " " << seed2.tertiaryColor[2] << endl;
 	cout << "Branch Density: " << seed2.branchDensity << " Angle Variance: " << seed2.angleVariance << " Feature Chance: "<< seed2.featureChance<<endl;
 	
-	cout << endl << "Using Averages:"  << endl;
+	cout << endl << "Using Averages:"  << endl; //This averages values from the 2 seeds to create a child
 	cout << "Primary: " << (seed1.primaryColor[0]+seed2.primaryColor[0])/2 << " " << (seed1.primaryColor[1]+seed2.primaryColor[1])/2  << " " << (seed1.primaryColor[2]+seed2.primaryColor[2])/2  << endl;
 	cout << "Secondary: " << (seed1.secondaryColor[0]+seed2.secondaryColor[0])/2  << " " << (seed1.secondaryColor[1]+seed2.secondaryColor[1])/2 << " " << (seed1.secondaryColor[2]+seed2.secondaryColor[2])/2 << endl;
 	cout << "Tertiary: " << (seed1.tertiaryColor[0]+seed2.tertiaryColor[0])/2 << " " << (seed1.tertiaryColor[1]+seed2.tertiaryColor[1])/2 << " " << (seed1.tertiaryColor[2]+seed2.tertiaryColor[2])/2 << endl;
 	cout << "Branch Density: " << (seed1.branchDensity+seed2.branchDensity)/2 << " Angle Variance: " << (seed1.angleVariance+seed2.angleVariance)/2 << " Feature Chance: "<< (seed1.featureChance+seed2.featureChance)/2<<endl;
 	
 	
-	cout << endl << "Choosing Parts:"  << endl;
+	cout << endl << "Choosing Parts:"  << endl; //This randomly selects values from one seed or the other to generate the child
 	for (int i = 0; i<12 ; i++)
 	{
 		if (randInt(0,2)==1)

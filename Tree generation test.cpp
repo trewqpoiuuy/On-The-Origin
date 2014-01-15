@@ -7,9 +7,12 @@ using namespace std;
 int main()
 {
 	srand(time(NULL));
-	int uselessThing=rand(); //first value of rand is the seed, so this gets rid of it
+	int uselessThing=rand(); //First value of rand is the seed, so this gets rid of it
 	seed treeSeed;
-	treeSeed.branchDensity=randFloat(0,2);
+	/*
+		~See Tree generation.h for the significance of these values~
+	*/
+	treeSeed.branchDensity=randFloat(0.5,2);
 	treeSeed.angleVariance=randFloat(10,30);
 	treeSeed.featureChance=randFloat(0,1);
 	treeSeed.primaryColor[0]=randInt(0,255);
@@ -26,10 +29,13 @@ int main()
 	cout << "Secondary: " << treeSeed.secondaryColor[0] << " " << treeSeed.secondaryColor[1] << " " << treeSeed.secondaryColor[2] << endl;
 	cout << "Tertiary: " << treeSeed.tertiaryColor[0] << " " << treeSeed.tertiaryColor[1] << " " << treeSeed.tertiaryColor[2] << endl;
 	cout << "Branch Density: " << treeSeed.branchDensity << " Angle Variance: " << treeSeed.angleVariance << " Feature Chance: "<< treeSeed.featureChance<<endl;
-	int sunlight=0;
-	int nutrients=0; //Will expand this later
+	int sunlight=0;   //
+	int water=0;      //
+	int phosphorus=0; //Resources
+	int nitrogen=0;   //
+	int potassium=0;  //
 	bool isAlive=1;
-	vector<branch> tree; 
+	vector<branch> tree; //Stores all the branches
 	branch trunk;
 	trunk.connection=0;
 	trunk.xAngle=randFloat(-treeSeed.angleVariance,treeSeed.angleVariance);
@@ -40,20 +46,32 @@ int main()
 	while(isAlive==1)
 	{
 		int sunlightAdded;
-		int nutrientsAdded;
+		int waterAdded;
+		int potassiumAdded;
+		int phosphorusAdded;
+		int nitrogenAdded;
 		cout << "sunlight this turn?" << endl;
 		cin >> sunlightAdded;
 		sunlight=sunlight+sunlightAdded;
-		cout << "nutrients this turn?" << endl;
-		cin >> nutrientsAdded;
-		nutrients=nutrients+nutrientsAdded;
-		while(sunlight>=10 && nutrients>=20)
+		cout << "water this turn?" << endl;
+		cin >> waterAdded;
+		water=water+waterAdded;
+		cout << "potassium this turn?" << endl;				//Prompts are temporary, will be replaced by game engine commands
+		cin >> potassiumAdded;
+		potassium=potassium+potassiumAdded;
+		cout << "phosphorus this turn?" << endl;
+		cin >> phosphorusAdded;
+		phosphorus=phosphorus+phosphorusAdded;
+		cout << "nitrogen this turn?" << endl;
+		cin >> nitrogenAdded;
+		nitrogen=nitrogen+nitrogenAdded;
+		while(sunlight>=10 && water>=20 && nitrogen>=15 && potassium>=30 && phosphorus>=25)
 		{
 			branch newBranch;
-			int branchWeighting=randInt(0,tree.size())*treeSeed.branchDensity;
+			int branchWeighting=randInt(0,tree.size())*treeSeed.branchDensity; //Weights connection points
 			if(branchWeighting>=tree.size())
 			{
-				branchWeighting=tree.size()-1;
+				branchWeighting=tree.size()-1; //Makes sure branches only connect to existing branches
 			}
 			newBranch.connection=(tree.size()-branchWeighting);
 			tree.at(newBranch.connection-1).children.push_back(tree.size()+1);
@@ -68,9 +86,12 @@ int main()
 			}
 			tree.push_back(newBranch);
 			sunlight=sunlight-newBranch.length/2;
-			nutrients=nutrients-newBranch.length;
+			water=water-newBranch.length;
+			nitrogen=nitrogen-newBranch.length/1.5; //Resource usage based solely on length for now. This will likely change.
+			potassium=potassium-newBranch.length*1.5;
+			phosphorus=phosphorus-newBranch.length*1.25;
 		}
-		for(int f=0;f<tree.size();f++)
+		for(int f=0;f<tree.size();f++) //prints out tree data
 		{
 			cout << "Branch #"  << f+1 << ": " ;
 			cout << "Connection Point: " << tree.at(f).connection << " ";
@@ -85,6 +106,6 @@ int main()
 			}
 			cout << endl;
 		}
-	cout << "Sunlight: " << sunlight << " Nutrients: " << nutrients << endl;
+	cout << "Sunlight: " << sunlight << " Water: " << water << " Phosphorus: " << phosphorus << " Potassium: " << potassium << " Nitrogen: " << nitrogen << endl;
 	}
 }
