@@ -1,0 +1,19 @@
+Weather pseudo code
+Need to add or adapt chlorophyll into nitrogen, potassium, phosphorus,
+Sunny: generates more N, K, and Ph which makes the plant grow, decreases water
+Cloudy: neutral, does not give or take water or pseudophill
+Rainy: generates more water, decreases pseudophill 
+
+
+PLANT RESOURCE METER: 1- max possible amount(rand interger)
+-	To little resources plant dies 
+-	Low resources, plant grows slower 
+-	Medium resources, plant grows at normal rate 
+-	High resources, plant grows faster 
+-	To much resources plant dies  
+
+[ to little| low| medium| high| to much]  
+
+Random plant generator starts plants with a random medium level of resources
+Plants with more even levels will thrive more
+Plants that require tons of water and little sunlight will be harder to keep alive
