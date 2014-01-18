@@ -1,0 +1,58 @@
+/*
+ * entity.cpp
+ *
+ *  Created on: Dec 14, 2013
+ *      Author: theron
+ */
+#define _USE_MATH_DEFINES
+#include "math.h"
+/*
+class entity {
+	float x, y, z;
+	float xr, yr, zr;
+	float xup, yup, zup;
+public:
+	entity();
+	void bufferVertexData(int* p) {
+
+	}
+	void normalizeVectors() {
+		float mr=sqrt(xr*xr+yr*yr+zr*zr);
+		xr/=mr;
+		yr/=mr;
+		zr/=mr;
+		float mup=sqrt(xup*xup+yup*yup+zup*zup);
+		xup/=mup;
+		yup/=mup;
+		zup/=mup;
+	}
+	void displayOrigin() {
+		glPushMatrix();
+		glTranslatef(x,y,z);
+		glutSolidSphere(2, 8, 8);
+	}
+	void translate(float xof, float yof, float zof) {
+		x+=xof;
+		y+=yof;
+		z+=zof;
+	}
+	void moveself(float f, float l, float v) { // Forward, Lateral, Vertical
+		x+=f*xr+v*yr+l*zr;
+		y+=f*yr+v*zr+l*xr;
+		z+=f*zr+v*xr+l*yr;
+	}
+};
+
+void entity::entity(float a_x,float a_y,float a_z,float a_xr,float a_yr,float a_zr,float a_xup,float a_yup,float a_zup) {
+	x=a_x;
+	y=a_y;
+	z=a_z;
+	xr=a_xr;
+	yr=a_yr;
+	zr=a_zr;
+	xup=a_xup;
+	yup=a_yup;
+	zup=a_zup;
+	normalizeVectors();
+}
+*/
