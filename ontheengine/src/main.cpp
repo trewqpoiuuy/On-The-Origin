@@ -7,8 +7,6 @@
 
 // Testing, 2014-10-17 10:12
 
-// Following http://lazyfoo.net/SDL_tutorials/lesson36/
-
 const double PI=3.14159265358979323846;
 
 #include <stdlib.h>
@@ -41,7 +39,7 @@ int w_height;
 //float w_aspect;
 
 bool fullscreen=false;
-bool render360mode=false;  // Whether to render in panorama mode
+bool render360mode=false;  // Whether to render in panorama mode (experimental, also redundant to GL's cubemap functionality)
 bool riftmode=false;
 float eyespread=1;
 int r360_p_width=460;      // View texture resolution
@@ -105,13 +103,11 @@ void setupGL() {
 
 void setupSDL() {
 	SDL_Init( SDL_INIT_EVERYTHING );
-	//SDL_SetVideoMode(w_width, w_height, 0, SDL_OPENGL);     // SDL1.2
-	//SDL_WM_SetCaption("On The Origin Game Client", "Origin");
 	int mode = SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE;
 	if (fullscreen) {
-		mode = (mode | SDL_WINDOW_FULLSCREEN_DESKTOP);
+		mode = (mode | SDL_WINDOW_FULLSCREEN_DESKTOP); // TODO: Make this toggleable during program run
 	}
-	sdlWindow = SDL_CreateWindow("OnTheOrigin VoxelTest", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w_width, w_height, mode);
+	sdlWindow = SDL_CreateWindow("On The Origin - Game Client", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, w_width, w_height, mode);
 	sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	glContext = SDL_GL_CreateContext(sdlWindow);
 }
@@ -122,20 +118,13 @@ void setupGraphics() {
 }
 
 void updateMouseMode() {
-    if (capturemouse) {
-    	SDL_SetRelativeMouseMode(SDL_TRUE);
-    	//SDL_WM_GrabInput( SDL_GRAB_ON );
-    }
-    else {
-    	SDL_SetRelativeMouseMode(SDL_FALSE);
-    	//SDL_WM_GrabInput( SDL_GRAB_OFF );
-    }
+    if (capturemouse) { SDL_SetRelativeMouseMode(SDL_TRUE); }
+    else { SDL_SetRelativeMouseMode(SDL_FALSE); }
 }
 
 SDL_Event event;
 void update() {
-
-    while (SDL_PollEvent(&event))
+    while (SDL_PollEvent(&event)) // Loop until all events are handled
     {
         switch (event.type) {
         case (SDL_QUIT):
@@ -144,9 +133,8 @@ void update() {
         case (SDL_KEYDOWN):
 			//Uint8 *keystate = SDL_GetKeyState(NULL);    // SDL 1.2
 			//keystate = SDL_GetKeyboardState(NULL);
-			switch (event.key.keysym.sym) {
+			switch (event.key.keysym.sym) { // Key SCANcode
 			case (SDLK_ESCAPE):
-				//run=false;
 		        capturemouse=!capturemouse;
 				updateMouseMode();
 		        break;
@@ -329,10 +317,8 @@ void renderscene() {
 }
 
 void display() {
-
-	// An actual example of proper VBOs http://stackoverflow.com/a/7947134
-
-	if (render360mode) {
+	// An actual example of proper working VBOs http://stackoverflow.com/a/7947134
+	if (render360mode) { // Set up and render 6 different views plus normal view
 		int w=r360_p_width;
 		int s=r360_p_width+r360_p_spacing;
 		float glnear=1;
@@ -420,7 +406,7 @@ void display() {
 
 		SDL_GL_SwapWindow(sdlWindow);
 	}
-	else if (riftmode) {
+	else if (riftmode) { // Split-eye.  Not rift compatible!
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0, 0, w_width/2, w_height); // Left
 		glMatrixMode(GL_PROJECTION);
@@ -454,14 +440,13 @@ void display() {
 		SDL_GL_SwapWindow(sdlWindow);
 
 	}
-	else {
+	else { // Normal fullscreen viewport
 		glViewport(0, 0, w_width, w_height);
 		glClearColor(.0, .0, .0, .0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		//glOrtho(-1., 1., -1., 1., 1., 200.);
 		gluPerspective(60,(float)w_width/(float)w_height,1.,512.);
 
 		glMatrixMode(GL_MODELVIEW);
@@ -473,14 +458,14 @@ void display() {
 		gluLookAt(camera_x, camera_y, camera_z,
 				 -sin(camera_yaw)*cos(camera_pitch)+camera_x, sin(camera_pitch)+camera_y, cos(camera_yaw)*cos(camera_pitch)+camera_z,
 				 0., 1., 0.);
+		// TODO: Consider changing the above gluLookAt to be similar to that used for riftmode -
+		//   Will make using GL to render a HUD or GUI much easier!  (Eye-space coordinates before transforms)
 
-		renderscene();
+		renderscene(); // Draw OpenGL polygons
 
 		//SDL_GL_SwapBuffers();    // SDL 1.2
 		SDL_GL_SwapWindow(sdlWindow);
-		//SDL_Delay(10);
-		//glFinish();
-		//camera_z-=0.1;
+		// We seriously need a framerate regulator of some sort.  Render loop seems to run at unlimited speed (no VSync)
 	}
 }
 
@@ -493,7 +478,7 @@ int main(int argc, char *argv[]) {
 	else {
 		//int w_width=1920;
 		//int w_height=1080;
-		w_width=800;
+		w_width=800;    // Default (starting) window size
 		w_height=600;
 		//w_aspect=(float)w_width/(float)w_height;
 	}
@@ -579,7 +564,6 @@ int main(int argc, char *argv[]) {
 
 	//plant_test.addnode(plant_test.root,0,0,0);
 
-	printf("GL_MAX_VIEWPORTS %d\n",GL_MAX_VIEWPORTS);
 	run=true;
 	updateMouseMode();
 	while (run) {
