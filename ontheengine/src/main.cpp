@@ -5,6 +5,8 @@
  *      Author: theron
  */
 
+// Testing, 2014-10-17 10:12
+
 // Following http://lazyfoo.net/SDL_tutorials/lesson36/
 
 const double PI=3.14159265358979323846;
