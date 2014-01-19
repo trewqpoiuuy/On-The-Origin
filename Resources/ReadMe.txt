@@ -1,11 +1,144 @@
-I included 2 things here:
-1. The straight .cpp file that I have been working in.
-2. The eclipse project (the folder) that the .cpp file came from.
-I doubt that any of you will find use for the eclipse project in it's entirity.
+I included 4 things here:
 
-The purpose of each function is explained in the form of comments.
-
-My next goal at the time of my writing this is to turn this into a library. 
+	1. The .cpp file that I have been working in, which contains all of the test code to make sure that the header file works as intentioned.
+	2. The header file, which contains all of my functions, and the definition for the resource structure.
+	3. A compiled executable for both the header and cpp file. 
+	4. The eclipse project (the folder) that the .cpp and .h files came from.
+	I doubt that any of you will find use for the eclipse project in it's entirity.
 
 Bugs:
-For some reason, this program (when executed) returns the same values every time, despite using (supposedly) random coordinates and strings.
+	For some reason, this program (when executed) returns the same values every time, despite using (supposedly) random coordinates and strings. SOLVED: the seed for rand() was never changed anywhere in the code. 
+
+	The Eclipse IDE will not recognize the header file, so nothing that references it via "#include" or "using namespace" can be compiled through Eclipse. If you encounter this error, try using a different IDE to compile, or 		simply compile through the command line.
+
+Requirements Documentation for Header File:
+	
+	Structs:
+		ResourceStruct: takes 4 ints (base, mod, baseT, modT), has no pre-initialized objects. 
+
+	Function Format:
+{
+
+		name_of_function(type argument_1, ... , type argument_n)
+		-
+		argument 1: explanation of argument 1
+		...
+		argument n: explanation of argument n
+		-
+		"Output": return_type, explanation of returned value with respect to arguments.
+		-
+		"Note":additional notes, if any
+_______________________
+}
+	Functions:
+
+		CreateResource(ResourceStruct TypeName, int Base, int Mod, int BaseT, int ModT)
+		-
+		TypeName: the resource that you want to populate (e.g. water).
+		Base: this is the minimum possible value for the resource allocated to subsoil. Anything from 0 to Mod-1 can be added to this value to produce the actual value for the resource.
+		Mod: The integer value by which the actual subsoil resource (as determined by TypeName) can deviate from Base in the positive direction. For example, if the base value assigned to the ResourceStruct "water" is 50, and the Mod value for water is also 50, the range of possible values for water in subsoil is 50+(0 to 49) = 50 to 99.
+		BaseT = same as Base, but for soil designated as topsoil.
+		ModT = same as Mod, but for soil designated as topsoil.
+		-
+		Output: ResourceStruct, contains each of the designated int values for the desired object, such that Base = TypeName.base, and etc.
+		-
+		Note: Base and BaseT must, as of the present version, exceed 10 in order for the function to work properly. Furthermore, Base+Mod and BaseT+ModT must be less than 100.
+_______________________
+
+		PopVector(bool Topsoil, ResourceStruct water, ResourceStruct nitrogen, ResourceStruct phosphorus, ResourceStruct potassium)
+		-
+		Topsoil: this determines whether or not the function should return a string for topsoil. If this is set to true, the return will be for topsoil.
+		water: this is the ResourceStruct for water.
+		nitrogen: this is the ResourceStruct for nitrogen.
+		phosphorus: this is the ResourceStruct for phosphorus.
+		potassium: this is the ResourceStruct for potassium.
+		-
+		Output: string, contains a 2 digit value for each resource, in sequence. These values have been randomized within the restraints imposed by <resource>.base, <resource>.baseT, <resource>.mod, and <resource>.modT values.
+		-
+		Note: this function will change the seed used by rand() each time it is run.
+_______________________
+
+		WaterGrab(int x, int y, int z, int width, int length, int depth, vector<string> ResourceVector)
+		-
+		x: the x (0-length) coordinate of the space for the resource you want to return.
+		y: the y (0-width) coordinate of the space for the resource you want to return.
+		z: the z (0-depth) coordinate of the space for the resource you want to return.
+		width: the width value of the vector containing the resource you want to return.
+		length: the length value of the vector containing the resource you want to return.
+		depth: the depth value of the vector containing the resource you want to return.
+		ResourceVector: the vector containing the resource you want to return.
+		-
+		Output: int, the value of the water resource at the specified coordinates in the specified vector.
+_______________________
+
+		NitrogenGrab(int x, int y, int z, int width, int length, int depth, vector<string> ResourceVector)
+		-
+		x: the x (0-length) coordinate of the space for the resource you want to return.
+		y: the y (0-width) coordinate of the space for the resource you want to return.
+		z: the z (0-depth) coordinate of the space for the resource you want to return.
+		width: the width value of the vector containing the resource you want to return.
+		length: the length value of the vector containing the resource you want to return.
+		depth: the depth value of the vector containing the resource you want to return.
+		ResourceVector: the vector containing the resource you want to return.
+		-
+		Output: int, the value of the nitrogen resource at the specified coordinates in the specified vector.
+_______________________
+
+		PhosphorusGrab(int x, int y, int z, int width, int length, int depth, vector<string> ResourceVector)
+		-
+		x: the x (0-length) coordinate of the space for the resource you want to return.
+		y: the y (0-width) coordinate of the space for the resource you want to return.
+		z: the z (0-depth) coordinate of the space for the resource you want to return.
+		width: the width value of the vector containing the resource you want to return.
+		length: the length value of the vector containing the resource you want to return.
+		depth: the depth value of the vector containing the resource you want to return.
+		ResourceVector: the vector containing the resource you want to return.
+		-
+		Output: int, the value of the phosphorus resource at the specified coordinates in the specified vector.
+_______________________
+
+		PotassiumGrab(int x, int y, int z, int width, int length, int depth, vector<string> ResourceVector)
+		-
+		x: the x (0-length) coordinate of the space for the resource you want to return.
+		y: the y (0-width) coordinate of the space for the resource you want to return.
+		z: the z (0-depth) coordinate of the space for the resource you want to return.
+		width: the width value of the vector containing the resource you want to return.
+		length: the length value of the vector containing the resource you want to return.
+		depth: the depth value of the vector containing the resource you want to return.
+		ResourceVector: the vector containing the resource you want to return.
+		-
+		Output: int, the value of the potassium resource at the specified coordinates in the specified vector.
+_______________________
+		
+		ResourceGrab(int x, int y, int z, int width, int length, int depth, vector<string> ResourceVector)
+		-
+		x: the x (0-length) coordinate of the space in the vector whose contents you want to return.
+		y: the y (0-width) coordinate of the space in the vector whose contents you want to return.
+		z: the z (0-depth) coordinate of the space in the vector whose contents you want to return.
+		width: the width value of the vector whose contents you want to return.
+		length: the length value of the vector whose contents you want to return.
+		depth: the depth value of the vector whose contents you want to return.
+		ResourceVector: the vector whose contents you want to return at coordinates x, y, and z.	
+		-
+		Output: string, the contents of ResourceVector at the specified coordinates.
+_______________________
+
+		ResourceChange(int x, int y, int z, int width, int length, int depth, vector<string> ResourceVector, string resource, int change)
+		-
+		x: the x (0-length) coordinate of the space in the vector whose contents you want to change.
+		y: the y (0-width) coordinate of the space in the vector whose contents you want to change.
+		z: the z (0-depth) coordinate of the space in the vector whose contents you want to change.
+		width: the width value of the vector whose contents you want to change.
+		length: the length value of the vector whose contents you want to change.
+		depth: the depth value of the vector whose contents you want to change.
+		ResourceVector: the vector whose contents you want to change at coordinates x, y, and z.
+		resource: the resource that you want to change; currently supports "water", "nitrogen", "phosphorus" and "potassium".
+		change: the amount that you want to change the value of the resource by. Negative values will subtract, positive values will add.
+		-
+		Output: int, the amount that was subtracted from the resource. Added values will come out negative.
+		-
+		Note: this function CANNOT reduce the value of a resource to <0, or increase it to >99. 
+		If a change would bring the value out of the 0-99 range, the function sets the value to 0 or 99, and returns the amount of change that actually occured to get it there.
+		When a value drops below 10 (thus removing a digit), the function inserts a 0 before the value to retain the integrity of the formatting. 
+		This does not impede the ability of other functions to read the modified value, but any other functions that edit any of the strings in the vector must also do the same thing. 
+_______________________

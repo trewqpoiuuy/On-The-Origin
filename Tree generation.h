@@ -34,3 +34,17 @@ struct seed
 	int secondaryColor[3]; //Leaf color
 	int tertiaryColor[3]; //Flower/fruit color
 };
+struct tree
+{
+	int sunlight;   //
+	int water;      //
+	int phosphorus; //Resources
+	int nitrogen;   //
+	int potassium;  //
+	int x;
+	int y;
+	int z;
+	bool isAlive;
+	vector<branch> branches;
+	seed treeSeed;
+};
