@@ -18,25 +18,20 @@ Requirements Documentation for Header File:
 
 	Function Format:
 {
-		Brief overview of function and purpose
-		-
+
 		name_of_function(type argument_1, ... , type argument_n)
 		-
 		argument 1: explanation of argument 1
 		...
 		argument n: explanation of argument n
 		-
-		return_type: explanation of returned value with respect to arguments.
+		"Output": return_type, explanation of returned value with respect to arguments.
 		-
-		example of function in use
-		-
-		additional notes, if any
+		"Note":additional notes, if any
 _______________________
 }
 	Functions:
 
-		Fills ResourceStructs water, nitrogen, phosphorus and potassium with variables (which must be defined before this function is executed)
-		-
 		CreateResource(ResourceStruct TypeName, int Base, int Mod, int BaseT, int ModT)
 		-
 		TypeName: the resource that you want to populate (e.g. water).
@@ -45,15 +40,11 @@ _______________________
 		BaseT = same as Base, but for soil designated as topsoil.
 		ModT = same as Mod, but for soil designated as topsoil.
 		-
-		ResourceStruct: contains each of the designated int values for the desired object, such that Base = TypeName.base, and etc.
+		Output: ResourceStruct, contains each of the designated int values for the desired object, such that Base = TypeName.base, and etc.
 		-
-		ResourceStruct water = CreateResource(water, 40, 10, 50, 5);
-		-
-		NOTE: Base and BaseT must, as of the present version exceed 10 in order for the function to work properly. Furthermore, Base+Mod and BaseT+ModT must be equal to or less than 100.
+		Note: Base and BaseT must, as of the present version, exceed 10 in order for the function to work properly. Furthermore, Base+Mod and BaseT+ModT must be less than 100.
 _______________________
 
-		Returns a string based on the given base and mod values for each resource.
-		-
 		PopVector(bool Topsoil, ResourceStruct water, ResourceStruct nitrogen, ResourceStruct phosphorus, ResourceStruct potassium)
 		-
 		Topsoil: this determines whether or not the function should return a string for topsoil. If this is set to true, the return will be for topsoil.
@@ -62,31 +53,11 @@ _______________________
 		phosphorus: this is the ResourceStruct for phosphorus.
 		potassium: this is the ResourceStruct for potassium.
 		-
-		string: contains a 2 digit value for each resource, in sequence. These values have been randomized within the restraints imposed by <resource>.base, <resource>.baseT, <resource>.mod, and <resource>.modT values. 
+		Output: string, contains a 2 digit value for each resource, in sequence. These values have been randomized within the restraints imposed by <resource>.base, <resource>.baseT, <resource>.mod, and <resource>.modT values.
 		-
-		int depth = 10;
-		int length = 100;
-		int width = 100;
-		int TopsoilDepth = 3;
-
-		vector<string> ResourceVector;
-		ResourceVector.resize(depth*width*length);
-		for (int x=0; x<length; x++)
-			for (int y=0; y<width; y++)
-				for (int z=0; z<depth; z++)
-				{
-				if (z>TopsoilDepth)
-				ResourceVector[z+(y*depth)+(x*width*depth)] = PopVector(false, water, nitrogen, phosphorus, potassium);
-
-				else
-				ResourceVector[z+(y*depth)+(x*width*depth)] = PopVector(true, water, nitrogen, phosphorus, potassium);
-				}
-		-
-		this function will change the seed used by rand() each time it is run.
+		Note: this function will change the seed used by rand() each time it is run.
 _______________________
 
-		Returns the int value for the water resource at a given position
-		-
 		WaterGrab(int x, int y, int z, int width, int length, int depth, vector<string> ResourceVector)
 		-
 		x: the x (0-length) coordinate of the space for the resource you want to return.
@@ -97,13 +68,9 @@ _______________________
 		depth: the depth value of the vector containing the resource you want to return.
 		ResourceVector: the vector containing the resource you want to return.
 		-
-		int: the value of the water resource at the specified coordinates in the specified vector.
-		-
-		cout << WaterGrab(0, 0, 0, 100, 100, 10, ResourceVector);
+		Output: int, the value of the water resource at the specified coordinates in the specified vector.
 _______________________
 
-		Returns the int value for the nitrogen resource at a given position
-		-
 		NitrogenGrab(int x, int y, int z, int width, int length, int depth, vector<string> ResourceVector)
 		-
 		x: the x (0-length) coordinate of the space for the resource you want to return.
@@ -114,13 +81,9 @@ _______________________
 		depth: the depth value of the vector containing the resource you want to return.
 		ResourceVector: the vector containing the resource you want to return.
 		-
-		int: the value of the nitrogen resource at the specified coordinates in the specified vector.
-		-
-		cout << NitrogenGrab(0, 0, 0, 100, 100, 10, ResourceVector);
+		Output: int, the value of the nitrogen resource at the specified coordinates in the specified vector.
 _______________________
 
-		Returns the int value for the phosphorus resource at a given position
-		-
 		PhosphorusGrab(int x, int y, int z, int width, int length, int depth, vector<string> ResourceVector)
 		-
 		x: the x (0-length) coordinate of the space for the resource you want to return.
@@ -131,13 +94,9 @@ _______________________
 		depth: the depth value of the vector containing the resource you want to return.
 		ResourceVector: the vector containing the resource you want to return.
 		-
-		int: the value of the phosphorus resource at the specified coordinates in the specified vector.
-		-
-		cout << PhosphorusGrab(0, 0, 0, 100, 100, 10, ResourceVector);
+		Output: int, the value of the phosphorus resource at the specified coordinates in the specified vector.
 _______________________
 
-		Returns the int value for the potassium resource at a given position
-		-
 		PotassiumGrab(int x, int y, int z, int width, int length, int depth, vector<string> ResourceVector)
 		-
 		x: the x (0-length) coordinate of the space for the resource you want to return.
@@ -148,13 +107,9 @@ _______________________
 		depth: the depth value of the vector containing the resource you want to return.
 		ResourceVector: the vector containing the resource you want to return.
 		-
-		int: the value of the potassium resource at the specified coordinates in the specified vector.
-		-
-		cout << PotassiumGrab(0, 0, 0, 100, 100, 10, ResourceVector);
+		Output: int, the value of the potassium resource at the specified coordinates in the specified vector.
 _______________________
 		
-		Returns the contents of the vector at the designated coordinated
-		-
 		ResourceGrab(int x, int y, int z, int width, int length, int depth, vector<string> ResourceVector)
 		-
 		x: the x (0-length) coordinate of the space in the vector whose contents you want to return.
@@ -163,9 +118,27 @@ _______________________
 		width: the width value of the vector whose contents you want to return.
 		length: the length value of the vector whose contents you want to return.
 		depth: the depth value of the vector whose contents you want to return.
-		ResourceVector: the vector whose contents you want to return at coordinates x, y, and z	.	
+		ResourceVector: the vector whose contents you want to return at coordinates x, y, and z.	
 		-
-		string: the contents of ResourceVector at the specified coordinates.
+		Output: string, the contents of ResourceVector at the specified coordinates.
+_______________________
+
+		ResourceChange(int x, int y, int z, int width, int length, int depth, vector<string> ResourceVector, string resource, int change)
 		-
-		cout << ResourceGrab(0, 0, 0, 100, 100, 10, ResourceVector);
+		x: the x (0-length) coordinate of the space in the vector whose contents you want to change.
+		y: the y (0-width) coordinate of the space in the vector whose contents you want to change.
+		z: the z (0-depth) coordinate of the space in the vector whose contents you want to change.
+		width: the width value of the vector whose contents you want to change.
+		length: the length value of the vector whose contents you want to change.
+		depth: the depth value of the vector whose contents you want to change.
+		ResourceVector: the vector whose contents you want to change at coordinates x, y, and z.
+		resource: the resource that you want to change; currently supports "water", "nitrogen", "phosphorus" and "potassium".
+		change: the amount that you want to change the value of the resource by. Negative values will subtract, positive values will add.
+		-
+		Output: int, the amount that was subtracted from the resource. Added values will come out negative.
+		-
+		Note: this function CANNOT reduce the value of a resource to <0, or increase it to >99. 
+		If a change would bring the value out of the 0-99 range, the function sets the value to 0 or 99, and returns the amount of change that actually occured to get it there.
+		When a value drops below 10 (thus removing a digit), the function inserts a 0 before the value to retain the integrity of the formatting. 
+		This does not impede the ability of other functions to read the modified value, but any other functions that edit any of the strings in the vector must also do the same thing. 
 _______________________

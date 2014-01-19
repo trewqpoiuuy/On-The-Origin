@@ -25,9 +25,9 @@ int main()
 
 	//creates resources
 	ResourceStruct water = CreateResource(water, 40, 10, 50, 5);
-	ResourceStruct nitrogen = CreateResource(nitrogen, 30, 10, 50, 5);
-	ResourceStruct phosphorus = CreateResource(phosphorus, 20, 10, 50, 5);
-	ResourceStruct potassium = CreateResource(potassium, 10, 10, 50, 5);
+	ResourceStruct nitrogen = CreateResource(nitrogen, 40, 10, 50, 5);
+	ResourceStruct phosphorus = CreateResource(phosphorus, 40, 10, 50, 5);
+	ResourceStruct potassium = CreateResource(potassium, 40, 10, 50, 5);
 
 	//creates the vector for storing variable
 	vector<string> ResourceVector;
@@ -51,19 +51,79 @@ int main()
 	int ytest = rand () % width;
 	int ztest = rand () % depth;
 
+	//generates a random number to subtract from each resource.
+	//int change = 0-((rand () %5)+1);
+	int change = -5;
+
+	//initializes ints for keeping track of the amount by which each resource is reduced
+
 	//couts for testing purposes, uses random xyz coordinates (see above) to return the contents of the vector at that point
 	cout << "x: " << xtest << "| y: " << ytest << "| z: " << ztest << "\n";
 	cout << ResourceGrab(xtest, ytest, ztest, width, length, depth, ResourceVector);
 	cout << "\nWater: ";
-	cout << WaterGrab(xtest, ytest, ztest, width, length, depth, ResourceVector);
+	int waterremaining = WaterGrab(xtest, ytest, ztest, width, length, depth, ResourceVector);
+	cout << waterremaining;
 	cout << "\nNitrogen: ";
-	cout << NitrogenGrab(xtest, ytest, ztest, width, length, depth, ResourceVector);
+	int nitrogenremaining = NitrogenGrab(xtest, ytest, ztest, width, length, depth, ResourceVector);
+	cout << nitrogenremaining;
 	cout << "\nPhosphorus: ";
-	cout << PhosphorusGrab(xtest, ytest, ztest, width, length, depth, ResourceVector);
+	int phosphorusremaining = PhosphorusGrab(xtest, ytest, ztest, width, length, depth, ResourceVector);
+	cout << phosphorusremaining;
 	cout << "\nPotassium: ";
-	cout << PotassiumGrab(xtest, ytest, ztest, width, length, depth, ResourceVector);
-	cout << "\nCapacity: ";
-	cout << ResourceVector.capacity();
+	int potassiumremaining = PotassiumGrab(xtest, ytest, ztest, width, length, depth, ResourceVector);
+	cout << potassiumremaining;
+	cout << "\nchange: " << change;
+
+	//initializes ints for keeping track of the amount by which each resource is reduced
+	int waterremoved = 0;
+	int nitrogenremoved = 0;
+	int phosphorusremoved = 0;
+	int potassiumremoved = 0;
+
+	//cycles through ResourceChange for remainingwater until there is no more water left.
+	while (waterremaining!=0)
+	{
+		cout << "\nwater removed: " << waterremoved;
+		cout << "\nwater remaining: " << waterremaining;
+		waterremoved += ResourceChange(xtest, ytest, ztest, width, length, depth, ResourceVector, "water", change);
+		waterremaining = WaterGrab(xtest, ytest, ztest, width, length, depth, ResourceVector);
+	}
+	cout << "\nfinal water removed: " << waterremoved;
+	cout << "\nfinal water remaining: " << waterremaining;
+
+	//same as above, but for nitrogen
+	while (nitrogenremaining!=0)
+	{
+		cout << "\nnitrogen removed: " << nitrogenremoved;
+		cout << "\nnitrogen remaining: " << nitrogenremaining;
+		nitrogenremoved += ResourceChange(xtest, ytest, ztest, width, length, depth, ResourceVector, "nitrogen", change);
+		nitrogenremaining = NitrogenGrab(xtest, ytest, ztest, width, length, depth, ResourceVector);
+	}
+	cout << "\nfinal nitrogen removed: " << nitrogenremoved;
+	cout << "\nfinal nitrogen remaining: " << nitrogenremaining;
+
+	//same as above, but for phosphorus
+	while (phosphorusremaining!=0)
+	{
+		cout << "\nphosphorus removed: " << phosphorusremoved;
+		cout << "\nphosphorus remaining: " << phosphorusremaining;
+		phosphorusremoved += ResourceChange(xtest, ytest, ztest, width, length, depth, ResourceVector, "phosphorus", change);
+		phosphorusremaining = PhosphorusGrab(xtest, ytest, ztest, width, length, depth, ResourceVector);
+	}
+	cout << "\nfinal phosphorus removed: " << phosphorusremoved;
+	cout << "\nfinal phosphorus remaining: " << phosphorusremaining;
+
+	//same as above, but for potassium
+	while (potassiumremaining!=0)
+	{
+		cout << "\npotassium removed: " << potassiumremoved;
+		cout << "\npotassium remaining: " << potassiumremaining;
+		potassiumremoved += ResourceChange(xtest, ytest, ztest, width, length, depth, ResourceVector, "potassium", change);
+		potassiumremaining = PotassiumGrab(xtest, ytest, ztest, width, length, depth, ResourceVector);
+	}
+	cout << "\nfinal potassium removed: " << potassiumremoved;
+	cout << "\nfinal potassium remaining: " << potassiumremaining;
+
 	system("pause>null");
 }
 
