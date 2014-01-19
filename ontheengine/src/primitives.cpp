@@ -8,6 +8,10 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <vector>
+//#define _USE_MATH_DEFINES  // Screw it.  Just define by hand...
+const double M_PI=3.14159265358979323846;
+//const double M_PI_2=6.28318530717958647692;
+const double M_PI_2=1.5707963267948966;
 #include <cmath>
 
 void drawSphere(float x, float y, float z, float radius, unsigned int rings, unsigned int sectors) {   // Function adapted from http://stackoverflow.com/a/5989676
