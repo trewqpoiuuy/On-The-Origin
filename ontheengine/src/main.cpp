@@ -13,7 +13,7 @@
 #include <math.h>
 #include "Engine.h"
 #include "primitives.h"
-#include "voxelobject.h"
+#include "VoxelObject.h"
 
 const double PI=3.14159265358979323846;
 
@@ -22,7 +22,7 @@ Engine::Camera_settings camera;
 
 bool showterrain=true;
 
-VoxelObject voxel_test(256);
+VoxelObject voxel_test(512);
 void renderscene() {
     //                                          Test Lights
 	//float light0pos[4] = {25,50,0,0};
@@ -71,8 +71,9 @@ void carvevoxels1() {
 	float cave_r=512/2-50;
 
 	//voxel_test.voxelSphere(cave_c_x,cave_c_y,cave_c_z,cave_r+30,1);
-	voxel_test.voxelSphere(cave_c_x,cave_c_y,cave_c_z,cave_r-0,0);
-	for (int i=0; i<1000*2; i++) {
+	//voxel_test.voxelSphere(cave_c_x,cave_c_y,cave_c_z,cave_r-0,0);
+	voxel_test.voxelSphere(cave_c_x,cave_c_y,cave_c_z,cave_r,0);
+	for (int i=0; i<1000*4; i++) {
 		float a=((float)(rand()%10000))*PI*2/10000;
 		float b=((float)(rand()%10000))*PI*2/10000-PI;
 		voxel_test.voxelSphere(cave_c_x+cave_r*cos(a)*cos(b),cave_c_y+cave_r*sin(b),cave_c_z+cave_r*sin(a)*cos(b),rand()%20,0);
@@ -90,6 +91,7 @@ int main(int argc, char *argv[]) {
 	Engine::setDrawFunc(&renderscene);
 	engine.run = true;
 	while (engine.run) {
+		Engine::updateMouseMode();
 		Engine::update();
 		Engine::display();
 	}
