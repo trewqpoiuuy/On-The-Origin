@@ -27,6 +27,7 @@ struct ResourceStruct {
 	int modT;
 };
 
+
 //Fills ResourceStructs water, nitrogen, phosphorus and potassium with variables (which must be defined before this function is executed)
 ResourceStruct CreateResource(ResourceStruct TypeName, int Base, int Mod, int BaseT, int ModT)
 	{
@@ -231,5 +232,30 @@ int ResourceChange(int x, int y, int z, int width, int length, int depth, vector
 	//returns the value by which the desired resource was REDUCED
 	return returnvalue;
 }
+vector<string> initializeResources(int depth, int length, int width, int TopsoilDepth)
+{
+	ResourceStruct water = CreateResource(water, 40, 10, 50, 5);
+	ResourceStruct nitrogen = CreateResource(nitrogen, 40, 10, 50, 5);
+	ResourceStruct phosphorus = CreateResource(phosphorus, 40, 10, 50, 5);
+	ResourceStruct potassium = CreateResource(potassium, 40, 10, 50, 5);
+
+	//creates the vector for storing variable
+	vector<string> ResourceVector;
+	ResourceVector.resize(depth*width*length);
+
+	//calls the PopVector function sequentially
+	for (int x=0; x<length; x++)
+		for (int y=0; y<width; y++)
+			for (int z=0; z<depth; z++)
+			{
+				if (z>TopsoilDepth)
+				ResourceVector[z+(y*depth)+(x*width*depth)] = PopVector(false, water, nitrogen, phosphorus, potassium);
+
+				else
+				ResourceVector[z+(y*depth)+(x*width*depth)] = PopVector(true, water, nitrogen, phosphorus, potassium);
+			}
+	return ResourceVector;
+}
 };
+
 #endif /* VECTORLIB_H_ */

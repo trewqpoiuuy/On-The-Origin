@@ -10,7 +10,7 @@
 #include <sstream>
 #include <vector>
 #include <stdlib.h>
-#include <VectorLib.h>
+#include "VectorLib.h"
 
 using namespace std;
 using namespace veclib;
@@ -22,29 +22,7 @@ int main()
 	int length = 100;
 	int width = 100;
 	int TopsoilDepth = 3;
-
-	//creates resources
-	ResourceStruct water = CreateResource(water, 40, 10, 50, 5);
-	ResourceStruct nitrogen = CreateResource(nitrogen, 40, 10, 50, 5);
-	ResourceStruct phosphorus = CreateResource(phosphorus, 40, 10, 50, 5);
-	ResourceStruct potassium = CreateResource(potassium, 40, 10, 50, 5);
-
-	//creates the vector for storing variable
-	vector<string> ResourceVector;
-	ResourceVector.resize(depth*width*length);
-
-	//calls the PopVector function sequentially
-	for (int x=0; x<length; x++)
-		for (int y=0; y<width; y++)
-			for (int z=0; z<depth; z++)
-			{
-				if (z>TopsoilDepth)
-				ResourceVector[z+(y*depth)+(x*width*depth)] = PopVector(false, water, nitrogen, phosphorus, potassium);
-
-				else
-				ResourceVector[z+(y*depth)+(x*width*depth)] = PopVector(true, water, nitrogen, phosphorus, potassium);
-			}
-
+	vector<string> ResourceVector=initializeResources(depth,length,width,TopsoilDepth);
 
 	//generates random coordinates for testing
 	int xtest = rand () % length;
