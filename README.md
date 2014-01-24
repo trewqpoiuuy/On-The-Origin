@@ -1,4 +1,4 @@
 On the Origin
 =============
 
-Darwinian Farmville
+Simulating Plants and Evolution in the game environment
