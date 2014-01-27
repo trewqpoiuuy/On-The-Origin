@@ -75,7 +75,7 @@ seed generateSeed()
 	cout << "Branch Density: " << treeSeed.branchDensity << " Angle Variance: " << treeSeed.angleVariance << " Feature Chance: "<< treeSeed.featureChance << " Length Variance: " << treeSeed.lengthVariance << endl;
 	return treeSeed;
 }
-tree spawnTree(int x, int y, int z, seed treeSeed, int width, int length, int depth, vector<string> ResourceVector)
+tree spawnTree(int x, int y, int z, seed treeSeed, int width, int length, int depth, vector<VectorStruct> ResourceVector)
 {	
 	tree newTree;
 	newTree.sunlight=0;   //
@@ -97,7 +97,7 @@ tree spawnTree(int x, int y, int z, seed treeSeed, int width, int length, int de
 	newTree.branches.push_back(trunk);
 	return newTree;
 }
-tree growBranch(tree newTree, vector<string> ResourceVector,int width, int length, int depth)
+tree growBranch(tree newTree, vector<VectorStruct> ResourceVector,int width, int length, int depth)
 {
 	branch newBranch;
 	int branchWeighting=randInt(0,newTree.branches.size())*newTree.treeSeed.branchDensity; //Weights connection points
@@ -118,13 +118,9 @@ tree growBranch(tree newTree, vector<string> ResourceVector,int width, int lengt
 	}
 	newTree.branches.push_back(newBranch);
 	newTree.sunlight=newTree.sunlight-newBranch.length/2;
-	newTree.water=newTree.water-newBranch.length;
-	ResourceChange(newTree.x, newTree.y, newTree.z, width, length, depth, ResourceVector, "water", newBranch.length);
-	newTree.nitrogen=newTree.nitrogen-newBranch.length/1.5; //Resource usage based solely on length for now. This will likely change.
-	ResourceChange(newTree.x, newTree.y, newTree.z, width, length, depth, ResourceVector, "nitrogen", newBranch.length/1.5);
-	newTree.potassium=newTree.potassium-newBranch.length*1.5;
-	ResourceChange(newTree.x, newTree.y, newTree.z, width, length, depth, ResourceVector, "potassium", newBranch.length*1.5);
-	newTree.phosphorus=newTree.phosphorus-newBranch.length*1.25;
-	ResourceChange(newTree.x, newTree.y, newTree.z, width, length, depth, ResourceVector, "phosphorus", newBranch.length*1.25);
+	newTree.water=newTree.water+ResourceChange(newTree.x, newTree.y, newTree.z, width, length, depth, ResourceVector, "water", newBranch.length);
+	newTree.nitrogen=newTree.nitrogen+ResourceChange(newTree.x, newTree.y, newTree.z, width, length, depth, ResourceVector, "nitrogen", newBranch.length/1.5);
+	newTree.potassium=newTree.potassium+ResourceChange(newTree.x, newTree.y, newTree.z, width, length, depth, ResourceVector, "potassium", newBranch.length*1.5);
+	newTree.phosphorus=newTree.phosphorus+ResourceChange(newTree.x, newTree.y, newTree.z, width, length, depth, ResourceVector, "phosphorus", newBranch.length*1.25);
 	return newTree;
 }

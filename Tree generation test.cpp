@@ -2,7 +2,7 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
-#include "VectorLib.h"
+#include "VectorIntLib.h"
 #include "Tree generation.h"
 
 using namespace std;
@@ -16,7 +16,7 @@ int main()
 	int length = 100;
 	int width = 100;
 	int TopsoilDepth = 3;
-	vector<string> ResourceVector=initializeResources(depth,length,width,TopsoilDepth);
+	vector<VectorStruct> ResourceVector=initializeResources(depth,length,width,TopsoilDepth);
 	seed treeSeed=generateSeed();
 	tree newTree=spawnTree(0,0,0,treeSeed, width, length, depth, ResourceVector);
 	while(newTree.isAlive==1)
@@ -31,20 +31,19 @@ int main()
 		newTree.sunlight=newTree.sunlight+sunlightAdded;
 		cout << "water this turn?" << endl;
 		cin >> waterAdded;
-		newTree.water=newTree.water+waterAdded;
-		ResourceChange(newTree.x, newTree.y, newTree.z, width, length, depth, ResourceVector, "water", waterAdded);
+		newTree.water=newTree.water-ResourceChange(newTree.x, newTree.y, newTree.z, width, length, depth, ResourceVector, "water", waterAdded);
 		cout << "potassium this turn?" << endl;				//Prompts are temporary, will be replaced by game engine commands
 		cin >> potassiumAdded;
-		newTree.potassium=newTree.potassium+potassiumAdded;
-		ResourceChange(newTree.x, newTree.y, newTree.z, width, length, depth, ResourceVector, "potassium", potassiumAdded);
+		newTree.potassium=newTree.potassium-ResourceChange(newTree.x, newTree.y, newTree.z, width, length, depth, ResourceVector, "potassium", potassiumAdded);
 		cout << "phosphorus this turn?" << endl;
 		cin >> phosphorusAdded;
-		newTree.phosphorus=newTree.phosphorus+phosphorusAdded;
-		ResourceChange(newTree.x, newTree.y, newTree.z, width, length, depth, ResourceVector, "phosphorus", phosphorusAdded);
+		cout << newTree.phosphorus;
+		newTree.phosphorus=newTree.phosphorus-ResourceChange(newTree.x, newTree.y, newTree.z, width, length, depth, ResourceVector, "phosphorus", phosphorusAdded);
+		cout << ResourceChange(newTree.x, newTree.y, newTree.z, width, length, depth, ResourceVector, "phosphorus", phosphorusAdded);
+		cout << newTree.phosphorus << endl;
 		cout << "nitrogen this turn?" << endl;
 		cin >> nitrogenAdded;
-		newTree.nitrogen=newTree.nitrogen+nitrogenAdded;
-		ResourceChange(newTree.x, newTree.y, newTree.z, width, length, depth, ResourceVector, "nitrogen", nitrogenAdded);
+		newTree.nitrogen=newTree.nitrogen-ResourceChange(newTree.x, newTree.y, newTree.z, width, length, depth, ResourceVector, "nitrogen", nitrogenAdded);
 			while(newTree.sunlight>=10 && newTree.water>=20 && newTree.nitrogen>=15 && newTree.potassium>=30 && newTree.phosphorus>=25)
 			{
 				newTree=growBranch(newTree, ResourceVector, width, length, depth);
