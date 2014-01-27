@@ -14,7 +14,10 @@ Bugs:
 Requirements Documentation for Header File:
 	
 	Structs:
+
 		ResourceStruct: takes 4 ints (base, mod, baseT, modT), has no pre-initialized objects. 
+
+		VectorStruct: takes 4 unsigned ints (water, nitrogen, phosphorus, potassium) and one string (plantID), has no pre-initialized objects. 
 
 	Function Format:
 {
@@ -40,22 +43,9 @@ _______________________
 		BaseT = same as Base, but for soil designated as topsoil.
 		ModT = same as Mod, but for soil designated as topsoil.
 		-
-		Output: ResourceStruct, contains each of the designated int values for the desired object, such that Base = TypeName.base, and etc.
+		Output: void
 		-
-		Note: Base and BaseT must, as of the present version, exceed 10 in order for the function to work properly. Furthermore, Base+Mod and BaseT+ModT must be less than 100.
-_______________________
-
-		PopVector(bool Topsoil, ResourceStruct water, ResourceStruct nitrogen, ResourceStruct phosphorus, ResourceStruct potassium)
-		-
-		Topsoil: this determines whether or not the function should return a string for topsoil. If this is set to true, the return will be for topsoil.
-		water: this is the ResourceStruct for water.
-		nitrogen: this is the ResourceStruct for nitrogen.
-		phosphorus: this is the ResourceStruct for phosphorus.
-		potassium: this is the ResourceStruct for potassium.
-		-
-		Output: string, contains a 2 digit value for each resource, in sequence. These values have been randomized within the restraints imposed by <resource>.base, <resource>.baseT, <resource>.mod, and <resource>.modT values.
-		-
-		Note: this function will change the seed used by rand() each time it is run.
+		Note: Base+Mod and BaseT+ModT must be less than 2^16.
 _______________________
 
 		WaterGrab(int x, int y, int z, int width, int length, int depth, vector<string> ResourceVector)
@@ -109,19 +99,6 @@ _______________________
 		-
 		Output: int, the value of the potassium resource at the specified coordinates in the specified vector.
 _______________________
-		
-		ResourceGrab(int x, int y, int z, int width, int length, int depth, vector<string> ResourceVector)
-		-
-		x: the x (0-length) coordinate of the space in the vector whose contents you want to return.
-		y: the y (0-width) coordinate of the space in the vector whose contents you want to return.
-		z: the z (0-depth) coordinate of the space in the vector whose contents you want to return.
-		width: the width value of the vector whose contents you want to return.
-		length: the length value of the vector whose contents you want to return.
-		depth: the depth value of the vector whose contents you want to return.
-		ResourceVector: the vector whose contents you want to return at coordinates x, y, and z.	
-		-
-		Output: string, the contents of ResourceVector at the specified coordinates.
-_______________________
 
 		ResourceChange(int x, int y, int z, int width, int length, int depth, vector<string> ResourceVector, string resource, int change)
 		-
@@ -137,8 +114,6 @@ _______________________
 		-
 		Output: int, the amount that was subtracted from the resource. Added values will come out negative.
 		-
-		Note: this function CANNOT reduce the value of a resource to <0, or increase it to >99. 
-		If a change would bring the value out of the 0-99 range, the function sets the value to 0 or 99, and returns the amount of change that actually occured to get it there.
-		When a value drops below 10 (thus removing a digit), the function inserts a 0 before the value to retain the integrity of the formatting. 
-		This does not impede the ability of other functions to read the modified value, but any other functions that edit any of the strings in the vector must also do the same thing. 
+		Note: this function CANNOT reduce the value of a resource to <0, or increase it to >(2^16). 
+		If a change would bring the value out of the 0-(2^16) range, the function sets the value to 0 or (2^16), and returns the amount of change that actually occured to get it there.
 _______________________
