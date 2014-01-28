@@ -35,6 +35,13 @@ struct VectorStruct {
 	string plantID;
 };
 
+struct DimensionStruct {
+	int length;
+	int width;
+	int depth;
+	int TopsoilDepth;
+};
+
 //Fills ResourceStructs water, nitrogen, phosphorus and potassium with variables (which must be defined before this function is executed)
 void CreateResource(ResourceStruct& TypeName, int Base, int Mod, int BaseT, int ModT)
 	{
@@ -45,44 +52,69 @@ void CreateResource(ResourceStruct& TypeName, int Base, int Mod, int BaseT, int 
 	}
 
 //returns the int value for the water resource at a given position
-int WaterGrab(int x, int y, int z, int width, int length, int depth, vector<VectorStruct> ResourceVector)
+int WaterGrab(int x, int y, int z, DimensionStruct DimInfo, vector<VectorStruct> ResourceVector)
 {
-	return ResourceVector[z+(y*depth)+(x*depth*width)].water;
+	return ResourceVector[z+(y*DimInfo.depth)+(x*DimInfo.depth*DimInfo.width)].water;
 }
 
 //returns the int value for the nitrogen resource at a given position
-int NitrogenGrab(int x, int y, int z, int width, int length, int depth, vector<VectorStruct> ResourceVector)
+int NitrogenGrab(int x, int y, int z, DimensionStruct DimInfo, vector<VectorStruct> ResourceVector)
 {
-	return ResourceVector[z+(y*depth)+(x*depth*width)].nitrogen;
+	return ResourceVector[z+(y*DimInfo.depth)+(x*DimInfo.depth*DimInfo.width)].nitrogen;
 }
 
 //returns the int value for the phosphorus resource at a given position
-int PhosphorusGrab(int x, int y, int z, int width, int length, int depth, vector<VectorStruct> ResourceVector)
+int PhosphorusGrab(int x, int y, int z, DimensionStruct DimInfo, vector<VectorStruct> ResourceVector)
 {
-	return ResourceVector[z+(y*depth)+(x*depth*width)].phosphorus;
+	return ResourceVector[z+(y*DimInfo.depth)+(x*DimInfo.depth*DimInfo.width)].phosphorus;
 }
 
 //returns the int value for the potassium resource at a given position
-int PotassiumGrab(int x, int y, int z, int width, int length, int depth, vector<VectorStruct> ResourceVector)
+int PotassiumGrab(int x, int y, int z, DimensionStruct DimInfo, vector<VectorStruct> ResourceVector)
 {
-	return ResourceVector[z+(y*depth)+(x*depth*width)].potassium;
+	return ResourceVector[z+(y*DimInfo.depth)+(x*DimInfo.depth*DimInfo.width)].potassium;
+}
+
+string PlantIDGrab(int x, int y, int z, DimensionStruct DimInfo, vector<VectorStruct> ResourceVector)
+{
+	return ResourceVector[z+(y*DimInfo.depth)+(x*DimInfo.depth*DimInfo.width)].plantID;
+}
+
+void PlantIDAssign(int x, int y, int z, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector, string plantID)
+{
+	ResourceVector[z+(y*DimInfo.depth)+(x*DimInfo.depth*DimInfo.width)].plantID = plantID;
+}
+
+bool PlantIDCheck(int x, int y, int z, DimensionStruct DimInfo, vector<VectorStruct> ResourceVector, string plantID = " ")
+{
+	if (ResourceVector[z+(y*DimInfo.depth)+(x*DimInfo.depth*DimInfo.width)].plantID.size() == 0)
+		return false;
+	else
+	{
+		if (plantID == ResourceVector[z+(y*DimInfo.depth)+(x*DimInfo.depth*DimInfo.width)].plantID)
+			return true;
+		else if (plantID == " ")
+			return true;
+		else
+			return false;
+	}
 }
 
 //changes the specified resource at the specified point the specified amount, and returns the amount that it was changed.
-int ResourceChange(int x, int y, int z, int width, int length, int depth, vector<VectorStruct>& ResourceVector, string resource, signed long long int change)
+int ResourceChange(int x, int y, int z, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector, string resource, signed long long int change)
 {
 	signed long long int returnvalue;
 	unsigned int * resourcepointer;
 
 	//finds the correct resource, sets resourcepointer
 	if (resource == "water")
-		resourcepointer = &ResourceVector[z+(y*depth)+(x*depth*width)].water;
+		resourcepointer = &ResourceVector[z+(y*DimInfo.depth)+(x*DimInfo.depth*DimInfo.width)].water;
 	else if (resource == "nitrogen")
-		resourcepointer = &ResourceVector[z+(y*depth)+(x*depth*width)].nitrogen;
+		resourcepointer = &ResourceVector[z+(y*DimInfo.depth)+(x*DimInfo.depth*DimInfo.width)].nitrogen;
 	else if (resource == "phosphorus")
-		resourcepointer = &ResourceVector[z+(y*depth)+(x*depth*width)].phosphorus;
+		resourcepointer = &ResourceVector[z+(y*DimInfo.depth)+(x*DimInfo.depth*DimInfo.width)].phosphorus;
 	else
-		resourcepointer = &ResourceVector[z+(y*depth)+(x*depth*width)].potassium;
+		resourcepointer = &ResourceVector[z+(y*DimInfo.depth)+(x*DimInfo.depth*DimInfo.width)].potassium;
 
 	signed long long int sum = *resourcepointer+change;
 
