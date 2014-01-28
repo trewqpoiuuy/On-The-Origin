@@ -14,6 +14,7 @@
 #include "Engine.h"
 #include "primitives.h"
 #include "VoxelObject.h"
+#include "CellObject.h"
 
 const double PI=3.14159265358979323846;
 
@@ -22,7 +23,8 @@ Engine::Camera_settings camera;
 
 bool showterrain=true;
 
-VoxelObject voxel_test(512);
+VoxelObject voxel_test(256);
+CellObject cell_test;
 void renderscene() {
     //                                          Test Lights
 	//float light0pos[4] = {25,50,0,0};
@@ -59,6 +61,7 @@ void renderscene() {
 		voxel_test.draw();
 		glPopMatrix();
 	}
+	cell_test.draw();
 }
 
 void carvevoxels1() {
@@ -81,12 +84,38 @@ void carvevoxels1() {
 	}
 }
 
+void carvevoxels2() {
+	voxel_test.voxelSphere(128., 128., 128., 36., 1);
+	for (int z=-2; z<=2; z++) {
+		for (int y=-2; y<=2; y++) {
+			for (int x=-2; x<=2; x++) {
+				voxel_test.voxelSphere( 128+28*x, 128+28*y, 128+28*z, 16., 0);
+				printf("Added sphere %d %d %d\n",x,y,z);
+			}
+		}
+	}
+}
+
+void addrandomcells() {
+	for (int i=0; i<2000; i++) {
+		float range=512;
+		float x=(pow(randf()*2-1,9)*range);
+		float y=(pow(randf()*2-1,9)*range);
+		float z=(pow(randf()*2-1,9)*range);
+		cell_test.addcell(Cell{x,y,z,1});
+	}
+}
+
 int main(int argc, char *argv[]) {
 
 	carvevoxels1();
+	//carvevoxels2();
 	voxel_test.updateMesh();
 
+	addrandomcells();
+
 	//engine.fullscreen = true;
+	//engine.riftmode = true;
 	Engine::setup(&engine, &camera);
 	Engine::setDrawFunc(&renderscene);
 	engine.run = true;

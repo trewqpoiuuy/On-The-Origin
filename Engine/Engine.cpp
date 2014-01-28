@@ -238,6 +238,11 @@ namespace Engine {
 					plant_test.simulate();
 					printf("simulating plant_test\n");
 					break;*/
+				case (SDLK_0):
+					camera->x=0;
+					camera->y=0;
+					camera->z=0;
+					break;
 				}
 				break;
 			case (SDL_MOUSEMOTION):
