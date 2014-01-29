@@ -23,6 +23,7 @@ struct branch
 	float yAngle; //Polar coordinates relative to connection
 	float length; //
 	int feature; //0=nothing, 1=flower, 2=fruit. More to come
+	bool isAlive;
 	vector<int> children; //Branches connected to this one
 };
 struct seed
@@ -47,6 +48,7 @@ struct tree
 	int z;
 	bool isAlive;
 	vector<branch> branches;
+	vector<branch> deadBranches;
 	seed treeSeed;
 };
 seed generateSeed()
@@ -75,14 +77,14 @@ seed generateSeed()
 	cout << "Branch Density: " << treeSeed.branchDensity << " Angle Variance: " << treeSeed.angleVariance << " Feature Chance: "<< treeSeed.featureChance << " Length Variance: " << treeSeed.lengthVariance << endl;
 	return treeSeed;
 }
-tree spawnTree(int x, int y, int z, seed treeSeed, int width, int length, int depth, vector<VectorStruct> ResourceVector)
+tree spawnTree(int x, int y, int z, seed treeSeed, DimensionStruct DimInfo, vector<VectorStruct> ResourceVector)
 {	
 	tree newTree;
 	newTree.sunlight=0;   //
-	newTree.water=WaterGrab(x, y, z, width, length, depth, ResourceVector);      //
-	newTree.phosphorus=PhosphorusGrab(x, y, z, width, length, depth, ResourceVector); //Resources
-	newTree.nitrogen=NitrogenGrab(x, y, z, width, length, depth, ResourceVector);   //
-	newTree.potassium=PotassiumGrab(x, y, z, width, length, depth, ResourceVector);  //
+	newTree.water=WaterGrab(x, y, z,  DimInfo, ResourceVector);      //
+	newTree.phosphorus=PhosphorusGrab(x, y, z,  DimInfo, ResourceVector); //Resources
+	newTree.nitrogen=NitrogenGrab(x, y, z,  DimInfo, ResourceVector);   //
+	newTree.potassium=PotassiumGrab(x, y, z,  DimInfo, ResourceVector);  //
 	newTree.isAlive=1;
 	newTree.x=x;
 	newTree.y=y;
@@ -94,10 +96,11 @@ tree spawnTree(int x, int y, int z, seed treeSeed, int width, int length, int de
 	trunk.yAngle=randFloat(-treeSeed.angleVariance,treeSeed.angleVariance);
 	trunk.length=randFloat(1,40);
 	trunk.feature=0;
+	trunk.isAlive=1;
 	newTree.branches.push_back(trunk);
 	return newTree;
 }
-tree growBranch(tree newTree, vector<VectorStruct> ResourceVector,int width, int length, int depth)
+tree growBranch(tree newTree, vector<VectorStruct> ResourceVector,DimensionStruct DimInfo)
 {
 	branch newBranch;
 	int branchWeighting=randInt(0,newTree.branches.size())*newTree.treeSeed.branchDensity; //Weights connection points
@@ -111,16 +114,41 @@ tree growBranch(tree newTree, vector<VectorStruct> ResourceVector,int width, int
 	newBranch.yAngle=randFloat(-newTree.treeSeed.angleVariance,newTree.treeSeed.angleVariance);
 	newBranch.length=randFloat(1,20)*newTree.treeSeed.lengthVariance;
 	newBranch.feature=0;
+	newBranch.isAlive=1;
 	int featureChance=rand()%100;
 	if(featureChance/100<newTree.treeSeed.featureChance)
 	{
 		newBranch.feature=randInt(1,3);
 	}
 	newTree.branches.push_back(newBranch);
-	newTree.sunlight=newTree.sunlight-newBranch.length/2;
-	newTree.water=newTree.water+ResourceChange(newTree.x, newTree.y, newTree.z, width, length, depth, ResourceVector, "water", newBranch.length);
-	newTree.nitrogen=newTree.nitrogen+ResourceChange(newTree.x, newTree.y, newTree.z, width, length, depth, ResourceVector, "nitrogen", newBranch.length/1.5);
-	newTree.potassium=newTree.potassium+ResourceChange(newTree.x, newTree.y, newTree.z, width, length, depth, ResourceVector, "potassium", newBranch.length*1.5);
-	newTree.phosphorus=newTree.phosphorus+ResourceChange(newTree.x, newTree.y, newTree.z, width, length, depth, ResourceVector, "phosphorus", newBranch.length*1.25);
+	newTree.sunlight=newTree.sunlight-newBranch.length*.25;
+	newTree.water=newTree.water+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "water", newBranch.length*.5);
+	newTree.nitrogen=newTree.nitrogen+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "nitrogen", newBranch.length*.375);
+	newTree.potassium=newTree.potassium+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "potassium", newBranch.length*.75);
+	newTree.phosphorus=newTree.phosphorus+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "phosphorus", newBranch.length*.625);
 	return newTree;
+}
+tree upkeep(tree newTree, vector<VectorStruct> ResourceVector,DimensionStruct DimInfo)
+{
+	int totalLength=0;
+	for(int i=0; i<newTree.branches.size(); i++)
+	{
+		totalLength+=newTree.branches.at(i).length;
+		if(newTree.sunlight-totalLength*.025<0 or newTree.water-totalLength*.05<0 or newTree.nitrogen-totalLength*.0375<0 or newTree.potassium-totalLength*.075<0 or newTree.phosphorus-totalLength*.0625<0)
+		{
+			for(int j=0; j<newTree.branches.size()-i; j++)
+			{
+				newTree.branches.at(newTree.branches.size()-j).isAlive=0;
+				newTree.deadBranches.push_back(newTree.branches.at(newTree.branches.size()-j));
+				newTree.branches.erase(newTree.branches.end()-j);
+			}
+		}
+	}
+	newTree.sunlight=newTree.sunlight-totalLength*.025;
+	newTree.water=newTree.water+ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "water",totalLength*.05);
+	newTree.nitrogen=newTree.nitrogen+ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "nitrogen", totalLength*.0375);
+	newTree.potassium=newTree.potassium+ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "potassium", totalLength*.075);
+	newTree.phosphorus=newTree.phosphorus+ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "phosphorus", totalLength*.0625);
+	return newTree;
+	
 }

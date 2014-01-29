@@ -16,9 +16,14 @@ int main()
 	int length = 100;
 	int width = 100;
 	int TopsoilDepth = 3;
-	vector<VectorStruct> ResourceVector=initializeResources(depth,length,width,TopsoilDepth);
+	DimensionStruct DimInfo;
+	DimInfo.length = length;
+	DimInfo.width = width;
+	DimInfo.depth = depth;
+	DimInfo.TopsoilDepth = TopsoilDepth;	
+	vector<VectorStruct> ResourceVector=initializeResources(depth, length, width, TopsoilDepth);
 	seed treeSeed=generateSeed();
-	tree newTree=spawnTree(0,0,0,treeSeed, width, length, depth, ResourceVector);
+	tree newTree=spawnTree(0,0,0,treeSeed, DimInfo, ResourceVector);
 	while(newTree.isAlive==1)
 	{
 		int sunlightAdded;
@@ -31,23 +36,20 @@ int main()
 		newTree.sunlight=newTree.sunlight+sunlightAdded;
 		cout << "water this turn?" << endl;
 		cin >> waterAdded;
-		newTree.water=newTree.water-ResourceChange(newTree.x, newTree.y, newTree.z, width, length, depth, ResourceVector, "water", waterAdded);
+		newTree.water=newTree.water-ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "water", waterAdded);
 		cout << "potassium this turn?" << endl;				//Prompts are temporary, will be replaced by game engine commands
 		cin >> potassiumAdded;
-		newTree.potassium=newTree.potassium-ResourceChange(newTree.x, newTree.y, newTree.z, width, length, depth, ResourceVector, "potassium", potassiumAdded);
+		newTree.potassium=newTree.potassium-ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "potassium", potassiumAdded);
 		cout << "phosphorus this turn?" << endl;
 		cin >> phosphorusAdded;
-		cout << newTree.phosphorus;
-		newTree.phosphorus=newTree.phosphorus-ResourceChange(newTree.x, newTree.y, newTree.z, width, length, depth, ResourceVector, "phosphorus", phosphorusAdded);
-		cout << ResourceChange(newTree.x, newTree.y, newTree.z, width, length, depth, ResourceVector, "phosphorus", phosphorusAdded);
-		cout << newTree.phosphorus << endl;
+		newTree.phosphorus=newTree.phosphorus-ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "phosphorus", phosphorusAdded);
 		cout << "nitrogen this turn?" << endl;
 		cin >> nitrogenAdded;
-		newTree.nitrogen=newTree.nitrogen-ResourceChange(newTree.x, newTree.y, newTree.z, width, length, depth, ResourceVector, "nitrogen", nitrogenAdded);
-			while(newTree.sunlight>=10 && newTree.water>=20 && newTree.nitrogen>=15 && newTree.potassium>=30 && newTree.phosphorus>=25)
-			{
-				newTree=growBranch(newTree, ResourceVector, width, length, depth);
-			}
+		newTree.nitrogen=newTree.nitrogen-ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "nitrogen", nitrogenAdded);			while(newTree.sunlight>=10 && newTree.water>=20 && newTree.nitrogen>=15 && newTree.potassium>=30 && newTree.phosphorus>=25)
+		{
+			newTree=growBranch(newTree, ResourceVector, DimInfo);
+			newTree=upkeep(newTree, ResourceVector, DimInfo);
+		}
 		for(int f=0;f<newTree.branches.size();f++) //prints out tree data
 		{
 			cout << "Branch #"  << f+1 << ": " ;
