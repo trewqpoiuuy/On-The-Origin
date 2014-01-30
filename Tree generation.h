@@ -25,6 +25,10 @@ struct branch
 	int feature; //0=nothing, 1=flower, 2=fruit. More to come
 	bool isAlive;
 	vector<int> children; //Branches connected to this one
+	
+	//3d stuff
+	vector<float> xyzPos;
+	vector<float> pRot;
 };
 struct seed
 {
@@ -50,6 +54,9 @@ struct tree
 	vector<branch> branches;
 	vector<branch> deadBranches;
 	seed treeSeed;
+
+	//3d stuff (placeholder for determing color)
+	float maxvals[3];
 };
 seed generateSeed()
 {
@@ -134,7 +141,7 @@ tree upkeep(tree newTree, vector<VectorStruct> ResourceVector,DimensionStruct Di
 	for(int i=0; i<newTree.branches.size(); i++)
 	{
 		totalLength+=newTree.branches.at(i).length;
-		if(newTree.sunlight-totalLength*.025<0 or newTree.water-totalLength*.05<0 or newTree.nitrogen-totalLength*.0375<0 or newTree.potassium-totalLength*.075<0 or newTree.phosphorus-totalLength*.0625<0)
+		if(newTree.sunlight-totalLength*.025<0 || newTree.water-totalLength*.05<0 || newTree.nitrogen-totalLength*.0375<0 || newTree.potassium-totalLength*.075<0 || newTree.phosphorus-totalLength*.0625<0)
 		{
 			for(int j=0; j<newTree.branches.size()-i; j++)
 			{

@@ -1,3 +1,5 @@
+#include "stdafx.h" //Visual Studio specific include (comment out if not using VS)
+
 #include <iostream>
 #include <vector>
 #include <cstdlib>
@@ -5,10 +7,13 @@
 #include "VectorIntLib.h"
 #include "Tree generation.h"
 
+//For 3-d rendering
+#include "TreeRender.h"
+
 using namespace std;
 using namespace veclib;
 
-int main()
+int main(int argc, char **argv)
 {
 	srand(time(NULL));
 	int uselessThing=rand(); //First value of rand is the seed, so this gets rid of it
@@ -66,5 +71,17 @@ int main()
 			cout << endl;
 		}
 		cout << "Sunlight: " << newTree.sunlight << " Water: " << newTree.water << " Phosphorus: " << newTree.phosphorus << " Potassium: " << newTree.potassium << " Nitrogen: " << newTree.nitrogen << endl;
+		
+		///// Begin 3-d render code /////
+		//exits generation
+		cout << "Kill? 0 for yes, 1 for no" << endl;
+		cin >> newTree.isAlive;
 	}
+	//calculates XYZ coordinates for each branch
+	newTree = CalcXYZ(newTree);
+
+	//renders the tree in a GLUT window
+	render(argc, argv, newTree);
+
+	///// End 3-d render code /////
 }
