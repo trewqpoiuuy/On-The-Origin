@@ -191,7 +191,7 @@ tree CalcXYZ(tree Wtree)
 			Wtree.branches.at(d).pRot.push_back(0);
 		}
 		Wtree.branches.at(d).pRot.at(0) = 0;
-		Wtree.branches.at(d).pRot.at(0) = 0;
+		Wtree.branches.at(d).pRot.at(1) = 0;
 
 		d++;
 	}
@@ -248,6 +248,35 @@ tree CalcXYZ(tree Wtree)
 	}
 	return Wtree;
 }
+
+void drawBranch(float x1, float y1, float z1, float len1, float x2, float y2, float z2, float len2)
+{
+	glBegin(GL_QUADS);
+	glVertex3f(x2 / 20 - len2, y2 / 20, z2 / 20);
+	glVertex3f(x2 / 20, y2 / 20, z2 / 20 + len2);
+	glVertex3f(x1 / 20, y1 / 20, z1 / 20 + len1);
+	glVertex3f(x1 / 20 - len1, y1 / 20, z1 / 20);
+	glEnd();
+	glBegin(GL_QUADS);
+	glVertex3f(x2 / 20, y2 / 20, z2 / 20 + len2);
+	glVertex3f(x2 / 20 + len2, y2 / 20, z2 / 20);
+	glVertex3f(x1 / 20 + len1, y1 / 20, z1 / 20);
+	glVertex3f(x1 / 20, y1 / 20, z1 / 20 + len1);
+	glEnd();
+	glBegin(GL_QUADS);
+	glVertex3f(x2 / 20 + len2, y2 / 20, z2 / 20);
+	glVertex3f(x2 / 20, y2 / 20, z2 / 20 - len2);
+	glVertex3f(x1 / 20, y1 / 20, z1 / 20 - len1);
+	glVertex3f(x1 / 20 + len1, y1 / 20, z1 / 20);
+	glEnd();
+	glBegin(GL_QUADS);
+	glVertex3f(x2 / 20, y2 / 20, z2 / 20 - len2);
+	glVertex3f(x2 / 20 - len2, y2 / 20, z2 / 20);
+	glVertex3f(x1 / 20 - len1, y1 / 20, z1 / 20);
+	glVertex3f(x1 / 20, y1 / 20, z1 / 20 - len1);
+	glEnd();
+}
+
 tree rendertree;
 void renderScene(void) {
 
@@ -274,7 +303,7 @@ void renderScene(void) {
 	glEnd();*/
 
 	glColor3f(1.0f, 0.0f, 0.0f);
-	glutSolidCube(0.3f);
+	glutSolidCube(0.2f);
 
 	for (int f = 0; f < rendertree.branches.size();)
 	{
@@ -299,49 +328,20 @@ void renderScene(void) {
 		
 		//cout << treeSeed.primaryColor[0] * primColor << endl;
 		
-		
-
-		//glColor3ub((rendertree.treeSeed.primaryColor[0] * primColor) + (rendertree.treeSeed.secondaryColor[0] * secoColor) + (rendertree.treeSeed.tertiaryColor[0] * tertColor),
-		//	(rendertree.treeSeed.primaryColor[1] * primColor) + (rendertree.treeSeed.secondaryColor[1] * secoColor) + (rendertree.treeSeed.tertiaryColor[1] * tertColor),
-		//	(rendertree.treeSeed.primaryColor[2] * primColor) + (rendertree.treeSeed.secondaryColor[2] * secoColor) + (rendertree.treeSeed.tertiaryColor[2] * tertColor));
-
 		glColor3f(((rendertree.treeSeed.primaryColor[0] * primColor) + (rendertree.treeSeed.secondaryColor[0] * secoColor) + (rendertree.treeSeed.tertiaryColor[0] * tertColor)) / 255,
 				  ((rendertree.treeSeed.primaryColor[1] * primColor) + (rendertree.treeSeed.secondaryColor[1] * secoColor) + (rendertree.treeSeed.tertiaryColor[1] * tertColor)) / 255,
 				  ((rendertree.treeSeed.primaryColor[2] * primColor) + (rendertree.treeSeed.secondaryColor[2] * secoColor) + (rendertree.treeSeed.tertiaryColor[2] * tertColor)) / 255);
 		if (ch < 0)
 		{
-			glBegin(GL_QUADS);
-			glVertex3f(-0.1f, 0.0f, -0.1f);
-			glVertex3f(0.1f, 0.0f, 0.1f);
-			glVertex3f(rendertree.branches.at(f).xyzPos.at(0) / 20 + 0.1f, rendertree.branches.at(f).xyzPos.at(1) / 20, rendertree.branches.at(f).xyzPos.at(2) / 20 + 0.1f);
-			glVertex3f(rendertree.branches.at(f).xyzPos.at(0) / 20 - 0.1f, rendertree.branches.at(f).xyzPos.at(1) / 20, rendertree.branches.at(f).xyzPos.at(2) / 20 - 0.1f);
-			glEnd();
+			drawBranch(rendertree.branches.at(f).xyzPos.at(0), rendertree.branches.at(f).xyzPos.at(1), rendertree.branches.at(f).xyzPos.at(2), 0.1f,
+					   0.0f, 0.0f, 0.0f, 0.1f);
 		}
 		else
 		{
-			glBegin(GL_QUADS);
-			glVertex3f(rendertree.branches.at(ch).xyzPos.at(0) / 20 - 0.1f, rendertree.branches.at(ch).xyzPos.at(1) / 20, rendertree.branches.at(ch).xyzPos.at(2) / 20 - 0.1f);
-			glVertex3f(rendertree.branches.at(ch).xyzPos.at(0) / 20 + 0.1f, rendertree.branches.at(ch).xyzPos.at(1) / 20, rendertree.branches.at(ch).xyzPos.at(2) / 20 + 0.1f);
-			glVertex3f(rendertree.branches.at(f).xyzPos.at(0) / 20 + 0.1f, rendertree.branches.at(f).xyzPos.at(1) / 20, rendertree.branches.at(f).xyzPos.at(2) / 20 + 0.1f);
-			glVertex3f(rendertree.branches.at(f).xyzPos.at(0) / 20 - 0.1f, rendertree.branches.at(f).xyzPos.at(1) / 20, rendertree.branches.at(f).xyzPos.at(2) / 20 - 0.1f);
-			glEnd();
+			drawBranch(rendertree.branches.at(f).xyzPos.at(0), rendertree.branches.at(f).xyzPos.at(1), rendertree.branches.at(f).xyzPos.at(2), 0.1f,
+				       rendertree.branches.at(ch).xyzPos.at(0), rendertree.branches.at(ch).xyzPos.at(1), rendertree.branches.at(ch).xyzPos.at(2), 0.1f);
 		}
 
-		/*glBegin(GL_QUAD_STRIP); //maybe use individual quads?
-		glVertex3f(rendertree.branches.at(f).xyzPos.at(0) / 20 - 0.1f, rendertree.branches.at(f).xyzPos.at(1) / 20, rendertree.branches.at(f).xyzPos.at(2) / 20); // left
-		glVertex3f(rendertree.branches.at(ch).xyzPos.at(0) / 20 - 0.1f, rendertree.branches.at(ch).xyzPos.at(1) / 20, rendertree.branches.at(ch).xyzPos.at(2) / 20);
-		glVertex3f(rendertree.branches.at(f).xyzPos.at(0) / 20, rendertree.branches.at(f).xyzPos.at(1) / 20, rendertree.branches.at(f).xyzPos.at(2) / 20 - 0.1f); // back
-		glVertex3f(rendertree.branches.at(ch).xyzPos.at(0) / 20, rendertree.branches.at(ch).xyzPos.at(1) / 20, rendertree.branches.at(ch).xyzPos.at(2) / 20 - 0.1f);
-		glVertex3f(rendertree.branches.at(f).xyzPos.at(0) / 20 + 0.1f, rendertree.branches.at(f).xyzPos.at(1) / 20, rendertree.branches.at(f).xyzPos.at(2) / 20); // right
-		glVertex3f(rendertree.branches.at(ch).xyzPos.at(0) / 20 + 0.1f, rendertree.branches.at(ch).xyzPos.at(1) / 20, rendertree.branches.at(ch).xyzPos.at(2) / 20);
-		glVertex3f(rendertree.branches.at(f).xyzPos.at(0) / 20, rendertree.branches.at(f).xyzPos.at(1) / 20, rendertree.branches.at(f).xyzPos.at(2) / 20 + 0.1f); // front
-		glVertex3f(rendertree.branches.at(ch).xyzPos.at(0) / 20, rendertree.branches.at(ch).xyzPos.at(1) / 20, rendertree.branches.at(ch).xyzPos.at(2) / 20 + 0.1f);
-		glEnd;*/
-		glColor3f(0.5f, 0.5f, 0.5f);
-		glTranslatef(rendertree.branches.at(f).xyzPos.at(0) / 20, rendertree.branches.at(f).xyzPos.at(1) / 20, rendertree.branches.at(f).xyzPos.at(2) / 20);
-		//cout << "x pos: " << tree.at(f).xyzPos.at(0) << " y pos: " << tree.at(f).xyzPos.at(1) << "z pos: " << tree.at(f).xyzPos.at(2) << endl;
-		glutSolidSphere(0.05f, 20, 20);
-		glTranslatef(-rendertree.branches.at(f).xyzPos.at(0) / 20, -rendertree.branches.at(f).xyzPos.at(1) / 20, -rendertree.branches.at(f).xyzPos.at(2) / 20);
 		f++;
 
 	}
