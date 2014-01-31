@@ -11,10 +11,12 @@
 #include <stdio.h>
 #include <string>
 #include <math.h>
-#include "Engine.h"
-#include "primitives.h"
-#include "VoxelObject.h"
-#include "CellObject.h"
+#include "../Engine/Engine.h"
+#include "../Engine/primitives.h"
+#include "../Engine/VoxelObject.h"
+#include "../Engine/Cell.h"
+#include "../Engine/CellObject.h"
+#include "../Engine/utils.h"
 
 const double PI=3.14159265358979323846;
 
@@ -24,7 +26,7 @@ Engine::Camera_settings camera;
 bool showterrain=true;
 
 VoxelObject voxel_test(256);
-CellObject cell_test;
+Cell::CellObject cell_test;
 void renderscene() {
     //                                          Test Lights
 	//float light0pos[4] = {25,50,0,0};
@@ -97,12 +99,12 @@ void carvevoxels2() {
 }
 
 void addrandomcells() {
-	for (int i=0; i<2000; i++) {
-		float range=512;
+	for (int i=0; i<500; i++) {
+		float range=.512;
 		float x=(pow(randf()*2-1,9)*range);
 		float y=(pow(randf()*2-1,9)*range);
 		float z=(pow(randf()*2-1,9)*range);
-		cell_test.addcell(Cell{x,y,z,1});
+		cell_test.addcell(Cell::Cell{&cell_test.cells,x,y,z,1});
 	}
 }
 
@@ -120,6 +122,9 @@ int main(int argc, char *argv[]) {
 	Engine::setDrawFunc(&renderscene);
 	engine.run = true;
 	while (engine.run) {
+		for (int i=0; i<cell_test.cells.size(); i++) {
+			cell_test.cells[i].physics();
+		}
 		Engine::updateMouseMode();
 		Engine::update();
 		Engine::display();

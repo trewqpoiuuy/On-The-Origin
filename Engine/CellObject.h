@@ -10,21 +10,19 @@
 
 #include "utils.h"
 #include <vector>
+#include "Cell.h"
 
-struct Cell {
-	float x;
-	float y;
-	float z;
-	float size;
-	// TODO: Resources resources;
-};
+namespace Cell {
 
-class CellObject {
-	std::vector<Cell> cells;
-public:
-	CellObject();
-	void draw();
-	void addcell(Cell cell);
-};
+	class CellObject {
+	public:
+		std::vector<Cell> cells;
+	public:
+		CellObject();
+		void draw();
+		void addcell(Cell cell);
+	};
+
+}
 
 #endif /* CELLOBJECT_H_ */

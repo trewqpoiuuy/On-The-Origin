@@ -20,5 +20,8 @@ struct vec3 {
 
 float randf();
 
+float pythag(float x, float y, float z);
+
+void normalize3p(float* x, float* y, float* z);
 
 #endif /* UTILS_H_ */
