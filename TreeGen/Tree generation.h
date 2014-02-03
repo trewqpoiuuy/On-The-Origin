@@ -106,10 +106,10 @@ seed generateSeed() //Completely new seed with no inheritance
 	treeSeed.tertiaryColor[1]=randInt(0,255);
 	treeSeed.tertiaryColor[2]=randInt(0,255);
 	cout << "Seed Data:" << endl;
-	cout << "Primary: " << treeSeed.primaryColor[0] << " " << treeSeed.primaryColor[1] << " " << treeSeed.primaryColor[2] << endl;
-	cout << "Secondary: " << treeSeed.secondaryColor[0] << " " << treeSeed.secondaryColor[1] << " " << treeSeed.secondaryColor[2] << endl;
-	cout << "Tertiary: " << treeSeed.tertiaryColor[0] << " " << treeSeed.tertiaryColor[1] << " " << treeSeed.tertiaryColor[2] << endl;
-	cout << "Branch Density: " << treeSeed.branchDensity << " Angle Variance: " << treeSeed.angleVariance << " Feature Chance: "<< treeSeed.featureChance << " Length Variance: " << treeSeed.lengthVariance << endl;
+	//cout << "Primary: " << treeSeed.primaryColor[0] << " " << treeSeed.primaryColor[1] << " " << treeSeed.primaryColor[2] << endl;
+	//cout << "Secondary: " << treeSeed.secondaryColor[0] << " " << treeSeed.secondaryColor[1] << " " << treeSeed.secondaryColor[2] << endl;
+	//cout << "Tertiary: " << treeSeed.tertiaryColor[0] << " " << treeSeed.tertiaryColor[1] << " " << treeSeed.tertiaryColor[2] << endl;
+	//cout << "Branch Density: " << treeSeed.branchDensity << " Angle Variance: " << treeSeed.angleVariance << " Feature Chance: "<< treeSeed.featureChance << " Length Variance: " << treeSeed.lengthVariance << endl;
 	return treeSeed;
 }
 tree spawnTree(int x, int y, int z, seed treeSeed, DimensionStruct DimInfo, vector<VectorStruct> ResourceVector)
@@ -175,47 +175,57 @@ tree growBranch(tree newTree, vector<VectorStruct> ResourceVector,DimensionStruc
 
 tree upkeep(tree newTree, vector<VectorStruct> ResourceVector,DimensionStruct DimInfo)
 {
+	cout << "Upkeepan";
 	int totalLength=0;
 	for(int i=0; i<newTree.branches.size(); i++)
 	{
 		totalLength+=newTree.branches.at(i).length;
 		if(newTree.sunlight-totalLength*.025<0 || newTree.water-totalLength*.05<0 || newTree.nitrogen-totalLength*.0375<0 || newTree.potassium-totalLength*.075<0 || newTree.phosphorus-totalLength*.0625<0)
 		{
-			for(int j=0; j<newTree.branches.size()-i; j++)
+		cout << "test2";
+			for(int j=1; j<newTree.branches.size()-i; j++)
 			{
+				//cout << "killing a branch";
 				newTree.branches.at(newTree.branches.size()-j).isAlive=0;
+				//cout << "adding it to dead branches";
 				newTree.deadBranches.push_back(newTree.branches.at(newTree.branches.size()-j));
+				//cout << "erasing from live branches";
 				newTree.branches.erase(newTree.branches.end()-j);
+				cout << "Ash Ketchup";
 			}
-
-			if(newTree.branches.size() == 0) //if the tree runs out of branches, it's dead.
+			
+			if(newTree.branches.size() == 1) //if the tree runs out of branches, it's dead.
 			{
+				//cout << "tree is kill";
 				newTree.isAlive = false;
 			}
 		}
 	}
 	newTree.sunlight=newTree.sunlight-totalLength*.025;
-	newTree.water=newTree.water+ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "water",totalLength*.05);
-	newTree.nitrogen=newTree.nitrogen+ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "nitrogen", totalLength*.0375);
-	newTree.potassium=newTree.potassium+ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "potassium", totalLength*.075);
-	newTree.phosphorus=newTree.phosphorus+ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "phosphorus", totalLength*.0625);
+	
+	newTree.water=newTree.water-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "water",-(totalLength*.05));
+	newTree.nitrogen=newTree.nitrogen-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "nitrogen", -(totalLength*.0375));
+	newTree.potassium=newTree.potassium-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "potassium", -(totalLength*.075));
+	newTree.phosphorus=newTree.phosphorus-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "phosphorus", -(totalLength*.0625));
 	return newTree;
 
 }
 
 
 
-void reaper(forest newForest) //checks forest for trees with isAlive false, and moves them to deadtrees.
+forest reaper(forest newForest) //checks forest for trees with isAlive false, and moves them to deadtrees.
 {
 	for(int f = 0; f < newForest.trees.size(); f++)
 	{
+		
 		if(newForest.trees.at(f).isAlive == false)
 		{
+			cout << "Don't fear the reaper";
 			newForest.deadtrees.push_back(newForest.trees.at(f));
 			newForest.trees.erase(newForest.trees.begin()+f);
 		}
 	}
-
+	return newForest;
 }
 
 forest reproduce(forest newForest, DimensionStruct DimInfo, vector<VectorStruct> ResourceVector)

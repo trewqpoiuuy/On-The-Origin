@@ -4,7 +4,7 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
-#include "Resources/VectorIntLib.h" //delete 'Resources/' if broken
+#include "VectorIntLib.h" //delete 'Resources/' if broken
 #include "Tree generation.h"
 //#include "TreeRender.h"
 
@@ -59,12 +59,13 @@ int main(int argc, char **argv)
 				cout << "nitrogen this turn?" << endl;
 				cin >> nitrogenAdded;
 				newTree.nitrogen=newTree.nitrogen-ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "nitrogen", nitrogenAdded);			while(newTree.sunlight>=10 && newTree.water>=20 && newTree.nitrogen>=15 && newTree.potassium>=30 && newTree.phosphorus>=25)
+				while(newTree.sunlight>=10 && newTree.water>=20 && newTree.nitrogen>=15 && newTree.potassium>=30 && newTree.phosphorus>=25)
 				{
 					newTree=growBranch(newTree, ResourceVector, DimInfo);
-					newTree=upkeep(newTree, ResourceVector, DimInfo);
 				}
+				newTree=upkeep(newTree, ResourceVector, DimInfo);
 
-				for(int f=0;f<newTree.branches.size()+1;f++) //prints out tree data
+				for(int f=0;f<newTree.branches.size();f++) //prints out tree data
 				{
 					cout << "Branch #"  << f+1 << ": " ;
 					cout << "Connection Point: " << newTree.branches.at(f).connection << " ";
@@ -111,28 +112,30 @@ int main(int argc, char **argv)
 			{
 				newForest.trees.clear();
 			}
-
+			int feed = 40;
 			while(turnstogo > 0)
 			{
 				turn += 1;
 				cout << "Turn: " << turn << endl;
 				cout << "Turnstogo: " << turnstogo << endl;
-
+				feed--;
 				for(int f=0; f<newForest.trees.size(); f++) //feed the trees
 				{
 					cout << f;
-					int feed = 25;
+					newForest.trees.at(f).sunlight=newForest.trees.at(f).sunlight+feed;
 					newForest.trees.at(f).water=newForest.trees.at(f).water-ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "water", feed);
 					newForest.trees.at(f).potassium=newForest.trees.at(f).potassium-ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "potassium", feed);
 					newForest.trees.at(f).phosphorus=newForest.trees.at(f).phosphorus-ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "phosphorus", feed);
 					newForest.trees.at(f).nitrogen=newForest.trees.at(f).nitrogen-ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "nitrogen", feed);
-
 					//let the trees do their tree thing
+					while(newForest.trees.at(f).sunlight>=10 && newForest.trees.at(f).water>=20 && newForest.trees.at(f).nitrogen>=15 && newForest.trees.at(f).potassium>=30 && newForest.trees.at(f).phosphorus>=25)
+					{
 					newForest.trees.at(f)=growBranch(newForest.trees.at(f), ResourceVector, DimInfo);
-					cout << "check2";
-					//newForest.trees.at(f)=upkeep(newForest.trees.at(f), ResourceVector, DimInfo); //  <--- BROKEN
-					cout << "check3";
+					
+					}
+					newForest.trees.at(f)=upkeep(newForest.trees.at(f), ResourceVector, DimInfo);
 					newForest = reproduce(newForest, DimInfo, ResourceVector);
+					newForest = reaper(newForest);
 				}
 
 
@@ -152,6 +155,7 @@ int main(int argc, char **argv)
 
 		}
 	}
+	cin >> uselessThing;
 
 
 
