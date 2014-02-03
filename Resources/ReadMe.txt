@@ -19,6 +19,8 @@ Requirements Documentation for Header File:
 		VectorStruct: takes 4 unsigned ints (water, nitrogen, phosphorus, potassium) and one string (plantID), has no pre-initialized objects.
 
 		DimensionStruct: takes 4 ints (width, length, depth, TopsoilDepth), has no pre-initialized objects.
+		
+		ResourceCache: takes 4 long long ints (water, nitrogen, phosphorus, potassium), has no pre-initialized objects.
 
 	Function Format:
 {
@@ -93,7 +95,7 @@ _______________________
 		Output: int, the value of the potassium resource at the specified coordinates in the specified vector.
 _______________________
 
-		ResourceChange(int x, int y, int z, DimensionStruct DimInfo, vector<VectorStruct> ResourceVector, string resource, int change)
+		ResourceChange(int x, int y, int z, DimensionStruct DimInfo, vector<VectorStruct> ResourceVector, string resource, int change, unsigned int min = 0, unsigned int max = UINT_MAX)
 		-
 		x: the x (0-length) coordinate of the space in the vector whose contents you want to change.
 		y: the y (0-width) coordinate of the space in the vector whose contents you want to change.
@@ -102,11 +104,13 @@ _______________________
 		ResourceVector: the vector whose contents you want to change at coordinates x, y, and z.
 		resource: the resource that you want to change; currently supports "water", "nitrogen", "phosphorus" and "potassium".
 		change: the amount that you want to change the value of the resource by. Negative values will subtract, positive values will add.
+		min: the minimum acceptable value that the resource should be changed to; defaults to 0.
+		max: the maximum acceptable value that the resource should be changed to; defaults to UINT_MAX (the maximum value of an unsigned int).
 		-
 		Output: int, the amount that was subtracted from the resource. Added values will come out negative.
 		-
-		Note: this function CANNOT reduce the value of a resource to <0, or increase it to >(2^16). 
-		If a change would bring the value out of the 0-(2^16) range, the function sets the value to 0 or (2^16), and returns the amount of change that actually occured to get it there.
+		Note: this function CANNOT reduce the value of a resource to <min, or increase it to >max. 
+		If a change would bring the value out of the min-max range, the function sets the value to min or max, and returns the negative amount of change that actually occured to get it there.
 _______________________
 
 		initializeResources(int depth, int length, int width, int TopsoilDepth)
@@ -156,4 +160,53 @@ _______________________
 		Output: bool, returns true (1) if the specified plantID matches the one found at the specified coordinates, or a plantID simply exists at the coordinates if no plantID is specified. Returns false (0) in all other cases.
 		-
 		Note: this function may not work as intended if plantID = " ". 
+_______________________
+
+		Mycelium(int z, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector, vector<ResourceCache>& MyceliumCache,
+		signed long long int waterchange,
+		signed long long int nitrogenchange,
+		signed long long int phosphoruschange,
+		signed long long int potassiumchange
+		)
+		-
+		z: the depth at which the Mycelium function should operate.
+		DimInfo: contains dimensional information for ResourceVector, and allows the function to translate coordinates into a position.
+ 		ResourceVector: the vector containing the resources you want to apply the function to.
+		MyceliumCache: the vector for holding the mycelium's resources.
+		waterchange: the extent to which you want to change the distribution of water in the soil.
+		nitrogenchange: the extent to which you want to change the distribution of nitrogen in the soil.
+		phosphoruschange: the extent to which you want to change the distribution of phosphorus in the soil.
+		potassiumchange: the extent to which you want to change the distribution of potassium in the soil.
+		-
+		Output: vector<ResourceCache>, contains 2 structs: the first ([0]) contains averages for each resource at layer z, and the second ([1]) contains totals for each resource at layer z.
+		-
+		Note: if the output of Mycelium is set to equal a vector, the vector must first be initialized to have 2 ResourceCaches. Not initializing the vector with 2 ResourceCaches will result is a crash.
+		This function redistributes resources through a single stratum (or depth) of soil, causing each resource to approach the average by the amount specified in the last 4 arguments.
+		Excess resources are added to MyceliumCache, to keep the total amount of resources constant. 
+		After redistributing the resources to the specified extent, the function will try to put any remaining resources (or lack thereof, in the case of negative values) back into ResourceVector, 
+			but only to the extent that the resources in ResourceVector approach the average. 
+_______________________
+
+		absdiff(long long int a, long long int b = 0)
+		-
+		a: the value to be subtracted from; can be used alone if the absolute value of a single long long int is needed. 
+		b: the value to subtract by.
+		-
+		Output: the absolute value of a-b. 
+		-
+		Note: this function was created to avoid some problems present in the standard abs function, primarily that it can cause overflows when dealing with unsigned ints. 
+_______________________
+
+		sign(long long int value)
+		-
+		value: thae value that you would like the sign of. 
+		-
+		Output: int, 1 if value is >0, -1 in all other cases. 
+_______________________
+
+		initializeMycelium(DimensionStruct DimInfo)
+		-
+		DimInfo: contains dimensional information for ResourceVector, and allows the function to translate coordinates into a position.
+		-
+		Output: vector<ResourceCache>, a vector of DimInfo.depth ResourceCaches, with all values set to 0.
 _______________________
