@@ -4,7 +4,7 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
-#include "VectorIntLib.h" //delete 'Resources/' if broken
+#include "Resources/VectorIntLib.h" //delete 'Resources/' if broken
 #include "Tree generation.h"
 //#include "TreeRender.h"
 
@@ -24,7 +24,7 @@ int main(int argc, char **argv)
 	DimInfo.width = width;
 	DimInfo.depth = depth;
 	DimInfo.TopsoilDepth = TopsoilDepth;
-	vector<VectorStruct> ResourceVector=initializeResources(depth, length, width, TopsoilDepth);
+	vector<VectorStruct> ResourceVector=initializeResources(DimInfo);
 	forest newForest; //all trees
 	seed treeSeed=generateSeed();
 	tree newTree=spawnTree(0,0,0,treeSeed, DimInfo, ResourceVector);
