@@ -6,6 +6,9 @@
 #include "math.h"
 #include <stdlib.h>
 #include <GL/glut.h>
+//#include <SDL.h>
+//#include <SDL_opengl.h>
+//#include <GL/glu.h>
 
 using namespace std;
 
@@ -21,34 +24,8 @@ float deltaMove = 0;
 
 float dAngle = 0.0f;
 int xOrigin = -1;
-//Needed?
-/*struct branch
-{
-	int connection;
-	float xAngle;
-	float yAngle;
-	float length;
-	int feature;
-	vector<int> children;
-	vector<float> xyzPos;
-	vector<float> pRot;
 
-};
-struct seed
-{
-	float branchDensity;
-	float angleVariance;
-	float featureChance;
-	int primaryColor[3];
-	int secondaryColor[3];
-	int tertiaryColor[3];
-	float maxvals[3];
-};
 
-vector<branch> tree;
-branch trunk;
-seed treeSeed;*/
-//////
 void mouseButton(int button, int state, int x, int y) {
 
 	// only start motion if the left button is pressed
@@ -278,6 +255,57 @@ void drawBranch(float x1, float y1, float z1, float len1, float x2, float y2, fl
 }
 
 tree rendertree;
+
+void drawTree() {
+
+
+	glColor3f(1.0f, 0.0f, 0.0f);
+	glutSolidCube(0.2f);
+
+	for (int f = 0; f < rendertree.branches.size();)
+	{
+
+
+
+		float colorwheel = (rendertree.branches.at(f).xyzPos.at(1) / rendertree.maxvals[1]);
+		//cout << colorwheel << endl;
+		float primColor = 2 * (-colorwheel + 0.5f);
+		float tertColor = 2 * (colorwheel - 0.5f);
+		if (primColor < 0)
+		{
+			primColor = 0;
+		}
+		if (tertColor < 0)
+		{
+			tertColor = 0;
+		}
+		float secoColor = 1 - (primColor + tertColor);
+
+		int ch = rendertree.branches.at(f).connection - 1;
+
+		//cout << treeSeed.primaryColor[0] * primColor << endl;
+
+		glColor3f(((rendertree.treeSeed.primaryColor[0] * primColor) + (rendertree.treeSeed.secondaryColor[0] * secoColor) + (rendertree.treeSeed.tertiaryColor[0] * tertColor)) / 255,
+			((rendertree.treeSeed.primaryColor[1] * primColor) + (rendertree.treeSeed.secondaryColor[1] * secoColor) + (rendertree.treeSeed.tertiaryColor[1] * tertColor)) / 255,
+			((rendertree.treeSeed.primaryColor[2] * primColor) + (rendertree.treeSeed.secondaryColor[2] * secoColor) + (rendertree.treeSeed.tertiaryColor[2] * tertColor)) / 255);
+		if (ch < 0)
+		{
+			drawBranch(rendertree.branches.at(f).xyzPos.at(0), rendertree.branches.at(f).xyzPos.at(1), rendertree.branches.at(f).xyzPos.at(2), 0.1f,
+				0.0f, 0.0f, 0.0f, 0.1f);
+		}
+		else
+		{
+			drawBranch(rendertree.branches.at(f).xyzPos.at(0), rendertree.branches.at(f).xyzPos.at(1), rendertree.branches.at(f).xyzPos.at(2), 0.1f,
+				rendertree.branches.at(ch).xyzPos.at(0), rendertree.branches.at(ch).xyzPos.at(1), rendertree.branches.at(ch).xyzPos.at(2), 0.1f);
+		}
+
+		f++;
+
+	}
+
+
+}
+
 void renderScene(void) {
 
 	if (deltaMove)
@@ -302,54 +330,12 @@ void renderScene(void) {
 	glVertex3f(100.0f, 0.0f, -100.0f);
 	glEnd();*/
 
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glutSolidCube(0.2f);
-
-	for (int f = 0; f < rendertree.branches.size();)
-	{
-		
-
-		
-		float colorwheel = (rendertree.branches.at(f).xyzPos.at(1) / rendertree.maxvals[1]);
-		//cout << colorwheel << endl;
-		float primColor = 2 * (-colorwheel + 0.5f);
-		float tertColor = 2 * (colorwheel - 0.5f);
-		if (primColor < 0)
-		{
-			primColor = 0;
-		}
-		if (tertColor < 0)
-		{
-			tertColor = 0;
-		}
-		float secoColor = 1 - (primColor + tertColor);
-
-		int ch = rendertree.branches.at(f).connection - 1;
-		
-		//cout << treeSeed.primaryColor[0] * primColor << endl;
-		
-		glColor3f(((rendertree.treeSeed.primaryColor[0] * primColor) + (rendertree.treeSeed.secondaryColor[0] * secoColor) + (rendertree.treeSeed.tertiaryColor[0] * tertColor)) / 255,
-				  ((rendertree.treeSeed.primaryColor[1] * primColor) + (rendertree.treeSeed.secondaryColor[1] * secoColor) + (rendertree.treeSeed.tertiaryColor[1] * tertColor)) / 255,
-				  ((rendertree.treeSeed.primaryColor[2] * primColor) + (rendertree.treeSeed.secondaryColor[2] * secoColor) + (rendertree.treeSeed.tertiaryColor[2] * tertColor)) / 255);
-		if (ch < 0)
-		{
-			drawBranch(rendertree.branches.at(f).xyzPos.at(0), rendertree.branches.at(f).xyzPos.at(1), rendertree.branches.at(f).xyzPos.at(2), 0.1f,
-					   0.0f, 0.0f, 0.0f, 0.1f);
-		}
-		else
-		{
-			drawBranch(rendertree.branches.at(f).xyzPos.at(0), rendertree.branches.at(f).xyzPos.at(1), rendertree.branches.at(f).xyzPos.at(2), 0.1f,
-				       rendertree.branches.at(ch).xyzPos.at(0), rendertree.branches.at(ch).xyzPos.at(1), rendertree.branches.at(ch).xyzPos.at(2), 0.1f);
-		}
-
-		f++;
-
-	}
+	drawTree();
 
 	glutSwapBuffers();
 }
 
-void render(int argc, char **argv, tree RendTree)
+void renderSoloWindow(int argc, char **argv, tree &RendTree)
 {
 	rendertree = RendTree;
 	glutInit(&argc, argv);
@@ -372,7 +358,6 @@ void render(int argc, char **argv, tree RendTree)
 
 	glutMouseFunc(mouseButton);
 	glutMotionFunc(mouseMove);
-
 
 	//depth test
 	glEnable(GL_DEPTH_TEST);
