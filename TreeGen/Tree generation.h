@@ -28,7 +28,7 @@ struct branch
 	int leaves; // 0=noleaves 1=10 leaves. Leaves store water and sunlight
 	int wood; // wood stores phosphorus and nitrogen. Will change later.
 
-	int feature; //0=nothing, 1=flower, 2=fruit. More to come
+	int feature; //0=nothing, 1=flower, 2=fruit, 3= seed pod. More to come
 	bool isAlive;
 	vector<int> children; //Branches connected to this one
 
@@ -105,14 +105,14 @@ seed generateSeed() //Completely new seed with no inheritance
 	treeSeed.tertiaryColor[0]=randInt(0,255);
 	treeSeed.tertiaryColor[1]=randInt(0,255);
 	treeSeed.tertiaryColor[2]=randInt(0,255);
-	cout << "Seed Data:" << endl;
+	//cout << "Seed Data:" << endl;
 	//cout << "Primary: " << treeSeed.primaryColor[0] << " " << treeSeed.primaryColor[1] << " " << treeSeed.primaryColor[2] << endl;
 	//cout << "Secondary: " << treeSeed.secondaryColor[0] << " " << treeSeed.secondaryColor[1] << " " << treeSeed.secondaryColor[2] << endl;
 	//cout << "Tertiary: " << treeSeed.tertiaryColor[0] << " " << treeSeed.tertiaryColor[1] << " " << treeSeed.tertiaryColor[2] << endl;
 	//cout << "Branch Density: " << treeSeed.branchDensity << " Angle Variance: " << treeSeed.angleVariance << " Feature Chance: "<< treeSeed.featureChance << " Length Variance: " << treeSeed.lengthVariance << endl;
 	return treeSeed;
 }
-tree spawnTree(int x, int y, int z, seed treeSeed, DimensionStruct DimInfo, vector<VectorStruct> ResourceVector)
+tree spawnTree(int x, int y, int z, seed& treeSeed, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector)
 {	
 	tree newTree;
 	newTree.sunlight=0;   //
@@ -137,7 +137,7 @@ tree spawnTree(int x, int y, int z, seed treeSeed, DimensionStruct DimInfo, vect
 	//newForest.trees.push_back(newTree);
 	return newTree;
 }
-tree growBranch(tree newTree, vector<VectorStruct> ResourceVector,DimensionStruct DimInfo)
+tree growBranch(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStruct DimInfo)
 {
 	branch newBranch;
 	int branchWeighting=randInt(0,newTree.branches.size())*newTree.treeSeed.branchDensity; //Weights connection points
@@ -155,7 +155,7 @@ tree growBranch(tree newTree, vector<VectorStruct> ResourceVector,DimensionStruc
 	int featureChance=rand()%100;
 	if(featureChance/100<newTree.treeSeed.featureChance)
 	{
-		newBranch.feature=randInt(1,3);
+		newBranch.feature=randInt(1,4);
 	}
 	newTree.branches.push_back(newBranch);
 	newTree.sunlight=newTree.sunlight-newBranch.length*.25;
@@ -173,16 +173,16 @@ tree growBranch(tree newTree, vector<VectorStruct> ResourceVector,DimensionStruc
 	return newTree;
 }
 
-tree upkeep(tree newTree, vector<VectorStruct> ResourceVector,DimensionStruct DimInfo)
+tree upkeep(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStruct DimInfo)
 {
-	cout << "Upkeepan";
+	//cout << "Upkeepan";
 	int totalLength=0;
 	for(int i=0; i<newTree.branches.size(); i++)
 	{
 		totalLength+=newTree.branches.at(i).length;
 		if(newTree.sunlight-totalLength*.025<0 || newTree.water-totalLength*.05<0 || newTree.nitrogen-totalLength*.0375<0 || newTree.potassium-totalLength*.075<0 || newTree.phosphorus-totalLength*.0625<0)
 		{
-		cout << "test2";
+		//cout << "test2";
 			for(int j=1; j<newTree.branches.size()-i; j++)
 			{
 				//cout << "killing a branch";
@@ -191,7 +191,7 @@ tree upkeep(tree newTree, vector<VectorStruct> ResourceVector,DimensionStruct Di
 				newTree.deadBranches.push_back(newTree.branches.at(newTree.branches.size()-j));
 				//cout << "erasing from live branches";
 				newTree.branches.erase(newTree.branches.end()-j);
-				cout << "Ash Ketchup";
+				//cout << "Ash Ketchup";
 			}
 			
 			if(newTree.branches.size() == 1) //if the tree runs out of branches, it's dead.
@@ -213,7 +213,7 @@ tree upkeep(tree newTree, vector<VectorStruct> ResourceVector,DimensionStruct Di
 
 
 
-forest reaper(forest newForest) //checks forest for trees with isAlive false, and moves them to deadtrees.
+forest reaper(forest& newForest) //checks forest for trees with isAlive false, and moves them to deadtrees.
 {
 	for(int f = 0; f < newForest.trees.size(); f++)
 	{
@@ -228,18 +228,24 @@ forest reaper(forest newForest) //checks forest for trees with isAlive false, an
 	return newForest;
 }
 
-forest reproduce(forest newForest, DimensionStruct DimInfo, vector<VectorStruct> ResourceVector)
+forest reproduce(forest& newForest, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector)
 {
 	for(int f = 0; f < newForest.trees.size(); f++)
 	{
-		if(newForest.trees.at(f).reproduced == 1)
+		
+		for(int g = 0; g < newForest.trees.at(f).branches.size(); g++)
 		{
-			newForest.trees.at(f).reproduced = 2;
-			tree oldTree = newForest.trees.at(f);
-			seed newSeed = generateSeed();
-			tree newTree = spawnTree(oldTree.x+randFloat(-1,1), oldTree.y, oldTree.z+randFloat(-1,1), newSeed, DimInfo, ResourceVector);
-			newForest.trees.push_back(newTree);
+			if(newForest.trees.at(f).branches.at(g).feature==3 && newForest.trees.at(f).reproduced == 1)
+			{
+				newForest.trees.at(f).reproduced = 2;
+				tree oldTree = newForest.trees.at(f);
+				seed newSeed = generateSeed();
+				tree newTree = spawnTree(oldTree.x+randFloat(-1,1), oldTree.y, oldTree.z+randFloat(-1,1), newSeed, DimInfo, ResourceVector);
+				newForest.trees.push_back(newTree);
+				newForest.trees.at(f).branches.at(g).feature=0;
+			}
 		}
+		
 	}
 	return newForest;
 }

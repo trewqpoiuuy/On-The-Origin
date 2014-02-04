@@ -4,7 +4,7 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
-#include "Resources/VectorIntLib.h" //delete 'Resources/' if broken
+#include "VectorIntLib.h" //delete 'Resources/' if broken
 #include "Tree generation.h"
 //#include "TreeRender.h"
 
@@ -100,28 +100,53 @@ int main(int argc, char **argv)
 	{
 		int turn = 0;
 		int turnstogo = 0;
-
+		int feed;
+		cout << "Feed:" <<endl;
+		cin >> feed;
+		int decay;
+		cout << "Decay:" <<endl;
+		cin >> decay;
 		while (newForest.trees.size() > 0) // number of alive trees
 		{
+		
+			int target = 0;
+			cout << "Analyse a tree? (negative # to not analyse anything)" << endl;
+			cin >> target;
+			if (target>0 && target<=newForest.trees.size())
+			{
+				treeSeed = newForest.trees.at(target-1).treeSeed;
+				cout << "Seed Data:" << endl;
+				cout << "Primary: " << treeSeed.primaryColor[0] << " " << treeSeed.primaryColor[1] << " " << treeSeed.primaryColor[2] << endl;
+				cout << "Secondary: " << treeSeed.secondaryColor[0] << " " << treeSeed.secondaryColor[1] << " " << treeSeed.secondaryColor[2] << endl;
+				cout << "Tertiary: " << treeSeed.tertiaryColor[0] << " " << treeSeed.tertiaryColor[1] << " " << treeSeed.tertiaryColor[2] << endl;
+				cout << "Branch Density: " << treeSeed.branchDensity << " Angle Variance: " << treeSeed.angleVariance << " Feature Chance: "<< treeSeed.featureChance << " Length Variance: " << treeSeed.lengthVariance << endl;
+				cin >> uselessThing;
+			}
 
 			cout << "Turn: " << turn << endl;
 			cout << "Number of turns to continue?" << endl;
 			cin >> turnstogo;
+			
+			
 
 			if(turnstogo == -1)
 			{
 				newForest.trees.clear();
 			}
-			int feed = 40;
 			while(turnstogo > 0)
 			{
 				turn += 1;
 				cout << "Turn: " << turn << endl;
 				cout << "Turnstogo: " << turnstogo << endl;
-				feed--;
+
+				feed-=decay;
+				if (feed<=0)
+				{
+					feed=0;
+				}
 				for(int f=0; f<newForest.trees.size(); f++) //feed the trees
 				{
-					cout << f;
+					//cout << f;
 					newForest.trees.at(f).sunlight=newForest.trees.at(f).sunlight+feed;
 					newForest.trees.at(f).water=newForest.trees.at(f).water-ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "water", feed);
 					newForest.trees.at(f).potassium=newForest.trees.at(f).potassium-ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "potassium", feed);
@@ -134,9 +159,9 @@ int main(int argc, char **argv)
 					
 					}
 					newForest.trees.at(f)=upkeep(newForest.trees.at(f), ResourceVector, DimInfo);
-					newForest = reproduce(newForest, DimInfo, ResourceVector);
-					newForest = reaper(newForest);
 				}
+				newForest = reproduce(newForest, DimInfo, ResourceVector);
+				newForest = reaper(newForest);
 
 
 
