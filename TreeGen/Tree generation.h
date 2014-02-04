@@ -158,11 +158,11 @@ tree growBranch(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStr
 		newBranch.feature=randInt(1,4);
 	}
 	newTree.branches.push_back(newBranch);
-	newTree.sunlight=newTree.sunlight-newBranch.length*.25;
-	newTree.water=newTree.water+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "water", newBranch.length*.5);
-	newTree.nitrogen=newTree.nitrogen+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "nitrogen", newBranch.length*.375);
-	newTree.potassium=newTree.potassium+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "potassium", newBranch.length*.75);
-	newTree.phosphorus=newTree.phosphorus+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "phosphorus", newBranch.length*.625);
+	newTree.sunlight=newTree.sunlight-(newBranch.length*.25+newBranch.feature*10);
+	newTree.water=newTree.water+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "water", (newBranch.length*.5+newBranch.feature*10));
+	newTree.nitrogen=newTree.nitrogen+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "nitrogen", (newBranch.length*.375+newBranch.feature*10));
+	newTree.potassium=newTree.potassium+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "potassium", (newBranch.length*.75+newBranch.feature*10));
+	newTree.phosphorus=newTree.phosphorus+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "phosphorus", (newBranch.length*.625+newBranch.feature*10));
 
 	if(newTree.branches.size() == 20)
 	{
@@ -235,8 +235,9 @@ forest reproduce(forest& newForest, DimensionStruct DimInfo, vector<VectorStruct
 		
 		for(int g = 0; g < newForest.trees.at(f).branches.size(); g++)
 		{
-			if(newForest.trees.at(f).branches.at(g).feature==3 && newForest.trees.at(f).reproduced == 1)
+			if(newForest.trees.at(f).branches.at(g).feature==3) //&& newForest.trees.at(f).reproduced == 1
 			{
+				cout << "Tree: " << f << " Branch: "<< g<< endl;
 				newForest.trees.at(f).reproduced = 2;
 				tree oldTree = newForest.trees.at(f);
 				seed newSeed = generateSeed();
