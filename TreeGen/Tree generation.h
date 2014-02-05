@@ -202,11 +202,13 @@ tree upkeep(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStruct 
 			for(int j=1; j<newTree.branches.size()-i; j++)
 			{
 				//cout << "killing a branch";
-				newTree.branches.at(newTree.branches.size()-j).isAlive=0;
+				newTree.branches.at(newTree.branches.size()-1).isAlive=0;
+				//cout << "test";
+				newTree.branches.at(newTree.branches.at(newTree.branches.size()-1).connection-1).children.pop_back();
 				//cout << "adding it to dead branches";
-				newTree.deadBranches.push_back(newTree.branches.at(newTree.branches.size()-j));
+				newTree.deadBranches.push_back(newTree.branches.at(newTree.branches.size()-1));
 				//cout << "erasing from live branches";
-				newTree.branches.erase(newTree.branches.end()-j);
+				newTree.branches.pop_back();
 				//cout << "Ash Ketchup";
 			}
 			
