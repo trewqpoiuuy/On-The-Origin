@@ -25,8 +25,9 @@ struct branch
 	float yAngle; //Polar coordinates relative to connection
 	float length; //
 
-	int leaves; // 0=noleaves 1=10 leaves. Leaves store water and sunlight
-	int wood; // wood stores phosphorus and nitrogen. Will change later.
+	int leaves; // 0=noleaves 1=10 leaves. Leaves store water and sunlight 0-100
+	int wood; // wood stores phosphorus and nitrogen. Will change later. 0-100 
+	//int age; // amount of turns this branch has been alive
 
 	int feature; //0=nothing, 1=flower, 2=fruit, 3= seed pod. More to come
 	bool isAlive;
@@ -43,8 +44,10 @@ struct seed
 	float featureChance; //likelihood of generating features
 	float lengthVariance; //lower value-> shorter branches
 
-	float leafDensity; // Amount of leaf coverage per branch.
-	float canopyWeight; // higher the value, the higher on the tree that leaves grow
+	int leafDensity; // Amount of leaf coverage per branch.
+	int canopyWeight; // higher the value, the higher on the tree that leaves grow
+	int youth; // age that branch grows as many branches as possible
+	int adult; // age that branch stops growing more branches and grows features instead
 
 	int primaryColor[3]; //Bark color
 	int secondaryColor[3]; //Leaf color
@@ -62,6 +65,7 @@ struct tree
 	int phosporuscap; // Max capacity of resource that the tree can hold
 	int nitrogencap;  // currently unused
 	int potassiumcap; //
+	int age;
 	int x;
 	int y;
 	int z;
@@ -95,7 +99,11 @@ seed goForthAndMultiply(seed& seed1, seed& seed2)
 	newSeed.tertiaryColor[2]=(seed1.tertiaryColor[2]+seed2.tertiaryColor[2])/2;
 	newSeed.branchDensity=(seed1.branchDensity+seed2.branchDensity)/2;
 	newSeed.angleVariance=(seed1.angleVariance+seed2.angleVariance)/2;
+	newSeed.lengthVariance=(seed1.lengthVariance+seed2.lengthVariance)/2;
 	newSeed.featureChance=(seed1.featureChance+seed2.featureChance)/2;
+	newSeed.youth=(seed1.youth+seed2.youth)/2;
+	newSeed.adult=(seed1.adult+seed2.adult)/2;
+
 	return newSeed;
 }
 seed generateSeed() //Completely new seed with no inheritance
@@ -109,8 +117,10 @@ seed generateSeed() //Completely new seed with no inheritance
 	treeSeed.featureChance=randFloat(0,.2);
 	treeSeed.lengthVariance=randFloat(0,2);
 
-	treeSeed.leafDensity=randInt(0,200);
+	treeSeed.leafDensity=randInt(0,100);
 	treeSeed.canopyWeight=randFloat(0,10);
+	treeSeed.youth = randInt(0,10);
+	treeSeed.adult = randInt(treeSeed.youth, treeSeed.youth+50);
 
 	treeSeed.primaryColor[0]=randInt(0,255);
 	treeSeed.primaryColor[1]=randInt(0,255);
@@ -121,6 +131,7 @@ seed generateSeed() //Completely new seed with no inheritance
 	treeSeed.tertiaryColor[0]=randInt(0,255);
 	treeSeed.tertiaryColor[1]=randInt(0,255);
 	treeSeed.tertiaryColor[2]=randInt(0,255);
+	
 	//cout << "Seed Data:" << endl;
 	//cout << "Primary: " << treeSeed.primaryColor[0] << " " << treeSeed.primaryColor[1] << " " << treeSeed.primaryColor[2] << endl;
 	//cout << "Secondary: " << treeSeed.secondaryColor[0] << " " << treeSeed.secondaryColor[1] << " " << treeSeed.secondaryColor[2] << endl;
@@ -235,8 +246,8 @@ forest reaper(forest& newForest) //checks forest for trees with isAlive false, a
 {
 	for(int f = 0; f < newForest.trees.size(); f++)
 	{
-		
-		if(newForest.trees.at(f).isAlive == false)
+		newForest.trees.at(f).age += 1;
+		if(newForest.trees.at(f).isAlive == false || newForest.trees.at(f).age > newForest.trees.at(f).seed.youth+newForest.trees.at(f).seed.adult)
 		{
 			cout << "Don't fear the reaper";
 			newForest.deadtrees.push_back(newForest.trees.at(f));
