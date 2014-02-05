@@ -268,7 +268,7 @@ forest reproduce(forest& newForest, DimensionStruct DimInfo, vector<VectorStruct
 			{
 				seed newSeed=goForthAndMultiply(canReproduce.at(0).treeSeed, canReproduce.at(1).treeSeed);
 				canReproduce.erase(canReproduce.begin());
-				canReproduce.erase(canReproduce.begin()+1);
+				canReproduce.erase(canReproduce.begin());
 				tree newTree = spawnTree(newForest.trees.at(f).x+randInt(-3,3), newForest.trees.at(f).y, newForest.trees.at(f).z+randInt(-3,3), newSeed, DimInfo, ResourceVector);
 				newForest.trees.push_back(newTree);
 			}
