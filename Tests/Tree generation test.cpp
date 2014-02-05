@@ -28,7 +28,10 @@ int main(int argc, char **argv)
 	forest newForest; //all trees
 	seed treeSeed=generateSeed();
 	tree newTree=spawnTree(0,0,0,treeSeed, DimInfo, ResourceVector);
-	newForest.trees.push_back(newTree); //put newTree inside forest.
+	seed treeSeed2=generateSeed();
+	tree newTree2=spawnTree(5,0,5,treeSeed2, DimInfo, ResourceVector);
+	newForest.trees.push_back(newTree);
+	newForest.trees.push_back(newTree2); //put newTree inside forest.
 
 	char choicy;
 	cout << "(m)icro (single tree) or m(a)cro (landscape) testing?" << endl;

@@ -81,7 +81,23 @@ struct forest
 	vector<tree> trees;
 	vector<tree> deadtrees;
 };
-
+seed goForthAndMultiply(seed& seed1, seed& seed2)
+{
+	seed newSeed;
+	newSeed.primaryColor[0]=(seed1.primaryColor[0]+seed2.primaryColor[0])/2;
+	newSeed.primaryColor[1]=(seed1.primaryColor[1]+seed2.primaryColor[1])/2;
+	newSeed.primaryColor[2]=(seed1.primaryColor[2]+seed2.primaryColor[2])/2;
+	newSeed.secondaryColor[0]=(seed1.secondaryColor[0]+seed2.secondaryColor[0])/2;
+	newSeed.secondaryColor[1]=(seed1.secondaryColor[1]+seed2.secondaryColor[1])/2;
+	newSeed.secondaryColor[2]=(seed1.secondaryColor[2]+seed2.secondaryColor[2])/2;
+	newSeed.tertiaryColor[0]=(seed1.tertiaryColor[0]+seed2.tertiaryColor[0])/2;
+	newSeed.tertiaryColor[1]=(seed1.tertiaryColor[1]+seed2.tertiaryColor[1])/2;
+	newSeed.tertiaryColor[2]=(seed1.tertiaryColor[2]+seed2.tertiaryColor[2])/2;
+	newSeed.branchDensity=(seed1.branchDensity+seed2.branchDensity)/2;
+	newSeed.angleVariance=(seed1.angleVariance+seed2.angleVariance)/2;
+	newSeed.featureChance=(seed1.featureChance+seed2.featureChance)/2;
+	return newSeed;
+}
 seed generateSeed() //Completely new seed with no inheritance
 {
 	seed treeSeed;
@@ -90,7 +106,7 @@ seed generateSeed() //Completely new seed with no inheritance
 	*/
 	treeSeed.branchDensity=randFloat(0.5,2);
 	treeSeed.angleVariance=randFloat(10,30);
-	treeSeed.featureChance=randFloat(0,1);
+	treeSeed.featureChance=randFloat(0,.2);
 	treeSeed.lengthVariance=randFloat(0,2);
 
 	treeSeed.leafDensity=randInt(0,200);
@@ -232,18 +248,27 @@ forest reproduce(forest& newForest, DimensionStruct DimInfo, vector<VectorStruct
 {
 	for(int f = 0; f < newForest.trees.size(); f++)
 	{
-		
+		vector<tree> canReproduce;
 		for(int g = 0; g < newForest.trees.at(f).branches.size(); g++)
 		{
-			if(newForest.trees.at(f).branches.at(g).feature==3) //&& newForest.trees.at(f).reproduced == 1
+			if(newForest.trees.at(f).branches.at(g).feature==3) //&& newForest.trees.at(f).reproduced == 1 && find(canReproduce.begin(),canReproduce.end(), newForest.trees.at(f))==canReproduce.end()
 			{
-				cout << "Tree: " << f << " Branch: "<< g<< endl;
+				canReproduce.push_back(newForest.trees.at(f));
+				/* cout << "Tree: " << f << " Branch: "<< g<< " Reproduced" << endl;
 				newForest.trees.at(f).reproduced = 2;
 				tree oldTree = newForest.trees.at(f);
 				seed newSeed = generateSeed();
 				tree newTree = spawnTree(oldTree.x+randFloat(-1,1), oldTree.y, oldTree.z+randFloat(-1,1), newSeed, DimInfo, ResourceVector);
+				newForest.trees.push_back(newTree);*/
+				newForest.trees.at(f).branches.at(g).feature=0; 
+			}
+			if(canReproduce.size()>=2)
+			{
+				seed newSeed=goForthAndMultiply(canReproduce.at(0).treeSeed, canReproduce.at(1).treeSeed);
+				canReproduce.erase(canReproduce.begin());
+				canReproduce.erase(canReproduce.begin()+1);
+				tree newTree = spawnTree(newForest.trees.at(f).x+randInt(-3,3), newForest.trees.at(f).y, newForest.trees.at(f).z+randInt(-3,3), newSeed, DimInfo, ResourceVector);
 				newForest.trees.push_back(newTree);
-				newForest.trees.at(f).branches.at(g).feature=0;
 			}
 		}
 		
