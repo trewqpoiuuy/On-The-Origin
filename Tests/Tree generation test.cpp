@@ -45,10 +45,18 @@ int main(int argc, char **argv)
               {
                      originpointx = length;
               }
+			  if(originpointx < 0)
+              {
+                     originpointx = 0;
+              }
               originpointy += randInt(-5,5);
               if(originpointy > width)
               {
                      originpointy = width;
+              }
+              if(originpointy < 0)
+              {
+                     originpointy = 0;
               }
        }
  
@@ -131,7 +139,6 @@ int main(int argc, char **argv)
               while (newForest.trees.size() > 0) // number of alive trees
               {
 				generateForest(newForest,DimInfo, ResourceVector, feed,decay);
-			  
 			  }
        }
        cin >> uselessThing;
