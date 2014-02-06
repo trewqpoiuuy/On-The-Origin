@@ -4,17 +4,27 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
-#include "VectorIntLib.h" //delete 'Resources/' if broken
-#include "Tree generation.h"
-//#include "TreeRender.h"
+#include "../Resources/VectorIntLib.h" //delete 'Resources/' if broken
+#include "../TreeGen/Tree generation.h"
+#include "../Engine/Engine.h"
+#include "../TreeRender/TreeRender.h"
 
 using namespace std;
 using namespace veclib;
 
+Engine::Settings engine;
+Engine::Camera_settings camera;
+
 int main(int argc, char **argv)
  {
+
+	Engine::setup(&engine, &camera);
+	Engine::setDrawFunc(&drawTree);
+	engine.run = true;
+
 	srand(time(NULL));
 	int uselessThing=rand(); //First value of rand is the seed, so this gets rid of it
+	// Note:  This can just be rand();  // C++ Doesn't care if you discard the result by not assigning it to anything
 	int depth = 10;
 	int length = 100;
 	int width = 100;
@@ -96,6 +106,11 @@ int main(int argc, char **argv)
 
 		//renders the tree in a GLUT window
 		//render(argc, argv, newTree);
+		//Or, renders the [tree?] (Actually whole scene) in SDL2
+		rendertree = newTree;
+		//Engine::updateMouseMode();
+		//Engine::update();
+		//Engine::display();
 
 		///// End 3-d render code /////
 	}
