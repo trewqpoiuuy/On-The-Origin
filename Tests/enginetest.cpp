@@ -25,8 +25,8 @@ Engine::Camera_settings camera;
 
 bool showterrain=true;
 
-VoxelObject voxel_test(256);
-Cell::CellObject cell_test;
+Voxel::VoxelObject voxel_test;
+//Cell::CellObject cell_test;
 void renderscene() {
     //                                          Test Lights
 	//float light0pos[4] = {25,50,0,0};
@@ -63,11 +63,11 @@ void renderscene() {
 		voxel_test.draw();
 		glPopMatrix();
 	}
-	cell_test.draw();
+	//cell_test.draw();
 }
 
 void carvevoxels1() {
-	voxel_test.fill(1);
+	//voxel_test.fill(1);
 
 	float cave_c_x=128;
 	//float cave_c_y=256-120;
@@ -75,7 +75,7 @@ void carvevoxels1() {
 	float cave_c_z=128;
 	float cave_r=512/2-50;
 
-	//voxel_test.voxelSphere(cave_c_x,cave_c_y,cave_c_z,cave_r+30,1);
+	voxel_test.voxelSphere(cave_c_x,cave_c_y,cave_c_z,cave_r+30,1);
 	//voxel_test.voxelSphere(cave_c_x,cave_c_y,cave_c_z,cave_r-0,0);
 	voxel_test.voxelSphere(cave_c_x,cave_c_y,cave_c_z,cave_r,0);
 	for (int i=0; i<1000*4; i++) {
@@ -98,7 +98,7 @@ void carvevoxels2() {
 	}
 }
 
-void addrandomcells() {
+/*void addrandomcells() {
 	for (int i=0; i<500; i++) {
 		float range=.512;
 		float x=(pow(randf()*2-1,9)*range);
@@ -106,15 +106,17 @@ void addrandomcells() {
 		float z=(pow(randf()*2-1,9)*range);
 		cell_test.addcell(Cell::Cell{&cell_test.cells,x,y,z,1});
 	}
-}
+}*/
 
 int main(int argc, char *argv[]) {
 
-	carvevoxels1();
+	//carvevoxels1();
+	voxel_test.editVoxelAt(0,0,0)->solid=true;
+	voxel_test.voxelSphere(0,0,0,2,true);
 	//carvevoxels2();
 	voxel_test.updateMesh();
 
-	addrandomcells();
+	//addrandomcells();
 
 	//engine.fullscreen = true;
 	//engine.riftmode = true;
@@ -122,9 +124,9 @@ int main(int argc, char *argv[]) {
 	Engine::setDrawFunc(&renderscene);
 	engine.run = true;
 	while (engine.run) {
-		for (int i=0; i<cell_test.cells.size(); i++) {
+		/*for (int i=0; i<cell_test.cells.size(); i++) {
 			cell_test.cells[i].physics();
-		}
+		}*/
 		Engine::updateMouseMode();
 		Engine::update();
 		Engine::display();
