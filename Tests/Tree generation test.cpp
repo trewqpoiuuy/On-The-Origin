@@ -27,9 +27,9 @@ int main(int argc, char **argv)
 	vector<VectorStruct> ResourceVector=initializeResources(DimInfo);
 	forest newForest; //all trees
 	seed treeSeed=generateSeed();
-	tree newTree=spawnTree(0,0,0,treeSeed, DimInfo, ResourceVector);
+	tree newTree=spawnTree(45,45,0,treeSeed, DimInfo, ResourceVector);
 	seed treeSeed2=generateSeed();
-	tree newTree2=spawnTree(5,0,5,treeSeed2, DimInfo, ResourceVector);
+	tree newTree2=spawnTree(55,55,0,treeSeed2, DimInfo, ResourceVector);
 	newForest.trees.push_back(newTree);
 	newForest.trees.push_back(newTree2); //put newTree inside forest.
 

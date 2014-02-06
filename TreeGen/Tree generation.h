@@ -223,11 +223,11 @@ tree growBranch(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStr
 			newBranch.feature=randInt(1,4);
 		}
 		newTree.branches.push_back(newBranch);
-		newTree.sunlight=newTree.sunlight-(newBranch.length*.25+newBranch.feature*5);
-		newTree.water=newTree.water+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "water", (newBranch.length*.5+newBranch.feature*5));
-		newTree.nitrogen=newTree.nitrogen+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "nitrogen", (newBranch.length*.375+newBranch.feature*5));
-		newTree.potassium=newTree.potassium+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "potassium", (newBranch.length*.75+newBranch.feature*5));
-		newTree.phosphorus=newTree.phosphorus+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "phosphorus", (newBranch.length*.625+newBranch.feature*5));
+		newTree.sunlight=newTree.sunlight-(newBranch.length*.25+newBranch.feature*10);
+		newTree.water=newTree.water+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "water", (newBranch.length*.5+newBranch.feature*10));
+		newTree.nitrogen=newTree.nitrogen+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "nitrogen", (newBranch.length*.375+newBranch.feature*10));
+		newTree.potassium=newTree.potassium+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "potassium", (newBranch.length*.75+newBranch.feature*10));
+		newTree.phosphorus=newTree.phosphorus+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "phosphorus", (newBranch.length*.625+newBranch.feature*10));
 	}
 	/* if(newTree.branches.size() == 20)
 	{
@@ -318,7 +318,7 @@ forest reproduce(forest& newForest, DimensionStruct DimInfo, vector<VectorStruct
 				seed newSeed=goForthAndMultiply(canReproduce.at(0).treeSeed, canReproduce.at(1).treeSeed);
 				canReproduce.erase(canReproduce.begin());
 				canReproduce.erase(canReproduce.begin());
-				tree newTree = spawnTree(newForest.trees.at(f).x+randInt(0,3), newForest.trees.at(f).y, newForest.trees.at(f).z+randInt(0,3), newSeed, DimInfo, ResourceVector);
+				tree newTree = spawnTree(newForest.trees.at(f).x+randInt(-3,3), newForest.trees.at(f).y+randInt(-3,3), newForest.trees.at(f).z, newSeed, DimInfo, ResourceVector);
 				newForest.trees.push_back(newTree);
 			}
 		}
