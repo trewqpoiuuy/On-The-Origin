@@ -123,6 +123,7 @@ int main(int argc, char **argv)
 				cout << "Secondary: " << treeSeed.secondaryColor[0] << " " << treeSeed.secondaryColor[1] << " " << treeSeed.secondaryColor[2] << endl;
 				cout << "Tertiary: " << treeSeed.tertiaryColor[0] << " " << treeSeed.tertiaryColor[1] << " " << treeSeed.tertiaryColor[2] << endl;
 				cout << "Branch Density: " << treeSeed.branchDensity << " Angle Variance: " << treeSeed.angleVariance << " Feature Chance: "<< treeSeed.featureChance << " Length Variance: " << treeSeed.lengthVariance << endl;
+				cout << "Age: " << newForest.trees.at(target-1).age << " Youth: " << treeSeed.youth << " Adult: " << treeSeed.adult << endl;
 				cin >> uselessThing;
 			}
 
@@ -156,12 +157,14 @@ int main(int argc, char **argv)
 					newForest.trees.at(f).phosphorus=newForest.trees.at(f).phosphorus-ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "phosphorus", feed);
 					newForest.trees.at(f).nitrogen=newForest.trees.at(f).nitrogen-ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "nitrogen", feed);
 					//let the trees do their tree thing
-					while(newForest.trees.at(f).sunlight>=10 && newForest.trees.at(f).water>=20 && newForest.trees.at(f).nitrogen>=15 && newForest.trees.at(f).potassium>=30 && newForest.trees.at(f).phosphorus>=25)
+					while(newForest.trees.at(f).age < newForest.trees.at(f).treeSeed.youth && newForest.trees.at(f).sunlight>=10 && newForest.trees.at(f).water>=20 && newForest.trees.at(f).nitrogen>=15 && newForest.trees.at(f).potassium>=30 && newForest.trees.at(f).phosphorus>=25)
 					{
-					newForest.trees.at(f)=growBranch(newForest.trees.at(f), ResourceVector, DimInfo);
-					
+						newForest.trees.at(f)=growBranch(newForest.trees.at(f), ResourceVector, DimInfo);
+						newForest.trees.at(f)=upkeep(newForest.trees.at(f), ResourceVector, DimInfo);
+						cout << "Tree " << f+1 << " grew a branch."<< endl;
 					}
-					newForest.trees.at(f)=upkeep(newForest.trees.at(f), ResourceVector, DimInfo);
+					
+					cout << "Tree " << f+1 << " done."<< endl;
 				}
 				newForest = reproduce(newForest, DimInfo, ResourceVector);
 				newForest = reaper(newForest);

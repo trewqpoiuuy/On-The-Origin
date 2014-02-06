@@ -85,27 +85,62 @@ struct forest
 	vector<tree> trees;
 	vector<tree> deadtrees;
 };
+int absoluteIntMutation(int variable1, int variable2, int rads)
+{
+	int variable3 = variable1+variable2;
+	if(randInt(0,10)==6)
+	{
+	variable3+= randInt(-rads, rads);
+	}
+	if(variable3 < .1 )
+	{
+		variable3 = .1;
+	}
+	variable3 = variable3/2;
+	
+	return variable3;
+} 
+
+float absoluteFloatMutation(float variable1, float variable2, float rads)
+{
+	float variable3 = variable1+variable2;
+	if(randInt(0,10)==6)
+	{
+	variable3+= randFloat(-rads, rads);
+	}
+	if(variable3 < .1 )
+	{
+		variable3 = .1;
+	}
+	variable3 = variable3/2;
+	
+	return variable3;
+} 
 seed goForthAndMultiply(seed& seed1, seed& seed2)
 {
+
 	seed newSeed;
-	newSeed.primaryColor[0]=(seed1.primaryColor[0]+seed2.primaryColor[0])/2;
-	newSeed.primaryColor[1]=(seed1.primaryColor[1]+seed2.primaryColor[1])/2;
-	newSeed.primaryColor[2]=(seed1.primaryColor[2]+seed2.primaryColor[2])/2;
-	newSeed.secondaryColor[0]=(seed1.secondaryColor[0]+seed2.secondaryColor[0])/2;
-	newSeed.secondaryColor[1]=(seed1.secondaryColor[1]+seed2.secondaryColor[1])/2;
-	newSeed.secondaryColor[2]=(seed1.secondaryColor[2]+seed2.secondaryColor[2])/2;
-	newSeed.tertiaryColor[0]=(seed1.tertiaryColor[0]+seed2.tertiaryColor[0])/2;
-	newSeed.tertiaryColor[1]=(seed1.tertiaryColor[1]+seed2.tertiaryColor[1])/2;
-	newSeed.tertiaryColor[2]=(seed1.tertiaryColor[2]+seed2.tertiaryColor[2])/2;
-	newSeed.branchDensity=(seed1.branchDensity+seed2.branchDensity)/2;
-	newSeed.angleVariance=(seed1.angleVariance+seed2.angleVariance)/2;
-	newSeed.lengthVariance=(seed1.lengthVariance+seed2.lengthVariance)/2;
-	newSeed.featureChance=(seed1.featureChance+seed2.featureChance)/2;
-	newSeed.youth=(seed1.youth+seed2.youth)/2;
-	newSeed.adult=(seed1.adult+seed2.adult)/2;
+	newSeed = seed1;
+	newSeed.primaryColor[0]= absoluteIntMutation(seed1.primaryColor[0],seed2.primaryColor[0], 1);
+	newSeed.primaryColor[1]= absoluteIntMutation(seed1.primaryColor[1],seed2.primaryColor[1], 1);
+	newSeed.primaryColor[2]= absoluteIntMutation(seed1.primaryColor[2],seed2.primaryColor[2], 1);
+	newSeed.secondaryColor[0]= absoluteIntMutation(seed1.secondaryColor[0],seed2.secondaryColor[0], 1);
+	newSeed.secondaryColor[1]= absoluteIntMutation(seed1.secondaryColor[1],seed2.secondaryColor[1], 1);
+	newSeed.secondaryColor[2]= absoluteIntMutation(seed1.secondaryColor[2],seed2.secondaryColor[2], 1);
+	newSeed.tertiaryColor[0]= absoluteIntMutation(seed1.tertiaryColor[0],seed2.tertiaryColor[0], 1);
+	newSeed.tertiaryColor[1]= absoluteIntMutation(seed1.tertiaryColor[1],seed2.tertiaryColor[1], 1);
+	newSeed.tertiaryColor[2]= absoluteIntMutation(seed1.tertiaryColor[2],seed2.tertiaryColor[2], 1);
+	newSeed.branchDensity= absoluteFloatMutation(seed1.branchDensity,seed2.branchDensity, .01);
+	newSeed.angleVariance= absoluteFloatMutation(seed1.angleVariance,seed2.angleVariance, .01);
+	newSeed.lengthVariance= absoluteFloatMutation(seed1.lengthVariance,seed2.lengthVariance, .01);
+	newSeed.featureChance= absoluteFloatMutation(seed1.featureChance,seed2.featureChance, .01);
+	newSeed.youth=absoluteIntMutation(seed1.youth,seed2.youth, 1);
+	newSeed.adult=absoluteIntMutation(seed1.adult,seed2.adult, 1);
 
 	return newSeed;
 }
+
+
 seed generateSeed() //Completely new seed with no inheritance
 {
 	seed treeSeed;
@@ -119,8 +154,8 @@ seed generateSeed() //Completely new seed with no inheritance
 
 	treeSeed.leafDensity=randInt(0,100);
 	treeSeed.canopyWeight=randFloat(0,10);
-	treeSeed.youth = randInt(0,10);
-	treeSeed.adult = randInt(treeSeed.youth, treeSeed.youth+50);
+	treeSeed.youth = randInt(50,100);
+	treeSeed.adult = randInt(treeSeed.youth+50, treeSeed.youth+100);
 
 	treeSeed.primaryColor[0]=randInt(0,255);
 	treeSeed.primaryColor[1]=randInt(0,255);
@@ -152,6 +187,7 @@ tree spawnTree(int x, int y, int z, seed& treeSeed, DimensionStruct DimInfo, vec
 	newTree.x=x;
 	newTree.y=y;
 	newTree.z=z;
+	newTree.age=0;
 	newTree.treeSeed=treeSeed;
 	branch trunk;
 	trunk.connection=0;
@@ -166,35 +202,37 @@ tree spawnTree(int x, int y, int z, seed& treeSeed, DimensionStruct DimInfo, vec
 }
 tree growBranch(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStruct DimInfo)
 {
-	branch newBranch;
-	int branchWeighting=randInt(0,newTree.branches.size())*newTree.treeSeed.branchDensity; //Weights connection points
-	if(branchWeighting>=newTree.branches.size())
+	if(newTree.sunlight>=10 && newTree.water>=20 && newTree.nitrogen>=15 && newTree.potassium>=30 && newTree.phosphorus>=25)
 	{
-		branchWeighting=newTree.branches.size()-1; //Makes sure branches only connect to existing branches
+		branch newBranch;
+		int branchWeighting=randInt(0,newTree.branches.size())*newTree.treeSeed.branchDensity; //Weights connection points
+		if(branchWeighting>=newTree.branches.size())
+		{
+			branchWeighting=newTree.branches.size()-1; //Makes sure branches only connect to existing branches
+		}
+		newBranch.connection=(newTree.branches.size()-branchWeighting);
+		newTree.branches.at(newBranch.connection-1).children.push_back(newTree.branches.size()+1);
+		newBranch.xAngle=randFloat(-newTree.treeSeed.angleVariance,newTree.treeSeed.angleVariance);
+		newBranch.yAngle=randFloat(-newTree.treeSeed.angleVariance,newTree.treeSeed.angleVariance);
+		newBranch.length=randFloat(1,20)*newTree.treeSeed.lengthVariance;
+		newBranch.feature=0;
+		newBranch.isAlive=1;
+		int featureChance=rand()%100;
+		if(featureChance/100<newTree.treeSeed.featureChance)
+		{
+			newBranch.feature=randInt(1,4);
+		}
+		newTree.branches.push_back(newBranch);
+		newTree.sunlight=newTree.sunlight-(newBranch.length*.25+newBranch.feature*5);
+		newTree.water=newTree.water+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "water", (newBranch.length*.5+newBranch.feature*5));
+		newTree.nitrogen=newTree.nitrogen+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "nitrogen", (newBranch.length*.375+newBranch.feature*5));
+		newTree.potassium=newTree.potassium+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "potassium", (newBranch.length*.75+newBranch.feature*5));
+		newTree.phosphorus=newTree.phosphorus+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "phosphorus", (newBranch.length*.625+newBranch.feature*5));
 	}
-	newBranch.connection=(newTree.branches.size()-branchWeighting);
-	newTree.branches.at(newBranch.connection-1).children.push_back(newTree.branches.size()+1);
-	newBranch.xAngle=randFloat(-newTree.treeSeed.angleVariance,newTree.treeSeed.angleVariance);
-	newBranch.yAngle=randFloat(-newTree.treeSeed.angleVariance,newTree.treeSeed.angleVariance);
-	newBranch.length=randFloat(1,20)*newTree.treeSeed.lengthVariance;
-	newBranch.feature=0;
-	newBranch.isAlive=1;
-	int featureChance=rand()%100;
-	if(featureChance/100<newTree.treeSeed.featureChance)
-	{
-		newBranch.feature=randInt(1,4);
-	}
-	newTree.branches.push_back(newBranch);
-	newTree.sunlight=newTree.sunlight-(newBranch.length*.25+newBranch.feature*10);
-	newTree.water=newTree.water+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "water", (newBranch.length*.5+newBranch.feature*10));
-	newTree.nitrogen=newTree.nitrogen+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "nitrogen", (newBranch.length*.375+newBranch.feature*10));
-	newTree.potassium=newTree.potassium+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "potassium", (newBranch.length*.75+newBranch.feature*10));
-	newTree.phosphorus=newTree.phosphorus+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "phosphorus", (newBranch.length*.625+newBranch.feature*10));
-
-	if(newTree.branches.size() == 20)
+	/* if(newTree.branches.size() == 20)
 	{
 		newTree.reproduced = 1;
-	}
+	} */
 
 
 	return newTree;
@@ -207,7 +245,7 @@ tree upkeep(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStruct 
 	for(int i=0; i<newTree.branches.size(); i++)
 	{
 		totalLength+=newTree.branches.at(i).length;
-		if(newTree.sunlight-totalLength*.025<0 || newTree.water-totalLength*.05<0 || newTree.nitrogen-totalLength*.0375<0 || newTree.potassium-totalLength*.075<0 || newTree.phosphorus-totalLength*.0625<0)
+		if(newTree.sunlight-totalLength*.0025<0 || newTree.water-totalLength*.005<0 || newTree.nitrogen-totalLength*.00375<0 || newTree.potassium-totalLength*.0075<0 || newTree.phosphorus-totalLength*.00625<0)
 		{
 		//cout << "test2";
 			for(int j=1; j<newTree.branches.size()-i; j++)
@@ -230,12 +268,12 @@ tree upkeep(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStruct 
 			}
 		}
 	}
-	newTree.sunlight=newTree.sunlight-totalLength*.025;
+	newTree.sunlight=newTree.sunlight-totalLength*.0025;
 	
-	newTree.water=newTree.water-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "water",-(totalLength*.05));
-	newTree.nitrogen=newTree.nitrogen-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "nitrogen", -(totalLength*.0375));
-	newTree.potassium=newTree.potassium-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "potassium", -(totalLength*.075));
-	newTree.phosphorus=newTree.phosphorus-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "phosphorus", -(totalLength*.0625));
+	newTree.water=newTree.water-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "water",-(totalLength*.005));
+	newTree.nitrogen=newTree.nitrogen-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "nitrogen", -(totalLength*.00375));
+	newTree.potassium=newTree.potassium-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "potassium", -(totalLength*.0075));
+	newTree.phosphorus=newTree.phosphorus-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "phosphorus", -(totalLength*.00625));
 	return newTree;
 
 }
@@ -247,7 +285,7 @@ forest reaper(forest& newForest) //checks forest for trees with isAlive false, a
 	for(int f = 0; f < newForest.trees.size(); f++)
 	{
 		newForest.trees.at(f).age += 1;
-		if(newForest.trees.at(f).isAlive == false || newForest.trees.at(f).age > newForest.trees.at(f).seed.youth+newForest.trees.at(f).seed.adult)
+		if(newForest.trees.at(f).isAlive == false || newForest.trees.at(f).age > newForest.trees.at(f).treeSeed.youth+newForest.trees.at(f).treeSeed.adult)
 		{
 			cout << "Don't fear the reaper";
 			newForest.deadtrees.push_back(newForest.trees.at(f));
@@ -264,7 +302,7 @@ forest reproduce(forest& newForest, DimensionStruct DimInfo, vector<VectorStruct
 		vector<tree> canReproduce;
 		for(int g = 0; g < newForest.trees.at(f).branches.size(); g++)
 		{
-			if(newForest.trees.at(f).branches.at(g).feature==3) //&& newForest.trees.at(f).reproduced == 1 && find(canReproduce.begin(),canReproduce.end(), newForest.trees.at(f))==canReproduce.end()
+			if(newForest.trees.at(f).branches.at(g).feature==3) //&& find(canReproduce.begin(),canReproduce.end(), newForest.trees.at(f))==canReproduce.end()
 			{
 				canReproduce.push_back(newForest.trees.at(f));
 				/* cout << "Tree: " << f << " Branch: "<< g<< " Reproduced" << endl;
