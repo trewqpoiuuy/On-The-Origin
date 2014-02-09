@@ -6,6 +6,7 @@
  */
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -239,13 +240,7 @@ else if (testDimSet == 1)
 		vector<ResourceCache> MyceliumCache = initializeMycelium(DimInfo);
 		cout << "\nMycelium initialized...";
 
-	//printing mycelium values for reference
-		cout << "\nMyceliumCache[z].water: " << MyceliumCache[ztest].water;
-		cout << "\nMyceliumCache[z].nitrogen: " << MyceliumCache[ztest].nitrogen;
-		cout << "\nMyceliumCache[z].phosphorus: " << MyceliumCache[ztest].phosphorus;
-		cout << "\nMyceliumCache[z].potassium: " << MyceliumCache[ztest].potassium;
-
-	//more reference values
+	//reference values
 		cout << "\nMyceliumCache[z].water: " << MyceliumCache[ztest].water;
 		cout << "\nWater: " << WaterGrab(xtest, ytest, ztest, DimInfo, ResourceVector);
 		cout << "\nMyceliumCache[z].nitrogen: " << MyceliumCache[ztest].nitrogen;
@@ -260,9 +255,9 @@ else if (testDimSet == 1)
 		unsigned long long int nitrogentotal = 0;
 		unsigned long long int phosphorustotal = 0;
 		unsigned long long int potassiumtotal = 0;
-		for (int x=0; x<DimInfo.length; x++)
+		for (unsigned int x=0; x<DimInfo.length; x++)
 		{
-			for (int y=0; y<DimInfo.width; y++)
+			for (unsigned int y=0; y<DimInfo.width; y++)
 			{
 				signed long long int nonZ = (y*DimInfo.depth)+(x*DimInfo.depth*DimInfo.width);
 				watertotal += ResourceVector[ztest+nonZ].water;
@@ -280,15 +275,23 @@ else if (testDimSet == 1)
 	//repeats Mycelium until the test values = the averages
 		vector<ResourceCache> MycoOutput(2);
 
+		TestCondition MycoTest;
+		MycoTest.clear();
+
 		//cout << "\nabs(wateravg - WaterGrab(xtest, ytest, ztest, DimInfo, ResourceVector)): " << abs(wateravg - WaterGrab(xtest, ytest, ztest, DimInfo, ResourceVector));
-		while (
-				absdiff((wateravg - (MyceliumCache[ztest].water/(DimInfo.width*DimInfo.length))) - WaterGrab(xtest, ytest, ztest, DimInfo, ResourceVector)) > 1
-				&& absdiff((nitrogenavg - (MyceliumCache[ztest].nitrogen/(DimInfo.width*DimInfo.length))) - NitrogenGrab(xtest, ytest, ztest, DimInfo, ResourceVector)) > 1
-				&& absdiff((phosphorusavg - (MyceliumCache[ztest].phosphorus/(DimInfo.width*DimInfo.length))) - PhosphorusGrab(xtest, ytest, ztest, DimInfo, ResourceVector)) > 1
-				&& absdiff((potassiumavg - (MyceliumCache[ztest].potassium/(DimInfo.width*DimInfo.length))) - PotassiumGrab(xtest, ytest, ztest, DimInfo, ResourceVector)) > 1
-			)
+		while (MycoTest.alltrue() == false)
 		{
 			MycoOutput = Mycelium(ztest, DimInfo, ResourceVector, MyceliumCache, UINT_MAX/5, UINT_MAX/5, UINT_MAX/5, UINT_MAX/5);
+
+			if (absdiff((wateravg - (MyceliumCache[ztest].water/(DimInfo.width*DimInfo.length))) - WaterGrab(xtest, ytest, ztest, DimInfo, ResourceVector)) <= 1)
+				{MycoTest.water = true;}
+			if (absdiff((nitrogenavg - (MyceliumCache[ztest].nitrogen/(DimInfo.width*DimInfo.length))) - NitrogenGrab(xtest, ytest, ztest, DimInfo, ResourceVector)) <= 1)
+				{MycoTest.nitrogen = true;}
+			if (absdiff((phosphorusavg - (MyceliumCache[ztest].phosphorus/(DimInfo.width*DimInfo.length))) - PhosphorusGrab(xtest, ytest, ztest, DimInfo, ResourceVector)) <= 1)
+				{MycoTest.phosphorus = true;}
+			if (absdiff((potassiumavg - (MyceliumCache[ztest].potassium/(DimInfo.width*DimInfo.length))) - PotassiumGrab(xtest, ytest, ztest, DimInfo, ResourceVector)) <= 1)
+				{MycoTest.potassium = true;}
+
 			cout << "\nw/n/p/k avgs (large outlier): " << wateravg << ", " << nitrogenavg << ", " << phosphorusavg << ", " << potassiumavg;
 			cout << "\nw/n/p/k (large outlier): "
 					<< WaterGrab(xtest, ytest, ztest, DimInfo, ResourceVector)
@@ -300,8 +303,8 @@ else if (testDimSet == 1)
 					<< ", " << MyceliumCache[ztest].nitrogen/(DimInfo.width*DimInfo.length)
 					<< ", " << MyceliumCache[ztest].phosphorus/(DimInfo.width*DimInfo.length)
 					<< ", " << MyceliumCache[ztest].potassium/(DimInfo.width*DimInfo.length);
-			cout << "\nw/n/p/k Equalibrium: "
-					<< ((wateravg - (MyceliumCache[ztest].water/(DimInfo.width*DimInfo.length))) - WaterGrab(xtest, ytest, ztest, DimInfo, ResourceVector))
+			cout << "\nw/n/p/k Equilibrium: "
+					<< absdiff((wateravg - (MyceliumCache[ztest].water/(DimInfo.width*DimInfo.length))) - WaterGrab(xtest, ytest, ztest, DimInfo, ResourceVector))
 					<< ", "
 					<< absdiff((nitrogenavg - (MyceliumCache[ztest].nitrogen/(DimInfo.width*DimInfo.length))) - NitrogenGrab(xtest, ytest, ztest, DimInfo, ResourceVector))
 					<< ", "
@@ -373,13 +376,7 @@ else if (testDimSet == 1)
  				MyceliumCache[ztest].phosphorus = 0;
 				MyceliumCache[ztest].potassium = 0;
 
-			//printing mycelium values for reference
-				cout << "\nMyceliumCache[z].water: " << MyceliumCache[ztest].water;
-				cout << "\nMyceliumCache[z].nitrogen: " << MyceliumCache[ztest].nitrogen;
-				cout << "\nMyceliumCache[z].phosphorus: " << MyceliumCache[ztest].phosphorus;
-				cout << "\nMyceliumCache[z].potassium: " << MyceliumCache[ztest].potassium;
-
-			//more reference values
+			//reference values
 				cout << "\nMyceliumCache[z].water: " << MyceliumCache[ztest].water;
 				cout << "\nWater: " << WaterGrab(xtest, ytest, ztest, DimInfo, ResourceVector);
 				cout << "\nMyceliumCache[z].nitrogen: " << MyceliumCache[ztest].nitrogen;
@@ -394,9 +391,9 @@ else if (testDimSet == 1)
 				nitrogentotal = 0;
 				phosphorustotal = 0;
 				potassiumtotal = 0;
-				for (int x=0; x<DimInfo.length; x++)
+				for (unsigned int x=0; x<DimInfo.length; x++)
 				{
-					for (int y=0; y<DimInfo.width; y++)
+					for (unsigned int y=0; y<DimInfo.width; y++)
 					{
 						signed long long int nonZ = (y*DimInfo.depth)+(x*DimInfo.depth*DimInfo.width);
 						watertotal += ResourceVector[ztest+nonZ].water;
@@ -413,16 +410,30 @@ else if (testDimSet == 1)
 
 			//repeats Mycelium until the test values = the averages
 
-
 				//cout << "\nabs(wateravg - WaterGrab(xtest, ytest, ztest, DimInfo, ResourceVector)): " << abs(wateravg - WaterGrab(xtest, ytest, ztest, DimInfo, ResourceVector));
+				MycoTest.clear();
+/*
 				while (
 						absdiff((wateravg - (MyceliumCache[ztest].water/(DimInfo.width*DimInfo.length))) - WaterGrab(xtest, ytest, ztest, DimInfo, ResourceVector)) > 1
 						&& absdiff((nitrogenavg - (MyceliumCache[ztest].nitrogen/(DimInfo.width*DimInfo.length))) - NitrogenGrab(xtest, ytest, ztest, DimInfo, ResourceVector)) > 1
 						&& absdiff((phosphorusavg - (MyceliumCache[ztest].phosphorus/(DimInfo.width*DimInfo.length))) - PhosphorusGrab(xtest, ytest, ztest, DimInfo, ResourceVector)) > 1
 						&& absdiff((potassiumavg - (MyceliumCache[ztest].potassium/(DimInfo.width*DimInfo.length))) - PotassiumGrab(xtest, ytest, ztest, DimInfo, ResourceVector)) > 1
-					)
+				)
+*/
+				while (MycoTest.alltrue() == false)
+
 				{
 					MycoOutput = Mycelium(ztest, DimInfo, ResourceVector, MyceliumCache, UINT_MAX/5, UINT_MAX/5, UINT_MAX/5, UINT_MAX/5);
+
+					if (absdiff((wateravg - (MyceliumCache[ztest].water/(DimInfo.width*DimInfo.length))) - WaterGrab(xtest, ytest, ztest, DimInfo, ResourceVector)) <= 1)
+						{MycoTest.water = true;}
+					if (absdiff((nitrogenavg - (MyceliumCache[ztest].nitrogen/(DimInfo.width*DimInfo.length))) - NitrogenGrab(xtest, ytest, ztest, DimInfo, ResourceVector)) <= 1)
+						{MycoTest.nitrogen = true;}
+					if (absdiff((phosphorusavg - (MyceliumCache[ztest].phosphorus/(DimInfo.width*DimInfo.length))) - PhosphorusGrab(xtest, ytest, ztest, DimInfo, ResourceVector)) <= 1)
+						{MycoTest.phosphorus = true;}
+					if (absdiff((potassiumavg - (MyceliumCache[ztest].potassium/(DimInfo.width*DimInfo.length))) - PotassiumGrab(xtest, ytest, ztest, DimInfo, ResourceVector)) <= 1)
+						{MycoTest.potassium = true;}
+
 					cout << "\nw/n/p/k avgs (large outlier): " << wateravg << ", " << nitrogenavg << ", " << phosphorusavg << ", " << potassiumavg;
 					cout << "\nw/n/p/k (large outlier): "
 							<< WaterGrab(xtest, ytest, ztest, DimInfo, ResourceVector)
@@ -434,14 +445,14 @@ else if (testDimSet == 1)
 							<< ", " << MyceliumCache[ztest].nitrogen/(DimInfo.width*DimInfo.length)
 							<< ", " << MyceliumCache[ztest].phosphorus/(DimInfo.width*DimInfo.length)
 							<< ", " << MyceliumCache[ztest].potassium/(DimInfo.width*DimInfo.length);
-					cout << "\nw/n/p/k Equalibrium: "
+					cout << "\nw/n/p/k Equilibrium: "
 							<< ((wateravg - (MyceliumCache[ztest].water/(DimInfo.width*DimInfo.length))) - WaterGrab(xtest, ytest, ztest, DimInfo, ResourceVector))
 							<< ", "
-							<< absdiff((nitrogenavg - (MyceliumCache[ztest].nitrogen/(DimInfo.width*DimInfo.length))) - NitrogenGrab(xtest, ytest, ztest, DimInfo, ResourceVector))
+							<< ((nitrogenavg - (MyceliumCache[ztest].nitrogen/(DimInfo.width*DimInfo.length))) - NitrogenGrab(xtest, ytest, ztest, DimInfo, ResourceVector))
 							<< ", "
-							<< absdiff((phosphorusavg - (MyceliumCache[ztest].phosphorus/(DimInfo.width*DimInfo.length))) - PhosphorusGrab(xtest, ytest, ztest, DimInfo, ResourceVector))
+							<< ((phosphorusavg - (MyceliumCache[ztest].phosphorus/(DimInfo.width*DimInfo.length))) - PhosphorusGrab(xtest, ytest, ztest, DimInfo, ResourceVector))
 							<< ", "
-							<< absdiff((potassiumavg - (MyceliumCache[ztest].potassium/(DimInfo.width*DimInfo.length))) - PotassiumGrab(xtest, ytest, ztest, DimInfo, ResourceVector));
+							<< ((potassiumavg - (MyceliumCache[ztest].potassium/(DimInfo.width*DimInfo.length))) - PotassiumGrab(xtest, ytest, ztest, DimInfo, ResourceVector));
 
 				}
 
@@ -500,7 +511,86 @@ else if (testDimSet == 1)
 
 cout << "\nUINT_MAX: " << UINT_MAX;
 cout << "\nLLONG_MAX: " << LLONG_MAX;
+
+//testing conditions
+TestCondition test;
+test.clear();
+cout << "\ntest.water(0): " << test.water;
+cout << "\ntest.nitrogen(0): " << test.nitrogen;
+cout << "\ntest.phosphorus(0): " << test.phosphorus;
+cout << "\ntest.potassium(0): " << test.potassium;
+cout << "\ntest.alltrue(0): " << test.alltrue();
+test.water=1;
+test.nitrogen=1;
+test.phosphorus=1;
+test.potassium=1;
+cout << "\ntest.water(1): " << test.water;
+cout << "\ntest.nitrogen(1): " << test.nitrogen;
+cout << "\ntest.phosphorus(1): " << test.phosphorus;
+cout << "\ntest.potassium(1): " << test.potassium;
+cout << "\ntest.alltrue(1): " << test.alltrue();
+
+//testing save functions
+cout << "\ntest w/n/p/k (pre-save): "
+	<< WaterGrab(xtest, ytest, ztest, DimInfo, ResourceVector)
+	<< ", " << NitrogenGrab(xtest, ytest, ztest, DimInfo, ResourceVector)
+	<< ", " << PhosphorusGrab(xtest, ytest, ztest, DimInfo, ResourceVector)
+	<< ", " << PotassiumGrab(xtest, ytest, ztest, DimInfo, ResourceVector);
+cout << "\ntest MycoCache w/n/p/k (pre-save): "
+	<< MyceliumCache[ztest].water
+	<< ", " << MyceliumCache[ztest].nitrogen
+	<< ", " << MyceliumCache[ztest].phosphorus
+	<< ", " << MyceliumCache[ztest].potassium;
+
+
+saveresources(DimInfo, ResourceVector, MyceliumCache);
+cout << "\ntest w/n/p/k (post-save): "
+	<< WaterGrab(xtest, ytest, ztest, DimInfo, ResourceVector)
+	<< ", " << NitrogenGrab(xtest, ytest, ztest, DimInfo, ResourceVector)
+	<< ", " << PhosphorusGrab(xtest, ytest, ztest, DimInfo, ResourceVector)
+	<< ", " << PotassiumGrab(xtest, ytest, ztest, DimInfo, ResourceVector);
+cout << "\ntest MycoCache w/n/p/k (post-save): "
+	<< MyceliumCache[ztest].water
+	<< ", " << MyceliumCache[ztest].nitrogen
+	<< ", " << MyceliumCache[ztest].phosphorus
+	<< ", " << MyceliumCache[ztest].potassium;
+
+
+ResourceVector[ztest+(ytest*DimInfo.depth)+(xtest*DimInfo.depth*DimInfo.width)].water = 0;
+ResourceVector[ztest+(ytest*DimInfo.depth)+(xtest*DimInfo.depth*DimInfo.width)].nitrogen = 0;
+ResourceVector[ztest+(ytest*DimInfo.depth)+(xtest*DimInfo.depth*DimInfo.width)].phosphorus = 0;
+ResourceVector[ztest+(ytest*DimInfo.depth)+(xtest*DimInfo.depth*DimInfo.width)].potassium = 0;
+MyceliumCache[ztest].water = 0;
+MyceliumCache[ztest].nitrogen = 0;
+MyceliumCache[ztest].phosphorus = 0;
+MyceliumCache[ztest].potassium = 0;
+cout << "\ntest w/n/p/k (pre-load): "
+	<< WaterGrab(xtest, ytest, ztest, DimInfo, ResourceVector)
+	<< ", " << NitrogenGrab(xtest, ytest, ztest, DimInfo, ResourceVector)
+	<< ", " << PhosphorusGrab(xtest, ytest, ztest, DimInfo, ResourceVector)
+	<< ", " << PotassiumGrab(xtest, ytest, ztest, DimInfo, ResourceVector);
+cout << "\ntest MycoCache w/n/p/k (pre-load): "
+	<< MyceliumCache[ztest].water
+	<< ", " << MyceliumCache[ztest].nitrogen
+	<< ", " << MyceliumCache[ztest].phosphorus
+	<< ", " << MyceliumCache[ztest].potassium;
+
+loadresources(DimInfo, ResourceVector, MyceliumCache);
+
+cout << "\ntest w/n/p/k (post-load): "
+	<< WaterGrab(xtest, ytest, ztest, DimInfo, ResourceVector)
+	<< ", " << NitrogenGrab(xtest, ytest, ztest, DimInfo, ResourceVector)
+	<< ", " << PhosphorusGrab(xtest, ytest, ztest, DimInfo, ResourceVector)
+	<< ", " << PotassiumGrab(xtest, ytest, ztest, DimInfo, ResourceVector);
+cout << "\ntest MycoCache w/n/p/k (post-load): "
+	<< MyceliumCache[ztest].water
+	<< ", " << MyceliumCache[ztest].nitrogen
+	<< ", " << MyceliumCache[ztest].phosphorus
+	<< ", " << MyceliumCache[ztest].potassium;
+cout << "\nsavefile.txt generated.";
+
 }
+
 
 
 

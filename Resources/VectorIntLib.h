@@ -9,6 +9,7 @@
 #define VECTORLIB_H_
 #include <string.h>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <sstream>
 #include <vector>
@@ -17,12 +18,42 @@
 #include <time.h>
 #include <cmath>
 #include <limits.h>
+#include <algorithm>
+#include <iterator>
 
 using namespace std;
 namespace veclib
 {
 //Creates a structure for resources for use as arguments
 
+//for testing purposes, ignore
+class TestCondition {
+public:
+
+	bool water;
+	bool nitrogen;
+	bool phosphorus;
+	bool potassium;
+
+	int alltrue()
+	{
+		int i = water+nitrogen+phosphorus+potassium;
+		if (i == 4)
+			return true;
+		else
+			return false;
+	}
+
+	void clear()
+	{
+		water = false;
+		nitrogen = false;
+		phosphorus = false;
+		potassium = false;
+	}
+};
+
+//for storing base values for each resource pre-generation
 struct ResourceStruct {
 	long long int base;
 	long long int mod;
@@ -30,6 +61,7 @@ struct ResourceStruct {
 	long long int modT;
 };
 
+//for holding resource values in the resource vector
 struct VectorStruct {
 	unsigned int water;
 	unsigned int nitrogen;
@@ -38,13 +70,15 @@ struct VectorStruct {
 	vector<string> plantID;
 };
 
+//for holding dimensional information for the resource vector
 struct DimensionStruct {
-	int length;
-	int width;
-	int depth;
-	int TopsoilDepth;
+	unsigned int length;
+	unsigned int width;
+	unsigned int depth;
+	unsigned int TopsoilDepth;
 };
 
+//for holding resources outside of soil, such as in Mycelium
 struct ResourceCache {
 	signed long long int water;
 	signed long long int nitrogen;
@@ -61,6 +95,7 @@ void CreateResource(ResourceStruct& TypeName, long long int Base, long long int 
 		TypeName.modT = ModT;
 	}
 
+//takes the absolute difference of 2 values.
 long long int absdiff(long long int a, long long int b = 0)
 {
 	if ((a-b) > 0)
@@ -69,6 +104,7 @@ long long int absdiff(long long int a, long long int b = 0)
 		return (b-a);
 }
 
+//returns the sign of a value (1 or -1)
 int sign(long long int value)
 {
 	if (value >= 0)
@@ -201,9 +237,9 @@ vector<ResourceCache> Mycelium(int z, DimensionStruct DimInfo, vector<VectorStru
 	unsigned long long int nitrogentotalL = 0;
 	unsigned long long int phosphorustotalL = 0;
 	unsigned long long int potassiumtotalL = 0;
-	for (int x=0; x<DimInfo.length; x++)
+	for (unsigned int x=0; x<DimInfo.length; x++)
 	{
-		for (int y=0; y<DimInfo.width; y++)
+		for (unsigned int y=0; y<DimInfo.width; y++)
 		{
 			signed long long int nonZ = (y*DimInfo.depth)+(x*DimInfo.depth*DimInfo.width);
 			watertotalL += ResourceVector[z+nonZ].water;
@@ -229,9 +265,9 @@ vector<ResourceCache> Mycelium(int z, DimensionStruct DimInfo, vector<VectorStru
 	MyceliumCacheChange.phosphorus = MyceliumCache[z].phosphorus;
 	MyceliumCacheChange.potassium = MyceliumCache[z].potassium;
 */
-	for (int x=0; x<DimInfo.length; x++)
+	for (unsigned int x=0; x<DimInfo.length; x++)
 	{
-		for (int y=0; y<DimInfo.width; y++)
+		for (unsigned int y=0; y<DimInfo.width; y++)
 		{
 			if (waterchange != 0)
 			{
@@ -346,9 +382,9 @@ vector<ResourceCache> Mycelium(int z, DimensionStruct DimInfo, vector<VectorStru
 	ResourceHolder.phosphorus = 0;
 	ResourceHolder.potassium = 0;
 
-	for (int x=0; x<DimInfo.length; x++)
+	for (unsigned int x=0; x<DimInfo.length; x++)
 	{
-		for (int y=0; y<DimInfo.width; y++)
+		for (unsigned int y=0; y<DimInfo.width; y++)
 		{
 			if (sign(waterreplace) == 1)
 				ResourceHolder.water += ResourceChange(x, y, z, DimInfo, ResourceVector, "water", waterreplace, 0, wateravgL);
@@ -415,7 +451,7 @@ vector<ResourceCache> initializeMycelium(DimensionStruct DimInfo)
 		vector<ResourceCache> MyceliumCache;
 		MyceliumCache.resize(DimInfo.depth);
 
-		for (int z=0; z<DimInfo.depth; z++)
+		for (unsigned int z=0; z<DimInfo.depth; z++)
 		{
 			MyceliumCache[z].water = 0;
 			MyceliumCache[z].nitrogen = 0;
@@ -427,7 +463,7 @@ vector<ResourceCache> initializeMycelium(DimensionStruct DimInfo)
 
 vector<VectorStruct> initializeResources(DimensionStruct DimInfo)
 {
-	int RecBaseSet = 1;
+	int RecBaseSet = 0;
 
 	ResourceStruct water;
 	CreateResource(water, 0, 0, 0, 0);
@@ -459,9 +495,9 @@ vector<VectorStruct> initializeResources(DimensionStruct DimInfo)
 	ResourceVector.resize(DimInfo.depth*DimInfo.width*DimInfo.length);
 
 	//fills the vector
-	for (int x=0; x<DimInfo.length; x++)
-		for (int y=0; y<DimInfo.width; y++)
-			for (int z=0; z<DimInfo.depth; z++)
+	for (unsigned int x=0; x<DimInfo.length; x++)
+		for (unsigned int y=0; y<DimInfo.width; y++)
+			for (unsigned int z=0; z<DimInfo.depth; z++)
 			{
 				srand (time(NULL));
 
@@ -484,6 +520,123 @@ vector<VectorStruct> initializeResources(DimensionStruct DimInfo)
 			}
 	return ResourceVector;
 }
+
+//for writing/reading files
+void saveresources(DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector, vector<ResourceCache>& MyceliumCache)
+{
+	ofstream savefile;
+	savefile.open("savefile.txt");
+/*
+	savefile
+	<< "length: " << DimInfo.length
+	<< "\nwidth: " << DimInfo.width
+	<< "\ndepth: " << DimInfo.depth
+	<< "\n";
+
+	savefile << "\nMycoCache";
+	for (unsigned int i = 0; i < MyceliumCache.size(); i++)
+	{
+		savefile
+		<< "\nwater[" << i << "]: " << MyceliumCache[i].water
+		<< "\nnitrogen[" << i << "]: " << MyceliumCache[i].nitrogen
+		<< "\nphosphorus[" << i << "]: " << MyceliumCache[i].phosphorus
+		<< "\npotassium[" << i << "]: " << MyceliumCache[i].potassium;
+	}
+
+	savefile << "\n\nResourceVector";
+	for (unsigned int j = 0; j < ResourceVector.size(); j++)
+	{
+		savefile
+		<< "\nwater[" << j << "]: " << ResourceVector[j].water
+		<< "\nnitrogen[" << j << "]: " <<ResourceVector[j].nitrogen
+		<< "\nphosphorus[" << j << "]: " << ResourceVector[j].phosphorus
+		<< "\npotassium[" << j << "]: " << ResourceVector[j].potassium;
+	}
+*/
+	savefile
+	<< DimInfo.length
+	<< " " << DimInfo.width
+	<< " " << DimInfo.depth;
+
+	for (unsigned int i = 0; i < MyceliumCache.size(); i++)
+	{
+		savefile
+		<< "\n" << MyceliumCache[i].water
+		<< " " << MyceliumCache[i].nitrogen
+		<< " " << MyceliumCache[i].phosphorus
+		<< " " << MyceliumCache[i].potassium;
+	}
+
+	for (unsigned int j = 0; j < ResourceVector.size(); j++)
+	{
+		savefile
+		<< "\n" << ResourceVector[j].water
+		<< " " << ResourceVector[j].nitrogen
+		<< " " << ResourceVector[j].phosphorus
+		<< " " << ResourceVector[j].potassium;
+	}
+
+	savefile.close();
+}
+
+void loadresources(DimensionStruct& DimInfo, vector<VectorStruct>& ResourceVector, vector<ResourceCache>& MyceliumCache)
+{
+	ifstream savefile;
+	savefile.open("savefile.txt");
+	string line;
+	unsigned long long int linecounter = 0;
+
+	while(getline(savefile, line))
+	{
+		//breaks each line into its component values, places in vector strvalues
+		istringstream iss(line);
+		vector<string> strvalues;
+		copy(istream_iterator<string>(iss),
+		         istream_iterator<string>(),
+		         back_inserter<vector<string> >(strvalues));
+
+		//converts strings in vector strvalues to integers in vector intvalues
+		vector<long long int> intvalues(strvalues.size());
+/*
+		cout << "\nstrvalues.size(): " << strvalues.size() << " contents: ";
+			for (unsigned int j=0; j<strvalues.size(); j++)
+				cout << strvalues[j] << ", ";
+*/
+
+		for (unsigned int i = 0; i<strvalues.size(); i++)
+		{
+			stringstream convert(strvalues[i]);
+			if ( !(convert >> intvalues[i]) )
+				intvalues[i]=0;
+		}
+		if (linecounter > DimInfo.depth)
+			{
+			ResourceVector[linecounter-(1+DimInfo.depth)].water = intvalues[0];
+			ResourceVector[linecounter-(1+DimInfo.depth)].nitrogen = intvalues[1];
+			ResourceVector[linecounter-(1+DimInfo.depth)].phosphorus = intvalues[2];
+			ResourceVector[linecounter-(1+DimInfo.depth)].potassium = intvalues[3];
+			}
+
+		else if (linecounter > 0)
+			{
+			MyceliumCache[linecounter-1].water = intvalues [0];
+			MyceliumCache[linecounter-1].nitrogen = intvalues [1];
+			MyceliumCache[linecounter-1].phosphorus = intvalues [2];
+			MyceliumCache[linecounter-1].potassium = intvalues [3];
+			}
+		else
+			{
+			DimInfo.length = intvalues[0];
+			DimInfo.width = intvalues[1];
+			DimInfo.depth = intvalues[2];
+			}
+
+		linecounter+=1;
+	}
+
+	savefile.close();
+}
+
 };
 
 #endif /* VECTORLIB_H_ */
