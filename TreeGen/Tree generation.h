@@ -24,8 +24,9 @@ struct branch
        float xAngle; //
        float yAngle; //Polar coordinates relative to connection
        float length; //
+	   //float width;
  
-       int leaves; // 0=noleaves 1=10 leaves. Leaves store water and sunlight 0-100
+       int leafCount; // number of leaves
        int wood; // wood stores phosphorus and nitrogen. Will change later. 0-100
        //int age; // amount of turns this branch has been alive
  
@@ -43,8 +44,9 @@ struct seed
        float angleVariance; //Variation in angle
        float featureChance; //likelihood of generating features
        float lengthVariance; //lower value-> shorter branches
- 
-       int leafDensity; // Amount of leaf coverage per branch.
+	   
+	   float leafSize; //size of leaf
+       float leafDensity; // Amount of leaf coverage per branch.
        int canopyWeight; // higher the value, the higher on the tree that leaves grow
        int youth; // age that branch grows as many branches as possible
        int adult; // age that branch stops growing more branches and grows features instead
@@ -62,7 +64,7 @@ struct tree
        int potassium;  //
        int sunlightcap;  //
        int watercap;     //
-       int phosporuscap; // Max capacity of resource that the tree can hold
+       int phosphoruscap; // Max capacity of resource that the tree can hold
        int nitrogencap;  // currently unused
        int potassiumcap; //
        int age;
@@ -131,6 +133,8 @@ seed goForthAndMultiply(seed& seed1, seed& seed2)
        newSeed.tertiaryColor[1]= absoluteIntMutation(seed1.tertiaryColor[1],seed2.tertiaryColor[1], 1);
        newSeed.tertiaryColor[2]= absoluteIntMutation(seed1.tertiaryColor[2],seed2.tertiaryColor[2], 1);
        newSeed.branchDensity= absoluteFloatMutation(seed1.branchDensity,seed2.branchDensity, .01);
+	   newSeed.leafDensity= absoluteFloatMutation(seed1.leafDensity,seed2.leafDensity, .01);
+	   newSeed.leafSize= absoluteIntMutation(seed1.leafSize,seed2.leafSize, 1);
        newSeed.angleVariance= absoluteFloatMutation(seed1.angleVariance,seed2.angleVariance, .01);
        newSeed.lengthVariance= absoluteFloatMutation(seed1.lengthVariance,seed2.lengthVariance, .01);
        newSeed.featureChance= absoluteFloatMutation(seed1.featureChance,seed2.featureChance, .01);
@@ -150,9 +154,10 @@ seed generateSeed() //Completely new seed with no inheritance
        treeSeed.branchDensity=randFloat(0.5,2);
        treeSeed.angleVariance=randFloat(10,30);
        treeSeed.featureChance=randFloat(0,.2);
-       treeSeed.lengthVariance=randFloat(0,2);
+       treeSeed.lengthVariance=randFloat(.1,2);
+	   treeSeed.leafDensity=randFloat(.1,2);
  
-       treeSeed.leafDensity=randInt(0,100);
+       treeSeed.leafSize=randFloat(.01,1.00);
        treeSeed.canopyWeight=randFloat(0,10);
        treeSeed.youth = randInt(50,100);
        treeSeed.adult = randInt(treeSeed.youth+50, treeSeed.youth+100);
@@ -182,6 +187,11 @@ tree spawnTree(int x, int y, int z, seed& treeSeed, DimensionStruct DimInfo, vec
        newTree.phosphorus=PhosphorusGrab(x, y, z,  DimInfo, ResourceVector); //Resources
        newTree.nitrogen=NitrogenGrab(x, y, z,  DimInfo, ResourceVector);   //
        newTree.potassium=PotassiumGrab(x, y, z,  DimInfo, ResourceVector);  //
+	   newTree.sunlightcap=1000;   //
+       newTree.watercap=1000;    //
+       newTree.phosphoruscap=1000; //Resource caps
+       newTree.nitrogencap=1000;   //
+       newTree.potassiumcap=1000;  //
        newTree.isAlive=true;
        newTree.reproduced=0;
        newTree.x=x;
@@ -195,6 +205,8 @@ tree spawnTree(int x, int y, int z, seed& treeSeed, DimensionStruct DimInfo, vec
        trunk.yAngle=randFloat(-treeSeed.angleVariance,treeSeed.angleVariance);
        trunk.length=randFloat(1,40);
        trunk.feature=0;
+	   //trunk.width=1
+	   trunk.leafCount=1;
        trunk.isAlive=1;
        newTree.branches.push_back(trunk);
        //newForest.trees.push_back(newTree);
@@ -216,6 +228,7 @@ tree growBranch(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStr
               newBranch.yAngle=randFloat(-newTree.treeSeed.angleVariance,newTree.treeSeed.angleVariance);
               newBranch.length=randFloat(1,20)*newTree.treeSeed.lengthVariance;
               newBranch.feature=0;
+			  newBranch.leafCount=randInt(0,10)*newTree.treeSeed.leafDensity;
               newBranch.isAlive=1;
               int featureChance=rand()%100;
               if(featureChance/100<newTree.treeSeed.featureChance)
@@ -224,10 +237,10 @@ tree growBranch(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStr
               }
               newTree.branches.push_back(newBranch);
               newTree.sunlight=newTree.sunlight-(newBranch.length*.25+newBranch.feature*10);
-              newTree.water=newTree.water+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "water", (newBranch.length*.5+newBranch.feature*10));
+              newTree.water=newTree.water+(ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "water", (newBranch.length*.5+newBranch.feature*5))-(newBranch.leafCount*(newTree.treeSeed.leafSize)));
               newTree.nitrogen=newTree.nitrogen+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "nitrogen", (newBranch.length*.375+newBranch.feature*10));
-              newTree.potassium=newTree.potassium+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "potassium", (newBranch.length*.75+newBranch.feature*10));
-              newTree.phosphorus=newTree.phosphorus+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "phosphorus", (newBranch.length*.625+newBranch.feature*10));
+              newTree.potassium=newTree.potassium+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "potassium", (newBranch.length*.75));
+              newTree.phosphorus=newTree.phosphorus+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "phosphorus", (newBranch.length*.625+newBranch.feature*7));
        }
        /* if(newTree.branches.size() == 20)
        {
@@ -341,7 +354,7 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, vector<VectorS
 		   cout << "Secondary: " << treeSeed.secondaryColor[0] << " " << treeSeed.secondaryColor[1] << " " << treeSeed.secondaryColor[2] << endl;
 		   cout << "Tertiary: " << treeSeed.tertiaryColor[0] << " " << treeSeed.tertiaryColor[1] << " " << treeSeed.tertiaryColor[2] << endl;
 		   cout << "Branch Density: " << treeSeed.branchDensity << " Angle Variance: " << treeSeed.angleVariance << " Feature Chance: "<< treeSeed.featureChance << " Length Variance: " << treeSeed.lengthVariance << endl;
-		   cout << "Age: " << newForest.trees.at(target-1).age << " Youth: " << treeSeed.youth << " Adult: " << treeSeed.adult << endl;
+		   cout << "Age: " << newForest.trees.at(target-1).age << " Youth: " << treeSeed.youth << " Adult: " << treeSeed.adult << " Leaf Density: " << treeSeed.leafDensity << " Leaf Size: " << treeSeed.leafSize << endl;
 	 }
 
 	 cout << "Turn: " << turn << endl;
@@ -369,10 +382,40 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, vector<VectorS
 		   {
 				  //cout << f;
 				  newForest.trees.at(f).sunlight=newForest.trees.at(f).sunlight+feed;
+				  
+				  if(newForest.trees.at(f).sunlight > newForest.trees.at(f).sunlightcap)
+				  {
+					cout << "threw out " <<newForest.trees.at(f).sunlightcap-newForest.trees.at(f).sunlight << " sunlight.";
+					newForest.trees.at(f).sunlight = newForest.trees.at(f).sunlightcap;
+				  }
 				  newForest.trees.at(f).water=newForest.trees.at(f).water-ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "water", feed);
+
+				  if(newForest.trees.at(f).water > newForest.trees.at(f).watercap)
+				  {
+					cout << "threw out " <<ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "water", newForest.trees.at(f).watercap-newForest.trees.at(f).water) << " water.";
+					newForest.trees.at(f).water = newForest.trees.at(f).watercap;
+				  }
 				  newForest.trees.at(f).potassium=newForest.trees.at(f).potassium-ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "potassium", feed);
-				  newForest.trees.at(f).phosphorus=newForest.trees.at(f).phosphorus-ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "phosphorus", feed);
-				  newForest.trees.at(f).nitrogen=newForest.trees.at(f).nitrogen-ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "nitrogen", feed);
+
+				  if(newForest.trees.at(f).potassium > newForest.trees.at(f).potassiumcap)
+				  {
+					cout << "threw out " <<ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "potassium", newForest.trees.at(f).potassiumcap-newForest.trees.at(f).potassium) << " potassium.";
+					newForest.trees.at(f).potassium = newForest.trees.at(f).potassiumcap;
+				  }
+  				  newForest.trees.at(f).phosphorus=newForest.trees.at(f).phosphorus-ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "phosphorus", feed);
+
+				  if(newForest.trees.at(f).phosphorus > newForest.trees.at(f).phosphoruscap)
+				  {
+					cout << "threw out " <<ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "phosphorus", newForest.trees.at(f).phosphoruscap-newForest.trees.at(f).phosphorus)<< " phosphorus.";
+					newForest.trees.at(f).phosphorus = newForest.trees.at(f).phosphoruscap;
+				  }
+  				  newForest.trees.at(f).nitrogen=newForest.trees.at(f).nitrogen-ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "nitrogen", feed);
+				  
+				  if(newForest.trees.at(f).nitrogen > newForest.trees.at(f).nitrogencap)
+				  {
+					cout << "threw out " <<ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "nitrogen", newForest.trees.at(f).nitrogencap-newForest.trees.at(f).nitrogen)<< " nitrogen.";
+					newForest.trees.at(f).nitrogen = newForest.trees.at(f).nitrogencap;
+				  }
 				  //let the trees do their tree thing
 				  while(newForest.trees.at(f).age < newForest.trees.at(f).treeSeed.youth && newForest.trees.at(f).sunlight>=10 && newForest.trees.at(f).water>=20 && newForest.trees.at(f).nitrogen>=15 && newForest.trees.at(f).potassium>=30 && newForest.trees.at(f).phosphorus>=25)
 				  {
