@@ -8,17 +8,6 @@
 #include "math.h"
 #include <stdlib.h>
 #include <GL/glut.h>
-/*
-#include "Engine/Engine.h"
-#include "Engine/primitives.h"
-#include "Engine/VoxelObject.h"
-#include "Engine/Cell.h"
-#include "Engine/CellObject.h"
-#include "Engine/utils.h"
-*/
-/*#include <SDL.h>
-#include <SDL_opengl.h>
-#include <GL/glu.h>*/
 
 using namespace std;
 
@@ -363,6 +352,11 @@ void renderScene(void) {
 	drawForest();
 
 	glutSwapBuffers();
+}
+
+void passForest(forest &RendForest)
+{
+	renderforest = RendForest;
 }
 
 void renderSoloWindow(int argc, char *argv[], forest &RendForest)
