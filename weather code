@@ -1,0 +1,87 @@
+#include "stdafx.h"
+#include <iostream>
+#include <cstdlib>
+#include <ctime> 
+using namespace std; 
+
+unsigned int PRNG()
+{
+	//our initial starting seed is random
+	static unsigned int nSeed = rand();
+	//take the random generated seed and put it through a mathematical algorithm that uses rand
+	nSeed = (rand() * nSeed + rand());
+	//Take the seed and return a value between 0 and 4294967295
+	return nSeed % 4294967295;
+}
+
+int _tmain(int argc, _TCHAR* argv[])
+
+{
+	class Weather 
+	{
+	public:
+		Weather(int nWater)
+		{
+			cout << "Weather:" << nWater << endl;
+		}
+
+	};
+
+	class Sun : virtual public Weather
+	{
+	public:
+		Sun(int nSun, int nWater)
+			: Weather(nWater)
+		{
+			//print 100 random numbers
+			for (int nCount = 0; nCount < 100000; ++nCount)
+			{
+				cout << PRNG() << "\t";
+				//if we've printed 100 numbers, start a new column
+				if ((nCount + 1) % 100 == 0)
+					cout << endl;
+				cout << "Sun:" << nSun << endl;
+			}
+		}
+	};
+	class Rain : virtual public Weather
+	{
+	public:
+		Rain(int nRain, int nWater)
+			: Weather(nWater)
+		{
+			//Print 100 random numbers
+			for (int nCount = 0; nCount < 100000; ++nCount)
+			{
+				cout << PRNG() << "\t";
+				// if we've printed 100 numbers, start new column
+				if ((nCount + 1) % 100 == 0)
+					cout << endl;
+				cout << "Rain:" << nRain << endl;
+			}
+		}
+	};
+	class Wind : virtual public Weather
+	{
+	public:
+		Wind(int nWind, int nWater)
+			: Weather(nWater)
+		{
+			for (int nCount = 0; nCount < 100; ++nCount)
+			{
+				cout << PRNG() << "\t";
+				if ((nCount + 1) % 100 == 0)
+					cout << endl;
+				cout << "Wind:" << nWind << endl;
+			}
+		}
+	};
+	class WeatherEffects : public Sun, public Rain, public Wind
+	{
+	public:
+		WeatherEffects(int nSun, int nRain, int nWind, int nWater)
+			: Sun(nSun, nWater), Rain(nRain, nWater), Wind(nWind, nWater), Weather(nWater)
+		{
+		}
+	};
+};
