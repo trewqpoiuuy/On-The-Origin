@@ -20,28 +20,10 @@ using namespace veclib;
 int main()
 {
 	//determines the depth, length, and width of the block of soil contained by the vector, also determines the depth of the topsoil.
-
-int testDimSet = 0;
-
-int depth = 0;
-int length = 0;
-int width = 0;
-int TopsoilDepth = 0;
-
-if (testDimSet == 0)
-{
-	depth = 10;
-	length = 100;
-	width = 100;
-	TopsoilDepth = 3;
-}
-else if (testDimSet == 1)
-{
-	depth = 3;
-	length = 2;
-	width = 2;
-	TopsoilDepth = 2;
-}
+	int depth = 10;
+	int length = 100;
+	int width = 100;
+	int TopsoilDepth = 3;
 
 	//initializes and fills the object for storing dimensional information about the vector
 	DimensionStruct DimInfo;
@@ -278,7 +260,6 @@ else if (testDimSet == 1)
 		TestCondition MycoTest;
 		MycoTest.clear();
 
-		//cout << "\nabs(wateravg - WaterGrab(xtest, ytest, ztest, DimInfo, ResourceVector)): " << abs(wateravg - WaterGrab(xtest, ytest, ztest, DimInfo, ResourceVector));
 		while (MycoTest.alltrue() == false)
 		{
 			MycoOutput = Mycelium(ztest, DimInfo, ResourceVector, MyceliumCache, UINT_MAX/5, UINT_MAX/5, UINT_MAX/5, UINT_MAX/5);
@@ -409,17 +390,8 @@ else if (testDimSet == 1)
 
 
 			//repeats Mycelium until the test values = the averages
-
-				//cout << "\nabs(wateravg - WaterGrab(xtest, ytest, ztest, DimInfo, ResourceVector)): " << abs(wateravg - WaterGrab(xtest, ytest, ztest, DimInfo, ResourceVector));
 				MycoTest.clear();
-/*
-				while (
-						absdiff((wateravg - (MyceliumCache[ztest].water/(DimInfo.width*DimInfo.length))) - WaterGrab(xtest, ytest, ztest, DimInfo, ResourceVector)) > 1
-						&& absdiff((nitrogenavg - (MyceliumCache[ztest].nitrogen/(DimInfo.width*DimInfo.length))) - NitrogenGrab(xtest, ytest, ztest, DimInfo, ResourceVector)) > 1
-						&& absdiff((phosphorusavg - (MyceliumCache[ztest].phosphorus/(DimInfo.width*DimInfo.length))) - PhosphorusGrab(xtest, ytest, ztest, DimInfo, ResourceVector)) > 1
-						&& absdiff((potassiumavg - (MyceliumCache[ztest].potassium/(DimInfo.width*DimInfo.length))) - PotassiumGrab(xtest, ytest, ztest, DimInfo, ResourceVector)) > 1
-				)
-*/
+
 				while (MycoTest.alltrue() == false)
 
 				{
@@ -509,10 +481,11 @@ else if (testDimSet == 1)
 		cout << "\npositive: " << absdiff(1, 2);
 		cout << "\npositive: " << absdiff(2, 1);
 
+//printing the max values for an unsigned int and a long long int for reference
 cout << "\nUINT_MAX: " << UINT_MAX;
 cout << "\nLLONG_MAX: " << LLONG_MAX;
 
-//testing conditions
+//testing TestConsition class
 TestCondition test;
 test.clear();
 cout << "\ntest.water(0): " << test.water;
@@ -555,7 +528,6 @@ cout << "\ntest MycoCache w/n/p/k (post-save): "
 	<< ", " << MyceliumCache[ztest].phosphorus
 	<< ", " << MyceliumCache[ztest].potassium;
 
-
 ResourceVector[ztest+(ytest*DimInfo.depth)+(xtest*DimInfo.depth*DimInfo.width)].water = 0;
 ResourceVector[ztest+(ytest*DimInfo.depth)+(xtest*DimInfo.depth*DimInfo.width)].nitrogen = 0;
 ResourceVector[ztest+(ytest*DimInfo.depth)+(xtest*DimInfo.depth*DimInfo.width)].phosphorus = 0;
@@ -576,7 +548,6 @@ cout << "\ntest MycoCache w/n/p/k (pre-load): "
 	<< ", " << MyceliumCache[ztest].potassium;
 
 loadresources(DimInfo, ResourceVector, MyceliumCache);
-
 cout << "\ntest w/n/p/k (post-load): "
 	<< WaterGrab(xtest, ytest, ztest, DimInfo, ResourceVector)
 	<< ", " << NitrogenGrab(xtest, ytest, ztest, DimInfo, ResourceVector)

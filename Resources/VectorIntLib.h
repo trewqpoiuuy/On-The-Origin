@@ -24,18 +24,15 @@
 using namespace std;
 namespace veclib
 {
-//Creates a structure for resources for use as arguments
-
 //for testing purposes, ignore
 class TestCondition {
 public:
-
 	bool water;
 	bool nitrogen;
 	bool phosphorus;
 	bool potassium;
 
-	int alltrue()
+	bool alltrue()
 	{
 		int i = water+nitrogen+phosphorus+potassium;
 		if (i == 4)
@@ -113,6 +110,7 @@ int sign(long long int value)
 		return -1;
 }
 
+//returns the int value for the water resource at a given position
 unsigned int WaterGrab(int x, int y, int z, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector)
 {
 	return ResourceVector[z+(y*DimInfo.depth)+(x*DimInfo.depth*DimInfo.width)].water;
@@ -136,11 +134,13 @@ unsigned int PotassiumGrab(int x, int y, int z, DimensionStruct DimInfo, vector<
 	return ResourceVector[z+(y*DimInfo.depth)+(x*DimInfo.depth*DimInfo.width)].potassium;
 }
 
+//returns all plantIDs at a given position
 vector<string> PlantIDGrab(int x, int y, int z, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector)
 {
 	return ResourceVector[z+(y*DimInfo.depth)+(x*DimInfo.depth*DimInfo.width)].plantID;
 }
 
+//adds a given plantID at a given position
 void PlantIDAssign(int x, int y, int z, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector, string plantID)
 {
 	int size = ResourceVector[z+(y*DimInfo.depth)+(x*DimInfo.depth*DimInfo.width)].plantID.size();
@@ -148,6 +148,7 @@ void PlantIDAssign(int x, int y, int z, DimensionStruct DimInfo, vector<VectorSt
 	ResourceVector[z+(y*DimInfo.depth)+(x*DimInfo.depth*DimInfo.width)].plantID[size] = plantID;
 }
 
+//removes a given plantID at a given position
 void PlantIDRemove(int x, int y, int z, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector, string plantID)
 {
 	for (unsigned int i=0; i<ResourceVector[z+(y*DimInfo.depth)+(x*DimInfo.depth*DimInfo.width)].plantID.size(); i++)
@@ -157,6 +158,7 @@ void PlantIDRemove(int x, int y, int z, DimensionStruct DimInfo, vector<VectorSt
 			}
 }
 
+//checks for a given plantID at a given position; if no plantID is provided, checks for the presence of any plantIDs
 bool PlantIDCheck(int x, int y, int z, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector, string plantID = " ")
 {
 	if (ResourceVector[z+(y*DimInfo.depth)+(x*DimInfo.depth*DimInfo.width)].plantID.size() == 0)
@@ -178,7 +180,7 @@ bool PlantIDCheck(int x, int y, int z, DimensionStruct DimInfo, vector<VectorStr
 	return false;
 }
 
-//changes the specified resource at the specified point the specified amount, and returns the amount that it was changed.
+//changes the specified resource at the specified point the specified amount, and returns the negative amount that it was changed.
 long long int ResourceChange(int x, int y, int z, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector, string resource, signed long long int change, long long int min = 0, long long int max = UINT_MAX)
 {
 	signed long long int returnvalue;
@@ -196,14 +198,10 @@ long long int ResourceChange(int x, int y, int z, DimensionStruct DimInfo, vecto
 
 	signed long long int sum = (*resourcepointer)+change;
 
-	//cout << "\n\nsum: " << sum;
-	//cout << "\nchange: " << change;
-	//cout << "\nresource: " << *resourcepointer;
 	if (sum < min)
 	{
 		returnvalue = *resourcepointer - min;
 		*resourcepointer = min;
-		//cout << "\nsum < min, return: " << returnvalue;
 		return returnvalue;
 	}
 
@@ -211,14 +209,12 @@ long long int ResourceChange(int x, int y, int z, DimensionStruct DimInfo, vecto
 	{
 		returnvalue = *resourcepointer - max;
 		*resourcepointer = max;
-		//cout << "\nsum > min, return: " << returnvalue;
 		return returnvalue;
 	}
 
 	else
 	{
 		*resourcepointer += change;
-		//cout << "\nmin<sum<max, return: " << -change;
 		return -change;
 	}
 
@@ -249,36 +245,29 @@ vector<ResourceCache> Mycelium(int z, DimensionStruct DimInfo, vector<VectorStru
 		}
 	}
 
-	//takes the averages of each resource per layer
+	//takes the averages of each resource at the given depth.
 	long long int wateravgL = watertotalL/(DimInfo.width*DimInfo.length);
 	long long int nitrogenavgL = nitrogentotalL/(DimInfo.width*DimInfo.length);
 	long long int phosphorusavgL = phosphorustotalL/(DimInfo.width*DimInfo.length);
 	long long int potassiumavgL = potassiumtotalL/(DimInfo.width*DimInfo.length);
 
 	//moves resources in the direction of the average, and records changes to the mycelium resource cache.
-
 	ResourceCache ResourceHolder;
-/*
-	ResourceCache MyceliumCacheChange;
-	MyceliumCacheChange.water = MyceliumCache[z].water;
-	MyceliumCacheChange.nitrogen = MyceliumCache[z].nitrogen;
-	MyceliumCacheChange.phosphorus = MyceliumCache[z].phosphorus;
-	MyceliumCacheChange.potassium = MyceliumCache[z].potassium;
-*/
 	for (unsigned int x=0; x<DimInfo.length; x++)
 	{
 		for (unsigned int y=0; y<DimInfo.width; y++)
 		{
+			//checks for any requested change to water
 			if (waterchange != 0)
 			{
 				unsigned int water = WaterGrab(x, y, z, DimInfo, ResourceVector);
-				if (water < wateravgL)
+				if (water < wateravgL) //If water in ResourceVector is less than the average, water is moved to ResourceVector from MyceliumCache by waterchange such that the water in ResourceVector does not exceed wateravgL.
 				{
 					ResourceHolder.water = ResourceChange(x, y, z, DimInfo, ResourceVector, "water", waterchange, 0, wateravgL);
 					MyceliumCache[z].water += ResourceHolder.water;
 					watertotalL -= ResourceHolder.water;
 				}
-				else if (water > wateravgL)
+				else if (water > wateravgL) //If water in ResourceVector is more than the average, water is moved to MyceliumCache from ResourceVector by waterchange such that the water in ResourceVector does not drop below wateravgL.
 				{
 					ResourceHolder.water = ResourceChange(x, y, z, DimInfo, ResourceVector, "water", -waterchange, wateravgL, UINT_MAX);
 					MyceliumCache[z].water += ResourceHolder.water;
@@ -286,7 +275,7 @@ vector<ResourceCache> Mycelium(int z, DimensionStruct DimInfo, vector<VectorStru
 				}
 
 			}
-
+			//repeats for nitrogen
 			if (nitrogenchange != 0)
 			{
 				unsigned int nitrogen = NitrogenGrab(x, y, z, DimInfo, ResourceVector);
@@ -303,7 +292,7 @@ vector<ResourceCache> Mycelium(int z, DimensionStruct DimInfo, vector<VectorStru
 					nitrogentotalL -= ResourceHolder.nitrogen;
 				}
 			}
-
+			//repeats for phosphorus
 			if (phosphoruschange != 0)
 			{
 				unsigned int phosphorus = PhosphorusGrab(x, y, z, DimInfo, ResourceVector);
@@ -320,7 +309,7 @@ vector<ResourceCache> Mycelium(int z, DimensionStruct DimInfo, vector<VectorStru
 					phosphorustotalL -= ResourceHolder.phosphorus;
 				}
 			}
-
+			//repeats for potassium
 			if (potassiumchange != 0)
 			{
 				unsigned int potassium = PotassiumGrab(x, y, z, DimInfo, ResourceVector);
@@ -337,56 +326,27 @@ vector<ResourceCache> Mycelium(int z, DimensionStruct DimInfo, vector<VectorStru
 					potassiumtotalL -= ResourceHolder.potassium;
 				}
 			}
-/*
-			int coutOn = 0;
-
-			if (coutOn == 1)
-			{
-				cout << "\n\nw/n/p/k change: "
-						<< waterchange << ", "
-						<< nitrogenchange << ", "
-						<< phosphoruschange << ", "
-						<< potassiumchange;
-				cout << "\nw/n/p/k total: "
-						<< watertotalL << ", "
-						<< nitrogentotalL << ", "
-						<< phosphorustotalL << ", "
-						<< potassiumtotalL;
-				cout << "\nw/n/p/k avg: "
-						<< wateravgL << ", "
-						<< nitrogenavgL << ", "
-						<< phosphorusavgL << ", "
-						<< potassiumavgL;
-				cout << "\nw/n/p/k MycoCache: "
-						<< MyceliumCache[z].water << ", "
-						<< MyceliumCache[z].nitrogen << ", "
-						<< MyceliumCache[z].phosphorus << ", "
-						<< MyceliumCache[z].potassium;
-				cout << "\nw/n/p/k MycoChange: "
-						<< MyceliumCache[z].water - MyceliumCacheChange.water << ", "
-						<< MyceliumCache[z].nitrogen - MyceliumCacheChange.nitrogen << ", "
-						<< MyceliumCache[z].phosphorus - MyceliumCacheChange.phosphorus << ", "
-						<< MyceliumCache[z].potassium - MyceliumCacheChange.potassium;
-			}
-*/
 		}
 	}
 
+	//determines how much of each resource Mycelium should attempt to add/remove from each space in ResourceVector at depth z
 	long long int waterreplace = MyceliumCache[z].water/(DimInfo.width*DimInfo.length);
 	long long int nitrogenreplace = MyceliumCache[z].nitrogen/(DimInfo.width*DimInfo.length);
 	long long int phosphorusreplace = MyceliumCache[z].phosphorus/(DimInfo.width*DimInfo.length);
 	long long int potassiumreplace = MyceliumCache[z].potassium/(DimInfo.width*DimInfo.length);
 
+	//resets ResourceHolder
 	ResourceHolder.water = 0;
 	ResourceHolder.nitrogen = 0;
 	ResourceHolder.phosphorus = 0;
 	ResourceHolder.potassium = 0;
 
+	//attempts to return balance of MyceliumCache to ResourceVector
 	for (unsigned int x=0; x<DimInfo.length; x++)
 	{
 		for (unsigned int y=0; y<DimInfo.width; y++)
 		{
-			if (sign(waterreplace) == 1)
+			if (sign(waterreplace) == 1) //checks to see if waterreplace is positive, and chooses a maximum or minimum accordingly.
 				ResourceHolder.water += ResourceChange(x, y, z, DimInfo, ResourceVector, "water", waterreplace, 0, wateravgL);
 			else
 				ResourceHolder.water += ResourceChange(x, y, z, DimInfo, ResourceVector, "water", waterreplace, wateravgL, UINT_MAX);
@@ -407,10 +367,9 @@ vector<ResourceCache> Mycelium(int z, DimensionStruct DimInfo, vector<VectorStru
 				ResourceHolder.potassium += ResourceChange(x, y, z, DimInfo, ResourceVector, "potassium", potassiumreplace, potassiumavgL, UINT_MAX);
 		}
 	}
-
+	//updates MyceliumCache and watertotalL
 	MyceliumCache[z].water += ResourceHolder.water;
 	watertotalL -= ResourceHolder.water;
-
 	MyceliumCache[z].nitrogen += ResourceHolder.nitrogen;
 	nitrogentotalL -= ResourceHolder.nitrogen;
 	MyceliumCache[z].phosphorus += ResourceHolder.phosphorus;
@@ -418,19 +377,12 @@ vector<ResourceCache> Mycelium(int z, DimensionStruct DimInfo, vector<VectorStru
 	MyceliumCache[z].potassium += ResourceHolder.potassium;
 	potassiumtotalL -= ResourceHolder.potassium;
 
+	//everything else determines the return
 	ResourceCache tempaverage;
-
 	tempaverage.water = watertotalL/(DimInfo.width*DimInfo.length);
 	tempaverage.nitrogen = nitrogentotalL/(DimInfo.width*DimInfo.length);
 	tempaverage.phosphorus = phosphorustotalL/(DimInfo.width*DimInfo.length);
 	tempaverage.potassium = potassiumtotalL/(DimInfo.width*DimInfo.length);
-
-/*
-	tempaverage.water = wateravg;
-	tempaverage.nitrogen = nitrogenavg;
-	tempaverage.phosphorus = phosphorusavg;
-	tempaverage.potassium = potassiumavg;
-*/
 
 	ResourceCache temptotal;
 	temptotal.water = watertotalL;
@@ -461,46 +413,30 @@ vector<ResourceCache> initializeMycelium(DimensionStruct DimInfo)
 		return MyceliumCache;
 	}
 
+//initializes ResourceVector and fills it with resources in quantities determined by the presets
 vector<VectorStruct> initializeResources(DimensionStruct DimInfo)
 {
-	int RecBaseSet = 0;
-
+	//creates structs for holding resource presets
 	ResourceStruct water;
-	CreateResource(water, 0, 0, 0, 0);
 	ResourceStruct nitrogen;
-	CreateResource(nitrogen, 0, 0, 0, 0);
 	ResourceStruct phosphorus;
-	CreateResource(phosphorus, 0, 0, 0, 0);
 	ResourceStruct potassium;
-	CreateResource(potassium, 0, 0, 0, 0);
+	//populates ResourceStructs with presets
+	CreateResource(water, UINT_MAX/4, UINT_MAX/10, UINT_MAX/3, UINT_MAX/8);
+	CreateResource(nitrogen, UINT_MAX/8, UINT_MAX/20, UINT_MAX/6, UINT_MAX/16);
+	CreateResource(phosphorus, UINT_MAX/10, UINT_MAX/24, UINT_MAX/8, UINT_MAX/20);
+	CreateResource(potassium, UINT_MAX/12, UINT_MAX/28, UINT_MAX/10, UINT_MAX/24);
 
-	if (RecBaseSet == 0)
-	{
-		CreateResource(water, UINT_MAX/4, UINT_MAX/10, UINT_MAX/3, UINT_MAX/8);
-		CreateResource(nitrogen, UINT_MAX/8, UINT_MAX/20, UINT_MAX/6, UINT_MAX/16);
-		CreateResource(phosphorus, UINT_MAX/10, UINT_MAX/24, UINT_MAX/8, UINT_MAX/20);
-		CreateResource(potassium, UINT_MAX/12, UINT_MAX/28, UINT_MAX/10, UINT_MAX/24);
-	}
-
-	else if (RecBaseSet == 1)
-	{
-		CreateResource(water, UINT_MAX/4, UINT_MAX/10, UINT_MAX/3, UINT_MAX/8);
-		CreateResource(nitrogen, UINT_MAX/4, UINT_MAX/10, UINT_MAX/3, UINT_MAX/8);
-		CreateResource(phosphorus, UINT_MAX/4, UINT_MAX/10, UINT_MAX/3, UINT_MAX/8);
-		CreateResource(potassium, UINT_MAX/4, UINT_MAX/10, UINT_MAX/3, UINT_MAX/8);
-	}
-
-	//creates the vector for storing variable
+	//creates the vector for storing resources
 	vector<VectorStruct> ResourceVector;
 	ResourceVector.resize(DimInfo.depth*DimInfo.width*DimInfo.length);
 
-	//fills the vector
+	//fills the vector with pseudo-random unsigned integers within the range defined by the presets
+	srand (time(NULL));
 	for (unsigned int x=0; x<DimInfo.length; x++)
 		for (unsigned int y=0; y<DimInfo.width; y++)
 			for (unsigned int z=0; z<DimInfo.depth; z++)
 			{
-				srand (time(NULL));
-
 				unsigned int xyz = (z+(y*DimInfo.depth)+(x*DimInfo.width*DimInfo.depth));
 
 				if (z>=DimInfo.TopsoilDepth)
@@ -521,43 +457,20 @@ vector<VectorStruct> initializeResources(DimensionStruct DimInfo)
 	return ResourceVector;
 }
 
-//for writing/reading files
+//writes DimInfo, ResourceVector, and MyceliumCache to a save file
 void saveresources(DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector, vector<ResourceCache>& MyceliumCache)
 {
+	//creates save file
 	ofstream savefile;
 	savefile.open("savefile.txt");
-/*
-	savefile
-	<< "length: " << DimInfo.length
-	<< "\nwidth: " << DimInfo.width
-	<< "\ndepth: " << DimInfo.depth
-	<< "\n";
 
-	savefile << "\nMycoCache";
-	for (unsigned int i = 0; i < MyceliumCache.size(); i++)
-	{
-		savefile
-		<< "\nwater[" << i << "]: " << MyceliumCache[i].water
-		<< "\nnitrogen[" << i << "]: " << MyceliumCache[i].nitrogen
-		<< "\nphosphorus[" << i << "]: " << MyceliumCache[i].phosphorus
-		<< "\npotassium[" << i << "]: " << MyceliumCache[i].potassium;
-	}
-
-	savefile << "\n\nResourceVector";
-	for (unsigned int j = 0; j < ResourceVector.size(); j++)
-	{
-		savefile
-		<< "\nwater[" << j << "]: " << ResourceVector[j].water
-		<< "\nnitrogen[" << j << "]: " <<ResourceVector[j].nitrogen
-		<< "\nphosphorus[" << j << "]: " << ResourceVector[j].phosphorus
-		<< "\npotassium[" << j << "]: " << ResourceVector[j].potassium;
-	}
-*/
+	//saves DimInfo on line 0
 	savefile
 	<< DimInfo.length
 	<< " " << DimInfo.width
 	<< " " << DimInfo.depth;
 
+	//saves MyceliumCache on lines 1 through MyceliumCache.size()
 	for (unsigned int i = 0; i < MyceliumCache.size(); i++)
 	{
 		savefile
@@ -567,6 +480,7 @@ void saveresources(DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector
 		<< " " << MyceliumCache[i].potassium;
 	}
 
+	//saves ResourceVector on lines MyceliumCache.size() + 1) through (ResourceVector.size() + MyceliumCache.size())
 	for (unsigned int j = 0; j < ResourceVector.size(); j++)
 	{
 		savefile
@@ -576,16 +490,21 @@ void saveresources(DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector
 		<< " " << ResourceVector[j].potassium;
 	}
 
+	//closes the save file
 	savefile.close();
 }
 
 void loadresources(DimensionStruct& DimInfo, vector<VectorStruct>& ResourceVector, vector<ResourceCache>& MyceliumCache)
 {
+	//opens the save file
 	ifstream savefile;
 	savefile.open("savefile.txt");
+
+	//creates a string variable for the current line, creates a counter for determining the line number
 	string line;
 	unsigned long long int linecounter = 0;
 
+	//places the contents of the save file back into DimInfo, ResourceVector and MyceliumCache
 	while(getline(savefile, line))
 	{
 		//breaks each line into its component values, places in vector strvalues
@@ -597,43 +516,38 @@ void loadresources(DimensionStruct& DimInfo, vector<VectorStruct>& ResourceVecto
 
 		//converts strings in vector strvalues to integers in vector intvalues
 		vector<long long int> intvalues(strvalues.size());
-/*
-		cout << "\nstrvalues.size(): " << strvalues.size() << " contents: ";
-			for (unsigned int j=0; j<strvalues.size(); j++)
-				cout << strvalues[j] << ", ";
-*/
-
 		for (unsigned int i = 0; i<strvalues.size(); i++)
 		{
 			stringstream convert(strvalues[i]);
 			if ( !(convert >> intvalues[i]) )
 				intvalues[i]=0;
 		}
-		if (linecounter > DimInfo.depth)
+		if (linecounter > DimInfo.depth) //loads values for ResourceVector
 			{
 			ResourceVector[linecounter-(1+DimInfo.depth)].water = intvalues[0];
 			ResourceVector[linecounter-(1+DimInfo.depth)].nitrogen = intvalues[1];
 			ResourceVector[linecounter-(1+DimInfo.depth)].phosphorus = intvalues[2];
 			ResourceVector[linecounter-(1+DimInfo.depth)].potassium = intvalues[3];
 			}
-
-		else if (linecounter > 0)
+		else if (linecounter > 0) //loads values for MyceliumCache
 			{
 			MyceliumCache[linecounter-1].water = intvalues [0];
 			MyceliumCache[linecounter-1].nitrogen = intvalues [1];
 			MyceliumCache[linecounter-1].phosphorus = intvalues [2];
 			MyceliumCache[linecounter-1].potassium = intvalues [3];
 			}
-		else
+		else //loads values for DimInfo
 			{
 			DimInfo.length = intvalues[0];
 			DimInfo.width = intvalues[1];
 			DimInfo.depth = intvalues[2];
 			}
 
-		linecounter+=1;
+		//updates linecounter
+		linecounter += 1;
 	}
 
+	//closes the save file once all data has been read
 	savefile.close();
 }
 
