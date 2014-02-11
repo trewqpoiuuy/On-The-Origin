@@ -370,6 +370,7 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, vector<VectorS
 		   cout << "Tertiary: " << treeSeed.tertiaryColor[0] << " " << treeSeed.tertiaryColor[1] << " " << treeSeed.tertiaryColor[2] << endl;
 		   cout << "Branch Density: " << treeSeed.branchDensity << " Angle Variance: " << treeSeed.angleVariance << " Feature Chance: "<< treeSeed.featureChance << " Length Variance: " << treeSeed.lengthVariance << endl;
 		   cout << "Age: " << newForest.trees.at(target-1).age << " Youth: " << treeSeed.youth << " Adult: " << treeSeed.adult << " Leaf Density: " << treeSeed.leafDensity << " Leaf Size: " << treeSeed.leafSize << endl;
+		   cout << "sunlight: " << newForest.trees.at(target-1).sunlight <<" water: " << newForest.trees.at(target-1).water <<" potassium: " << newForest.trees.at(target-1).potassium <<" phosphorus: " << newForest.trees.at(target-1).phosphorus <<" nitrogen: " << newForest.trees.at(target-1).nitrogen<< endl;
 		   cout << "sunlight cap: " << newForest.trees.at(target-1).sunlightcap <<" water cap: " << newForest.trees.at(target-1).watercap <<" potassium cap: " << newForest.trees.at(target-1).potassiumcap <<" phosphorus cap: " << newForest.trees.at(target-1).phosphoruscap <<" nitrogen cap: " << newForest.trees.at(target-1).nitrogencap<< endl;
 	}
 
@@ -401,35 +402,35 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, vector<VectorS
 				  
 				  if(newForest.trees.at(f).sunlight > newForest.trees.at(f).sunlightcap)
 				  {
-					cout << "threw out " <<newForest.trees.at(f).sunlightcap-newForest.trees.at(f).sunlight << " sunlight.";
+					//cout << "threw out " <<newForest.trees.at(f).sunlightcap-newForest.trees.at(f).sunlight << " sunlight.";
 					newForest.trees.at(f).sunlight = newForest.trees.at(f).sunlightcap;
 				  }
 				  newForest.trees.at(f).water=newForest.trees.at(f).water-ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "water", feed);
 
 				  if(newForest.trees.at(f).water > newForest.trees.at(f).watercap)
 				  {
-					cout << "threw out " <<ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "water", newForest.trees.at(f).watercap-newForest.trees.at(f).water) << " water.";
+					//cout << "threw out " <<ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "water", newForest.trees.at(f).watercap-newForest.trees.at(f).water) << " water.";
 					newForest.trees.at(f).water = newForest.trees.at(f).watercap;
 				  }
 				  newForest.trees.at(f).potassium=newForest.trees.at(f).potassium-ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "potassium", feed);
 
 				  if(newForest.trees.at(f).potassium > newForest.trees.at(f).potassiumcap)
 				  {
-					cout << "threw out " <<ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "potassium", newForest.trees.at(f).potassiumcap-newForest.trees.at(f).potassium) << " potassium.";
+					//cout << "threw out " <<ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "potassium", newForest.trees.at(f).potassiumcap-newForest.trees.at(f).potassium) << " potassium.";
 					newForest.trees.at(f).potassium = newForest.trees.at(f).potassiumcap;
 				  }
   				  newForest.trees.at(f).phosphorus=newForest.trees.at(f).phosphorus-ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "phosphorus", feed);
 
 				  if(newForest.trees.at(f).phosphorus > newForest.trees.at(f).phosphoruscap)
 				  {
-					cout << "threw out " <<ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "phosphorus", newForest.trees.at(f).phosphoruscap-newForest.trees.at(f).phosphorus)<< " phosphorus.";
+					//cout << "threw out " <<ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "phosphorus", newForest.trees.at(f).phosphoruscap-newForest.trees.at(f).phosphorus)<< " phosphorus.";
 					newForest.trees.at(f).phosphorus = newForest.trees.at(f).phosphoruscap;
 				  }
   				  newForest.trees.at(f).nitrogen=newForest.trees.at(f).nitrogen-ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "nitrogen", feed);
 				  
 				  if(newForest.trees.at(f).nitrogen > newForest.trees.at(f).nitrogencap)
 				  {
-					cout << "threw out " <<ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "nitrogen", newForest.trees.at(f).nitrogencap-newForest.trees.at(f).nitrogen)<< " nitrogen.";
+					//cout << "threw out " <<ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "nitrogen", newForest.trees.at(f).nitrogencap-newForest.trees.at(f).nitrogen)<< " nitrogen.";
 					newForest.trees.at(f).nitrogen = newForest.trees.at(f).nitrogencap;
 				  }
 				  //let the trees do their tree thing
