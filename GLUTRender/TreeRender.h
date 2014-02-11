@@ -2,13 +2,12 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
+#include <stdio.h>
+#include <string>
 
 #include "math.h"
 #include <stdlib.h>
 #include <GL/glut.h>
-//#include <SDL.h>
-//#include <SDL_opengl.h>
-//#include <GL/glu.h>
 
 using namespace std;
 
@@ -202,7 +201,7 @@ tree CalcXYZ(tree Wtree)
 		{
 			int child = Wtree.branches.at(f).children.at(i) - 1;
 
-			Wtree.branches.at(child).pRot.at(0) += pxRot;
+			Wtree.branches.at(child).pRot.at(0) += pxRot; // Ben needs to make his branches update their children.
 			Wtree.branches.at(child).pRot.at(1) += pyRot;
 			Wtree.branches.at(child).xyzPos.at(0) += Wtree.branches.at(f).xyzPos.at(0);
 			Wtree.branches.at(child).xyzPos.at(1) += Wtree.branches.at(f).xyzPos.at(1);
@@ -226,88 +225,108 @@ tree CalcXYZ(tree Wtree)
 	return Wtree;
 }
 
-void drawBranch(float x1, float y1, float z1, float len1, float x2, float y2, float z2, float len2)
+void drawBranch(float x1, float y1, float z1, float len1, float x2, float y2, float z2, float len2, float resize)
 {
 	glBegin(GL_QUADS);
-	glVertex3f(x2 / 20 - len2, y2 / 20, z2 / 20);
-	glVertex3f(x2 / 20, y2 / 20, z2 / 20 + len2);
-	glVertex3f(x1 / 20, y1 / 20, z1 / 20 + len1);
-	glVertex3f(x1 / 20 - len1, y1 / 20, z1 / 20);
+	glVertex3f(x2 / resize - len2, y2 / resize, z2 / resize);
+	glVertex3f(x2 / resize, y2 / resize, z2 / resize + len2);
+	glVertex3f(x1 / resize, y1 / resize, z1 / resize + len1);
+	glVertex3f(x1 / resize - len1, y1 / resize, z1 / resize);
 	glEnd();
 	glBegin(GL_QUADS);
-	glVertex3f(x2 / 20, y2 / 20, z2 / 20 + len2);
-	glVertex3f(x2 / 20 + len2, y2 / 20, z2 / 20);
-	glVertex3f(x1 / 20 + len1, y1 / 20, z1 / 20);
-	glVertex3f(x1 / 20, y1 / 20, z1 / 20 + len1);
+	glVertex3f(x2 / resize, y2 / resize, z2 / resize + len2);
+	glVertex3f(x2 / resize + len2, y2 / resize, z2 / resize);
+	glVertex3f(x1 / resize + len1, y1 / resize, z1 / resize);
+	glVertex3f(x1 / resize, y1 / resize, z1 / resize + len1);
 	glEnd();
 	glBegin(GL_QUADS);
-	glVertex3f(x2 / 20 + len2, y2 / 20, z2 / 20);
-	glVertex3f(x2 / 20, y2 / 20, z2 / 20 - len2);
-	glVertex3f(x1 / 20, y1 / 20, z1 / 20 - len1);
-	glVertex3f(x1 / 20 + len1, y1 / 20, z1 / 20);
+	glVertex3f(x2 / resize + len2, y2 / resize, z2 / resize);
+	glVertex3f(x2 / resize, y2 / resize, z2 / resize - len2);
+	glVertex3f(x1 / resize, y1 / resize, z1 / resize - len1);
+	glVertex3f(x1 / resize + len1, y1 / resize, z1 / resize);
 	glEnd();
 	glBegin(GL_QUADS);
-	glVertex3f(x2 / 20, y2 / 20, z2 / 20 - len2);
-	glVertex3f(x2 / 20 - len2, y2 / 20, z2 / 20);
-	glVertex3f(x1 / 20 - len1, y1 / 20, z1 / 20);
-	glVertex3f(x1 / 20, y1 / 20, z1 / 20 - len1);
+	glVertex3f(x2 / resize, y2 / resize, z2 / resize - len2);
+	glVertex3f(x2 / resize - len2, y2 / resize, z2 / resize);
+	glVertex3f(x1 / resize - len1, y1 / resize, z1 / resize);
+	glVertex3f(x1 / resize, y1 / resize, z1 / resize - len1);
 	glEnd();
 }
 
-tree rendertree;
+forest renderforest;
 
-void drawTree() {
+void drawForest() {
 
 
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glutSolidCube(0.2f);
+	
+	int correction = 0;
+	float zpos = 0;
 
-	for (int f = 0; f < rendertree.branches.size();)
+	for (int i = 0; i < renderforest.trees.size();)
 	{
-
-
-
-		float colorwheel = (rendertree.branches.at(f).xyzPos.at(1) / rendertree.maxvals[1]);
-		//cout << colorwheel << endl;
-		float primColor = 2 * (-colorwheel + 0.5f);
-		float tertColor = 2 * (colorwheel - 0.5f);
-		if (primColor < 0)
+		int forestdim;
+		
+		forestdim = sqrt(renderforest.trees.size()) + 0.5;
+		if ((i - correction) > forestdim)
 		{
-			primColor = 0;
-		}
-		if (tertColor < 0)
-		{
-			tertColor = 0;
-		}
-		float secoColor = 1 - (primColor + tertColor);
-
-		int ch = rendertree.branches.at(f).connection - 1;
-
-		//cout << treeSeed.primaryColor[0] * primColor << endl;
-
-		glColor3f(((rendertree.treeSeed.primaryColor[0] * primColor) + (rendertree.treeSeed.secondaryColor[0] * secoColor) + (rendertree.treeSeed.tertiaryColor[0] * tertColor)) / 255,
-			((rendertree.treeSeed.primaryColor[1] * primColor) + (rendertree.treeSeed.secondaryColor[1] * secoColor) + (rendertree.treeSeed.tertiaryColor[1] * tertColor)) / 255,
-			((rendertree.treeSeed.primaryColor[2] * primColor) + (rendertree.treeSeed.secondaryColor[2] * secoColor) + (rendertree.treeSeed.tertiaryColor[2] * tertColor)) / 255);
-		if (ch < 0)
-		{
-			drawBranch(rendertree.branches.at(f).xyzPos.at(0), rendertree.branches.at(f).xyzPos.at(1), rendertree.branches.at(f).xyzPos.at(2), 0.1f,
-				0.0f, 0.0f, 0.0f, 0.1f);
-		}
-		else
-		{
-			drawBranch(rendertree.branches.at(f).xyzPos.at(0), rendertree.branches.at(f).xyzPos.at(1), rendertree.branches.at(f).xyzPos.at(2), 0.1f,
-				rendertree.branches.at(ch).xyzPos.at(0), rendertree.branches.at(ch).xyzPos.at(1), rendertree.branches.at(ch).xyzPos.at(2), 0.1f);
+			correction = i;
+			zpos += 1;
 		}
 
-		f++;
+		glTranslatef(i - correction, 0.0f, zpos);
 
+		for (int f = 0; f < renderforest.trees.at(i).branches.size();)
+		{
+
+
+
+			float colorwheel = (renderforest.trees.at(i).branches.at(f).xyzPos.at(1) / renderforest.trees.at(i).maxvals[1]);
+			//cout << colorwheel << endl;
+			float primColor = 2 * (-colorwheel + 0.5f);
+			float tertColor = 2 * (colorwheel - 0.5f);
+			if (primColor < 0)
+			{
+				primColor = 0;
+			}
+			if (tertColor < 0)
+			{
+				tertColor = 0;
+			}
+			float secoColor = 1 - (primColor + tertColor);
+
+			int ch = renderforest.trees.at(i).branches.at(f).connection - 1;
+
+			//cout << treeSeed.primaryColor[0] * primColor << endl;
+
+			glColor3f(((renderforest.trees.at(i).treeSeed.primaryColor[0] * primColor) + (renderforest.trees.at(i).treeSeed.secondaryColor[0] * secoColor) + (renderforest.trees.at(i).treeSeed.tertiaryColor[0] * tertColor)) / 255,
+				((renderforest.trees.at(i).treeSeed.primaryColor[1] * primColor) + (renderforest.trees.at(i).treeSeed.secondaryColor[1] * secoColor) + (renderforest.trees.at(i).treeSeed.tertiaryColor[1] * tertColor)) / 255,
+				((renderforest.trees.at(i).treeSeed.primaryColor[2] * primColor) + (renderforest.trees.at(i).treeSeed.secondaryColor[2] * secoColor) + (renderforest.trees.at(i).treeSeed.tertiaryColor[2] * tertColor)) / 255);
+			if (ch < 0)
+			{
+				drawBranch(renderforest.trees.at(i).branches.at(f).xyzPos.at(0), renderforest.trees.at(i).branches.at(f).xyzPos.at(1), renderforest.trees.at(i).branches.at(f).xyzPos.at(2), 0.1f,
+					0.0f, 0.0f, 0.0f, 0.1f, 20.0f);
+			}
+			else
+			{
+				drawBranch(renderforest.trees.at(i).branches.at(f).xyzPos.at(0), renderforest.trees.at(i).branches.at(f).xyzPos.at(1), renderforest.trees.at(i).branches.at(f).xyzPos.at(2), 0.1f,
+					renderforest.trees.at(i).branches.at(ch).xyzPos.at(0), renderforest.trees.at(i).branches.at(ch).xyzPos.at(1), renderforest.trees.at(i).branches.at(ch).xyzPos.at(2), 0.1f, 20.0f);
+			}
+
+			f++;
+
+		}
+		
+		glTranslatef(-(i - correction), 0.0f, -zpos);
+		
+		
+		i++;
 	}
 
 
 }
 
 void renderScene(void) {
-
+	
 	if (deltaMove)
 		computePos(deltaMove);
 	if (deltaAngle)
@@ -322,22 +341,28 @@ void renderScene(void) {
 		0.0f, 1.0f, 0.0f);
 
 	// Draw ground
-	/*glColor3f(0.5f, 0.5f, 0.5f);
+	glColor3f(0.5f, 0.5f, 0.5f);
 	glBegin(GL_QUADS);
 	glVertex3f(-100.0f, 0.0f, -100.0f);
 	glVertex3f(-100.0f, 0.0f, 100.0f);
 	glVertex3f(100.0f, 0.0f, 100.0f);
 	glVertex3f(100.0f, 0.0f, -100.0f);
-	glEnd();*/
+	glEnd();
 
-	drawTree();
+	drawForest();
 
 	glutSwapBuffers();
 }
 
-void renderSoloWindow(int argc, char **argv, tree &RendTree)
+void passForest(forest &RendForest)
 {
-	rendertree = RendTree;
+	renderforest = RendForest;
+}
+
+void renderSoloWindow(int argc, char *argv[], forest &RendForest)
+{
+	renderforest = RendForest;
+	
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(100, 100);
@@ -364,4 +389,6 @@ void renderSoloWindow(int argc, char **argv, tree &RendTree)
 
 	// enter GLUT event processing loop
 	glutMainLoop();
+	
+	
 }
