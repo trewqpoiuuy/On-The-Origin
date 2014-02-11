@@ -13,9 +13,6 @@
 #include <math.h>
 #include "../Engine/Engine.h"
 #include "../Engine/primitives.h"
-#include "../Engine/VoxelObject.h"
-#include "../Engine/Cell.h"
-#include "../Engine/CellObject.h"
 #include "../Engine/utils.h"
 
 const double PI=3.14159265358979323846;
@@ -112,7 +109,7 @@ int main(int argc, char *argv[]) {
 
 	//carvevoxels1();
 	voxel_test.editVoxelAt(0,0,0)->solid=true;
-	voxel_test.voxelSphere(0,0,0,2,true);
+	//voxel_test.voxelSphere(0,0,0,2,true);
 	//carvevoxels2();
 	voxel_test.updateMesh();
 
