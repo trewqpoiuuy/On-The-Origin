@@ -1,16 +1,16 @@
 //#include "stdafx.h"
- 
+
 #include <iostream>
 #include <vector>
 #include <cstdlib>
 #include <ctime>
-#include "VectorIntLib.h" //delete 'Resources/' if broken
+#include "Resources/VectorIntLib.h" //delete 'Resources/' if broken
 #include "Tree generation.h"
 //#include "TreeRender.h"
- 
+
 using namespace std;
 using namespace veclib;
- 
+
 int main(int argc, char **argv)
 {
        srand(time(NULL));
@@ -26,7 +26,7 @@ int main(int argc, char **argv)
        DimInfo.TopsoilDepth = TopsoilDepth;
        vector<VectorStruct> ResourceVector=initializeResources(DimInfo);
        forest newForest; //all trees
- 
+
        int startingtrees;
 	   cout << "How many trees to start?" << endl;
 	   cin >> startingtrees;
@@ -38,7 +38,7 @@ int main(int argc, char **argv)
               seed treeSeed=generateSeed();
               tree newTree=spawnTree(originpointx,originpointy,0,treeSeed, DimInfo, ResourceVector);
               newForest.trees.push_back(newTree);
- 
+
               startingtrees -= 1;
               originpointx += randInt(-5,5);
               if(originpointx > length)
@@ -59,12 +59,12 @@ int main(int argc, char **argv)
                      originpointy = 0;
               }
        }
- 
- 
+
+
        char choicy;
        cout << "(m)icro (single tree) or m(a)cro (landscape) testing?" << endl;
        cin >> choicy;
- 
+
        if (choicy == 'm')
        {
               while(newForest.trees.at(0).isAlive==1)
@@ -74,7 +74,7 @@ int main(int argc, char **argv)
                      int potassiumAdded;
                      int phosphorusAdded;
                      int nitrogenAdded;
- 
+
                            cout << "sunlight this turn?" << endl;
                            cin >> sunlightAdded;
                             newForest.trees.at(0).sunlight=newForest.trees.at(0).sunlight+sunlightAdded;
@@ -96,7 +96,7 @@ int main(int argc, char **argv)
                                   newForest.trees.at(0)=growBranch(newForest.trees.at(0), ResourceVector, DimInfo);
                            }
                            newForest.trees.at(0)=upkeep(newForest.trees.at(0), ResourceVector, DimInfo);
- 
+
                            for(int f=0;f<newForest.trees.at(0).branches.size();f++) //prints out tree data
                            {
                                   cout << "Branch #"  << f+1 << ": " ;
@@ -113,19 +113,19 @@ int main(int argc, char **argv)
                                   cout << endl;
                            }
                            cout << "Sunlight: " << newForest.trees.at(0).sunlight << " Water: " << newForest.trees.at(0).water << " Phosphorus: " << newForest.trees.at(0).phosphorus << " Potassium: " << newForest.trees.at(0).potassium << " Nitrogen: " << newForest.trees.at(0).nitrogen << endl;
- 
+
                            ///// Begin 3-d render code /////
                            //exits generation
                            cout << "Kill? 0 for yes, 1 for no" << endl;
                            cin >> newForest.trees.at(0).isAlive;
               }
- 
+
               //calculates XYZ coordinates for each branch
               //newTree = CalcXYZ(newTree);
- 
+
               //renders the tree in a GLUT window
               //render(argc, argv, newTree);
- 
+
               ///// End 3-d render code /////
        }
        else //test multiple trees
@@ -139,10 +139,11 @@ int main(int argc, char **argv)
               while (newForest.trees.size() > 0) // number of alive trees
               {
 				generateForest(newForest,DimInfo, ResourceVector, feed,decay);
+				newForest = firefight(newForest);
 			  }
        }
        cin >> uselessThing;
- 
- 
- 
+
+
+
 }

@@ -16,6 +16,14 @@ int randInt(int min, int max)
        int r=min+(rand()/(RAND_MAX/(max-min)));
        return r;
 }
+
+struct fire
+{
+	int fire;
+	int x;
+	int y;
+	int z;
+};
  
  
 struct branch
@@ -44,7 +52,7 @@ struct seed
        float angleVariance; //Variation in angle
        float featureChance; //likelihood of generating features
        float lengthVariance; //lower value-> shorter branches
-	   
+
 	   float leafSize; //size of leaf
        float leafDensity; // Amount of leaf coverage per branch.
        int canopyWeight; // higher the value, the higher on the tree that leaves grow
@@ -57,6 +65,7 @@ struct seed
 };
 struct tree
 {
+	   int fire;
        int sunlight;   //
        int water;      //
        int phosphorus; // Current Resources
@@ -86,6 +95,7 @@ struct forest
        int treenum; //useless right now
        vector<tree> trees;
        vector<tree> deadtrees;
+	   vector<fire> fires;
 };
 int absoluteIntMutation(int variable1, int variable2, int rads)
 {
@@ -323,6 +333,79 @@ forest reaper(forest& newForest) //checks forest for trees with isAlive false, a
        return newForest;
 }
  
+
+
+forest spark(forest& newForest, int x, int y, int z, int power)
+{
+	fire flame;
+	flame.x = x;
+	flame.y = y;
+	flame.z = z;
+	flame.fire = power;
+	newForest.fires.push_back(flame);
+
+	return newForest;
+}
+
+fire combust(tree& newTree)
+{
+	fire flame;
+	flame.x = newTree.x;
+	flame.y = newTree.y;
+	flame.z = newTree.z;
+	flame.fire = newTree.fire;
+	cout << "tree has combusted!" << endl;
+	return flame;
+}
+
+forest firefight(forest& newForest)
+{
+	for (int g = 0; g < newForest.trees.size(); g++)
+	{
+		if (newForest.trees.at(g).fire > 0)
+		{
+			newForest.trees.at(g).fire -= 10;
+			newForest.trees.at(g).water -= 10;
+			cout << "tree " << g << " is burning!" << newForest.trees.at(g).fire << " / " << newForest.trees.at(g).water << endl;
+
+			if (newForest.trees.at(g).fire > 0 && newForest.trees.at(g).water <= 0)
+			{
+				newForest.trees.at(g).isAlive = false; //burn baby burn
+				newForest.trees.at(g).fire += (newForest.trees.at(g).potassium + newForest.trees.at(g).nitrogen + newForest.trees.at(g).phosphorus);
+				newForest.fires.push_back(combust(newForest.trees.at(g)));
+			}
+		}
+	}
+
+	for (int u = 0; u < newForest.fires.size(); u++)
+	{
+		newForest.fires.at(u).fire -= 1;
+
+		if (newForest.fires.at(u).fire <= 0)
+		{
+			newForest.fires.erase(newForest.fires.begin() + u);
+		}
+		else
+		{
+			//spread the flames
+			for (int k = 0; k < newForest.trees.size(); k++)
+			{
+				tree newTree = newForest.trees.at(k);
+				fire newFire = newForest.fires.at(u);
+				cout << "FIRE HAS SPREAD!";
+				if (abs(newFire.x - newTree.x) < (newFire.fire / 10) && abs(newFire.y - newTree.y) < (newFire.fire / 10) && abs(newFire.z - newTree.z) < (newFire.fire / 10))
+				{
+					newForest.trees.at(k).fire = newForest.fires.at(u).fire;
+					newForest.fires.at(u).fire = 0;
+				}
+			}
+		}
+	}
+
+	return newForest;
+}
+
+
 forest reproduce(forest& newForest, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector)
 {
        for(int f = 0; f < newForest.trees.size(); f++)
@@ -350,7 +433,7 @@ forest reproduce(forest& newForest, DimensionStruct DimInfo, vector<VectorStruct
                            newForest.trees.push_back(newTree);
                      }
               }
-             
+
        }
        return newForest;
 }
@@ -361,7 +444,7 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, vector<VectorS
 	int target = 0;
 	cout << "Analyse a tree? (negative # to not analyse anything)" << endl;
 	cin >> target;
-	 if (target>0 && target<=newForest.trees.size())
+	 if (target>0 && target<=newForest.trees.size() && target != 1337)
 	 {
 		   seed treeSeed = newForest.trees.at(target-1).treeSeed;
 		   cout << "Seed Data:" << endl;
@@ -373,6 +456,37 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, vector<VectorS
 		   cout << "sunlight: " << newForest.trees.at(target-1).sunlight <<" water: " << newForest.trees.at(target-1).water <<" potassium: " << newForest.trees.at(target-1).potassium <<" phosphorus: " << newForest.trees.at(target-1).phosphorus <<" nitrogen: " << newForest.trees.at(target-1).nitrogen<< endl;
 		   cout << "sunlight cap: " << newForest.trees.at(target-1).sunlightcap <<" water cap: " << newForest.trees.at(target-1).watercap <<" potassium cap: " << newForest.trees.at(target-1).potassiumcap <<" phosphorus cap: " << newForest.trees.at(target-1).phosphoruscap <<" nitrogen cap: " << newForest.trees.at(target-1).nitrogencap<< endl;
 	}
+
+	 if (target == 1337)
+	 {
+		 cout << "FIRE FIRE FIRE!!!" << endl;
+		 cout << "X COORDINATE: " << endl;
+		 int xx;
+		 cin >> xx;
+		 cout << "Y COORDINATE: " << endl;
+		 int yy;
+		 cin >> yy;
+		 cout << "Z COORDINATE: " << endl;
+		 int zz;
+		 cin >> zz;
+		 cout << "POWER OF FIRE: " << endl;
+		 int power;
+		 cin >> power;
+		 cout << "FIRE: " << endl;
+		 cout << "X: " << xx << endl;
+		 cout << "Y: " << yy << endl;
+		 cout << "Z: " << zz << endl;
+		 cout << "POWER: " << power << endl;
+		 cout << "CONFIRM? (y/n)" << endl;
+		 char choosy;
+		 cin >> choosy;
+		 if (choosy == 'y')
+		 {
+			 spark(newForest, xx, yy, zz, power);
+			 cout << "Fire has been started.";
+		 }
+
+	 }
 
 	 cout << "Turn: " << turn << endl;
 	 cout << "Number of turns to continue?" << endl;
@@ -399,7 +513,7 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, vector<VectorS
 		   {
 				  //cout << f;
 				  newForest.trees.at(f).sunlight=newForest.trees.at(f).sunlight+feed;
-				  
+
 				  if(newForest.trees.at(f).sunlight > newForest.trees.at(f).sunlightcap)
 				  {
 					//cout << "threw out " <<newForest.trees.at(f).sunlightcap-newForest.trees.at(f).sunlight << " sunlight.";
@@ -427,7 +541,7 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, vector<VectorS
 					newForest.trees.at(f).phosphorus = newForest.trees.at(f).phosphoruscap;
 				  }
   				  newForest.trees.at(f).nitrogen=newForest.trees.at(f).nitrogen-ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "nitrogen", feed);
-				  
+
 				  if(newForest.trees.at(f).nitrogen > newForest.trees.at(f).nitrogencap)
 				  {
 					//cout << "threw out " <<ResourceChange(newForest.trees.at(f).x, newForest.trees.at(f).y, newForest.trees.at(f).z, DimInfo, ResourceVector, "nitrogen", newForest.trees.at(f).nitrogencap-newForest.trees.at(f).nitrogen)<< " nitrogen.";
