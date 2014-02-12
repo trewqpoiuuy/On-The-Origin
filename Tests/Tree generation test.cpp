@@ -4,7 +4,7 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
-#include "Resources/VectorIntLib.h" //delete 'Resources/' if broken
+#include "VectorIntLib.h" //delete 'Resources/' if broken
 #include "Tree generation.h"
 //#include "TreeRender.h"
 
@@ -130,16 +130,15 @@ int main(int argc, char **argv)
        }
        else //test multiple trees
        {
-              int feed;
+              /* int feed;
               cout << "Feed:" <<endl;
               cin >> feed;
               int decay;
               cout << "Decay:" <<endl;
-              cin >> decay;
+              cin >> decay; */
               while (newForest.trees.size() > 0) // number of alive trees
               {
-				generateForest(newForest,DimInfo, ResourceVector, feed,decay);
-				newForest = firefight(newForest);
+				generateForest(newForest,DimInfo, ResourceVector);
 			  }
        }
        cin >> uselessThing;
