@@ -6,7 +6,7 @@
  */
 
 #include "Cell.h"
-#include "utils.h"
+#include "../Misc/utils.h"
 #include <vector>
 
 namespace Cell {

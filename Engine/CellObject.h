@@ -8,7 +8,7 @@
 #ifndef CELLOBJECT_H_
 #define CELLOBJECT_H_
 
-#include "utils.h"
+#include "../Misc/utils.h"
 #include <vector>
 #include "Cell.h"
 
