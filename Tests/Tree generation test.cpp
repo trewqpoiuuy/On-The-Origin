@@ -69,55 +69,7 @@ int main(int argc, char **argv)
        {
               while(newForest.trees.at(0).isAlive==1)
               {
-                     int sunlightAdded;
-                     int waterAdded;
-                     int potassiumAdded;
-                     int phosphorusAdded;
-                     int nitrogenAdded;
-
-                           cout << "sunlight this turn?" << endl;
-                           cin >> sunlightAdded;
-                            newForest.trees.at(0).sunlight=newForest.trees.at(0).sunlight+sunlightAdded;
-                           cout << "water this turn?" << endl;
-                           cin >> waterAdded;
-                           newForest.trees.at(0).water=newForest.trees.at(0).water-ResourceChange(newForest.trees.at(0).x, newForest.trees.at(0).y, newForest.trees.at(0).z, DimInfo, ResourceVector, "water", waterAdded);
-                           cout << "potassium this turn?" << endl;                       //Prompts are temporary, will be replaced by game engine commands
-                           cin >> potassiumAdded;
-                           newForest.trees.at(0).potassium=newForest.trees.at(0).potassium-ResourceChange(newForest.trees.at(0).x, newForest.trees.at(0).y, newForest.trees.at(0).z, DimInfo, ResourceVector, "potassium", potassiumAdded);
-                           cout << "phosphorus this turn?" << endl;
-                           cin >> phosphorusAdded;
-                           newForest.trees.at(0).phosphorus=newForest.trees.at(0).phosphorus-ResourceChange(newForest.trees.at(0).x, newForest.trees.at(0).y, newForest.trees.at(0).z, DimInfo, ResourceVector, "phosphorus", phosphorusAdded);
-                           cout << "nitrogen this turn?" << endl;
-                           cin >> nitrogenAdded;
-                           newForest.trees.at(0).nitrogen=newForest.trees.at(0).nitrogen-ResourceChange(newForest.trees.at(0).x, newForest.trees.at(0).y, newForest.trees.at(0).z, DimInfo, ResourceVector, "nitrogen", nitrogenAdded);
-                           //while(newForest.trees.at(0).sunlight>=10 && newForest.trees.at(0).water>=20 && newForest.trees.at(0).nitrogen>=15 && newForest.trees.at(0).potassium>=30 && newTree.phosphorus>=25)
-                           while(newForest.trees.at(0).sunlight>=10 && newForest.trees.at(0).water>=20 && newForest.trees.at(0).nitrogen>=15 && newForest.trees.at(0).potassium>=30 && newForest.trees.at(0).phosphorus>=25)
-                           {
-                                  newForest.trees.at(0)=growBranch(newForest.trees.at(0), ResourceVector, DimInfo);
-                           }
-                           newForest.trees.at(0)=upkeep(newForest.trees.at(0), ResourceVector, DimInfo);
-
-                           for(int f=0;f<newForest.trees.at(0).branches.size();f++) //prints out tree data
-                           {
-                                  cout << "Branch #"  << f+1 << ": " ;
-                                  cout << "Connection Point: " << newForest.trees.at(0).branches.at(f).connection << " ";
-                                  cout << "X Angle: " << newForest.trees.at(0).branches.at(f).xAngle << " ";
-                                  cout << "Y Angle: " << newForest.trees.at(0).branches.at(f).yAngle << " ";
-                                  cout <<  "Length: " << newForest.trees.at(0).branches.at(f).length << " ";
-                                  cout << "Feature: " << newForest.trees.at(0).branches.at(f).feature << " " << endl;
-                                  cout << "Children: ";
-                                  for(int g=0;g<newForest.trees.at(0).branches.at(f).children.size();g++)
-                                  {
-                                         cout << newForest.trees.at(0).branches.at(f).children.at(g) <<" ";
-                                  }
-                                  cout << endl;
-                           }
-                           cout << "Sunlight: " << newForest.trees.at(0).sunlight << " Water: " << newForest.trees.at(0).water << " Phosphorus: " << newForest.trees.at(0).phosphorus << " Potassium: " << newForest.trees.at(0).potassium << " Nitrogen: " << newForest.trees.at(0).nitrogen << endl;
-
-                           ///// Begin 3-d render code /////
-                           //exits generation
-                           cout << "Kill? 0 for yes, 1 for no" << endl;
-                           cin >> newForest.trees.at(0).isAlive;
+                generateTree(newForest, DimInfo, ResourceVector, 100);
               }
 
               //calculates XYZ coordinates for each branch
@@ -138,7 +90,7 @@ int main(int argc, char **argv)
               cin >> decay; */
               while (newForest.trees.size() > 0) // number of alive trees
               {
-				generateForest(newForest,DimInfo, ResourceVector);
+				newForest=generateForest(newForest,DimInfo, ResourceVector);
 			  }
        }
        cin >> uselessThing;
