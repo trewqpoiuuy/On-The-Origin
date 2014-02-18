@@ -69,10 +69,10 @@ struct VectorStruct {
 
 //for holding dimensional information for the resource vector
 struct DimensionStruct {
-	unsigned int length;
-	unsigned int width;
-	unsigned int depth;
-	unsigned int TopsoilDepth;
+	long int length;
+	long int width;
+	long int depth;
+	long int TopsoilDepth;
 };
 
 //for holding resources outside of soil, such as in Mycelium
@@ -185,6 +185,12 @@ long long int ResourceChange(int x, int y, int z, DimensionStruct DimInfo, vecto
 {
 	signed long long int returnvalue;
 	unsigned int * resourcepointer;
+
+	//keeps max and min from breaking the function
+	if (max>UINT_MAX)
+		max=UINT_MAX;
+	if (min<0)
+		min = 0;
 
 	//finds the correct resource, sets resourcepointer
 	if (resource == "water")
@@ -549,6 +555,46 @@ void loadresources(DimensionStruct& DimInfo, vector<VectorStruct>& ResourceVecto
 
 	//closes the save file once all data has been read
 	savefile.close();
+}
+
+long long int resourcedrop(int x, int y, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector, string resource, long long int change, long long int change_per_z)
+{
+	long long int tempresource = (-1)*change;
+	//cout << "\ntempresource: " << tempresource;
+	//cout << "\nchange: " << change;
+	unsigned int z = 0;
+	while (tempresource!=0)
+	{
+		if (z==DimInfo.depth)
+			return -tempresource;
+		else
+		{
+			if (change>0)
+			{
+				if (resource == "water")
+					tempresource -= ResourceChange(x, y, z, DimInfo, ResourceVector, resource, -tempresource, 0, WaterGrab(x, y, z, DimInfo, ResourceVector)+change_per_z);
+				else if (resource == "nitrogen")
+					tempresource -= ResourceChange(x, y, z, DimInfo, ResourceVector, resource, -tempresource, 0, NitrogenGrab(x, y, z, DimInfo, ResourceVector)+change_per_z);
+				else if (resource == "phosphorus")
+					tempresource -= ResourceChange(x, y, z, DimInfo, ResourceVector, resource, -tempresource, 0, PhosphorusGrab(x, y, z, DimInfo, ResourceVector)+change_per_z);
+				else if (resource == "potassium")
+					tempresource -= ResourceChange(x, y, z, DimInfo, ResourceVector, resource, -tempresource, 0, PotassiumGrab(x, y, z, DimInfo, ResourceVector)+change_per_z);
+			}
+			else if (change<0)
+			{
+				if (resource == "water")
+					tempresource -= ResourceChange(x, y, z, DimInfo, ResourceVector, resource, -tempresource, WaterGrab(x, y, z, DimInfo, ResourceVector)-change_per_z, UINT_MAX);
+				else if (resource == "nitrogen")
+					tempresource -= ResourceChange(x, y, z, DimInfo, ResourceVector, resource, -tempresource, NitrogenGrab(x, y, z, DimInfo, ResourceVector)-change_per_z, UINT_MAX);
+				else if (resource == "phosphorus")
+					tempresource -= ResourceChange(x, y, z, DimInfo, ResourceVector, resource, -tempresource, PhosphorusGrab(x, y, z, DimInfo, ResourceVector)-change_per_z, UINT_MAX);
+				else if (resource == "potassium")
+					tempresource -= ResourceChange(x, y, z, DimInfo, ResourceVector, resource, -tempresource, PotassiumGrab(x, y, z, DimInfo, ResourceVector)-change_per_z, UINT_MAX);
+			}
+			z+=1;
+		}
+	}
+	return 0;
 }
 
 };
