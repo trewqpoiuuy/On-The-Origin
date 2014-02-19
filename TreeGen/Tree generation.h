@@ -33,10 +33,10 @@ struct branch
        float xAngle; //
        float yAngle; //Polar coordinates relative to connection
        float length; //
+       float diameter; // how thick the branch is compared to the original size. 1 = trunk, .1 = twig
 	   //float width;
  
        int leafCount; // number of leaves
-       int wood; // wood stores phosphorus and nitrogen. Will change later. 0-100
        //int age; // amount of turns this branch has been alive
  
        int feature; //0=nothing, 1=flower, 2=fruit, 3= seed pod. More to come
@@ -60,6 +60,9 @@ struct seed
        int youth; // age that branch grows as many branches as possible
        int adult; // age that branch stops growing more branches and grows features instead
  
+       int thickness; // aspiring thickness of the tree
+       float diameterloss; //the change in thickness between each generation of branch.
+
        int primaryColor[3]; //Bark color
        int secondaryColor[3]; //Leaf color
        int tertiaryColor[3]; //Flower/fruit color
@@ -84,6 +87,9 @@ struct tree
        int z;
        bool isAlive;
        int reproduced; // 0 = nil 1 = ready 2 = done
+
+       int thickness; // thickness of the tree
+
        vector<branch> branches;
        vector<branch> deadBranches;
        seed treeSeed;
@@ -132,30 +138,31 @@ float absoluteFloatMutation(float variable1, float variable2, float rads)
 }
 seed goForthAndMultiply(seed& seed1, seed& seed2)
 {
- 
+	   int radiation = 1; //change this if you want to make the mutation rate higher or lower. 1 = default
        seed newSeed;
        newSeed = seed1;
-       newSeed.primaryColor[0]= absoluteIntMutation(seed1.primaryColor[0],seed2.primaryColor[0], 1);
-       newSeed.primaryColor[1]= absoluteIntMutation(seed1.primaryColor[1],seed2.primaryColor[1], 1);
-       newSeed.primaryColor[2]= absoluteIntMutation(seed1.primaryColor[2],seed2.primaryColor[2], 1);
-       newSeed.secondaryColor[0]= absoluteIntMutation(seed1.secondaryColor[0],seed2.secondaryColor[0], 1);
-       newSeed.secondaryColor[1]= absoluteIntMutation(seed1.secondaryColor[1],seed2.secondaryColor[1], 1);
-       newSeed.secondaryColor[2]= absoluteIntMutation(seed1.secondaryColor[2],seed2.secondaryColor[2], 1);
-       newSeed.tertiaryColor[0]= absoluteIntMutation(seed1.tertiaryColor[0],seed2.tertiaryColor[0], 1);
-       newSeed.tertiaryColor[1]= absoluteIntMutation(seed1.tertiaryColor[1],seed2.tertiaryColor[1], 1);
-       newSeed.tertiaryColor[2]= absoluteIntMutation(seed1.tertiaryColor[2],seed2.tertiaryColor[2], 1);
-       newSeed.branchDensity= absoluteFloatMutation(seed1.branchDensity,seed2.branchDensity, .01);
-	   newSeed.leafDensity= absoluteFloatMutation(seed1.leafDensity,seed2.leafDensity, .01);
-	   newSeed.leafSize= absoluteFloatMutation(seed1.leafSize,seed2.leafSize, .01);
-       newSeed.angleVariance= absoluteFloatMutation(seed1.angleVariance,seed2.angleVariance, .01);
-       newSeed.lengthVariance= absoluteFloatMutation(seed1.lengthVariance,seed2.lengthVariance, .01);
-       newSeed.featureChance= absoluteFloatMutation(seed1.featureChance,seed2.featureChance, .01);
-       newSeed.youth=absoluteIntMutation(seed1.youth,seed2.youth, 1);
-       newSeed.adult=absoluteIntMutation(seed1.adult,seed2.adult, 1);
+       newSeed.primaryColor[0]= absoluteIntMutation(seed1.primaryColor[0],seed2.primaryColor[0], 1*radiation);
+       newSeed.primaryColor[1]= absoluteIntMutation(seed1.primaryColor[1],seed2.primaryColor[1], 1*radiation);
+       newSeed.primaryColor[2]= absoluteIntMutation(seed1.primaryColor[2],seed2.primaryColor[2], 1*radiation);
+       newSeed.secondaryColor[0]= absoluteIntMutation(seed1.secondaryColor[0],seed2.secondaryColor[0], 1*radiation);
+       newSeed.secondaryColor[1]= absoluteIntMutation(seed1.secondaryColor[1],seed2.secondaryColor[1], 1*radiation);
+       newSeed.secondaryColor[2]= absoluteIntMutation(seed1.secondaryColor[2],seed2.secondaryColor[2], 1*radiation);
+       newSeed.tertiaryColor[0]= absoluteIntMutation(seed1.tertiaryColor[0],seed2.tertiaryColor[0], 1*radiation);
+       newSeed.tertiaryColor[1]= absoluteIntMutation(seed1.tertiaryColor[1],seed2.tertiaryColor[1], 1*radiation);
+       newSeed.tertiaryColor[2]= absoluteIntMutation(seed1.tertiaryColor[2],seed2.tertiaryColor[2], 1*radiation);
+       newSeed.branchDensity= absoluteFloatMutation(seed1.branchDensity,seed2.branchDensity, .01*radiation);
+	   newSeed.leafDensity= absoluteFloatMutation(seed1.leafDensity,seed2.leafDensity, .01*radiation);
+	   newSeed.leafSize= absoluteFloatMutation(seed1.leafSize,seed2.leafSize, .01*radiation);
+       newSeed.angleVariance= absoluteFloatMutation(seed1.angleVariance,seed2.angleVariance, .01*radiation);
+       newSeed.lengthVariance= absoluteFloatMutation(seed1.lengthVariance,seed2.lengthVariance, .01*radiation);
+       newSeed.featureChance= absoluteFloatMutation(seed1.featureChance,seed2.featureChance, .01*radiation);
+       newSeed.youth=absoluteIntMutation(seed1.youth,seed2.youth, 1*radiation);
+       newSeed.adult=absoluteIntMutation(seed1.adult,seed2.adult, 1*radiation);
+       newSeed.thickness = absoluteIntMutation(seed1.thickness,seed2.thickness, 1*radiation);
+       newSeed.diameterloss = absoluteFloatMutation(seed1.diameterloss,seed2.diameterloss, .01*radiation);
  
        return newSeed;
 }
- 
  
 seed generateSeed() //Completely new seed with no inheritance
 {
@@ -173,6 +180,8 @@ seed generateSeed() //Completely new seed with no inheritance
        treeSeed.canopyWeight=randFloat(0,10);
        treeSeed.youth = randInt(50,100);
        treeSeed.adult = randInt(treeSeed.youth+50, treeSeed.youth+100);
+       treeSeed.thickness = randInt(1,10);
+       treeSeed.diameterloss = randFloat(0,.9);
  
        treeSeed.primaryColor[0]=randInt(0,255);
        treeSeed.primaryColor[1]=randInt(0,255);
@@ -215,6 +224,8 @@ seed userDefinedSeed()
     cin >> treeSeed.youth;
 	cout << "Years after reaching maturity that the tree will live:" << endl;
     cin >> treeSeed.adult;
+	cout << "Branch Thickness:(1-100, aspiring width of the trunk) " << endl;
+	cin >> treeSeed.thickness;
  
 	cout << "Primary Color:(0-255, integers) " << endl;
 	cout << "R" << endl;
@@ -261,6 +272,8 @@ seed changeSeed(seed& treeSeed)
 		<< "leaf(d)ensity" << endl// Amount of leaf coverage per branch.
 		<< "(y)outh" << endl// age that branch grows as many branches as possible
 		<< "ad(u)lt" << endl;// age that branch stops growing more branches and grows features instead
+		<< "th(i)ckness" << endl;// aspiring thickness of the trunk
+
 		string toEdit;
 		cin >> toEdit;
 		if (toEdit=="b")
@@ -353,6 +366,7 @@ tree spawnTree(int x, int y, int z, seed& treeSeed, DimensionStruct DimInfo, vec
        newTree.z=z;
        newTree.age=0;
        newTree.treeSeed=treeSeed;
+       newTree.thickness=treeSeed.thickness/treeSeed.adult;
        branch trunk;
        trunk.connection=0;
        trunk.xAngle=randFloat(-treeSeed.angleVariance,treeSeed.angleVariance);
@@ -362,6 +376,7 @@ tree spawnTree(int x, int y, int z, seed& treeSeed, DimensionStruct DimInfo, vec
 	   //trunk.width=1
 	   trunk.leafCount=randInt(0,10)*newTree.treeSeed.leafDensity;
        trunk.isAlive=1;
+       trunk.diameter=1;
 	   newTree.sunlightcap+=trunk.leafCount*treeSeed.leafSize*10;
 	   newTree.watercap+=trunk.leafCount*treeSeed.leafSize*20;
 	   newTree.phosphoruscap+=trunk.length*1.25;
@@ -389,6 +404,7 @@ tree growBranch(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStr
 			newBranch.feature=0;
 			newBranch.leafCount=randInt(0,10)*newTree.treeSeed.leafDensity;
 			newBranch.isAlive=1;
+			newBranch.diameter = newTree.branches.at(newTree.branches.size()-branchWeighting).diameter-newTree.treeSeed.diameterloss;
 			int featureChance=rand()%100;
 			if(featureChance/100<newTree.treeSeed.featureChance)
 			{
@@ -466,13 +482,16 @@ tree upkeep(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStruct 
  
 }
  
- 
- 
 forest reaper(forest& newForest) //checks forest for trees with isAlive false, and moves them to deadtrees.
 {
        for(int f = 0; f < newForest.trees.size(); f++)
        {
               newForest.trees.at(f).age += 1;
+              if(newForest.trees.at(f).thickness < newForest.trees.at(f).treeSeed.thickness) //grow trees
+              {
+                  newForest.trees.at(f).thickness += (newForest.trees.at(f).treeSeed.thickness) / (newForest.trees.at(f).treeSeed.adult);
+              }
+
               if(newForest.trees.at(f).isAlive == false || newForest.trees.at(f).age > newForest.trees.at(f).treeSeed.youth+newForest.trees.at(f).treeSeed.adult)
               {
                      cout << "Don't fear the reaper";
@@ -482,8 +501,6 @@ forest reaper(forest& newForest) //checks forest for trees with isAlive false, a
        }
        return newForest;
 }
- 
-
 
 forest spark(forest& newForest, int x, int y, int z, int power)
 {
@@ -554,7 +571,6 @@ forest firefight(forest& newForest)
 
 	return newForest;
 }
-
 
 forest reproduce(forest& newForest, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector)
 {
