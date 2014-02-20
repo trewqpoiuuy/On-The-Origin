@@ -1,19 +1,22 @@
 /*
- * weather.cpp
- *
- *  Created on: Feb 10, 2014
- *      Author: WBoettcher
- */
+* weather.cpp
+*
+*  Created on: Feb 10, 2014
+*      Author: WBoettcher
+*/
 
 #include <iostream>
+#include "stdafx.h"
 #include <cstdlib>
 #include <ctime>
 #include <stdlib.h>
 #include <stdio.h>
 using namespace std;
 
+
 int main()
 {
+	//cout << "\n stuff";
 	class Weather {
 	public:
 		bool exists = false;
@@ -27,8 +30,8 @@ int main()
 
 		void existanceroll()
 		{
-			unsigned int roll = rand()%halflife;
-			if (roll==(halflife-1))
+			unsigned int roll = rand() % halflife;
+			if (roll == (halflife - 1))
 			{
 				if (exists == true)
 				{
@@ -42,19 +45,19 @@ int main()
 
 		int directionroll()
 		{
-			int directionchange = rand()%1;
-			int sign = rand()%2;
-			if (sign==1)
-				directionchange=(-1)*directionchange;
+			int directionchange = rand() % 1;
+			int sign = rand() % 2;
+			if (sign == 1)
+				directionchange = (-1)*directionchange;
 			return directionchange;
 		}
 
 		long int intensityroll()
 		{
-			int intensitychange = rand()%(intensitychange_max/15);
-			int sign = rand()%2;
-			if (sign==1)
-				intensitychange=(-1)*intensitychange;
+			int intensitychange = rand() % (intensitychange_max / 15);
+			int sign = rand() % 2;
+			if (sign == 1)
+				intensitychange = (-1)*intensitychange;
 			return intensitychange;
 		}
 
@@ -80,11 +83,11 @@ int main()
 					intensity_roc += intensitychange;
 
 				if (direction + direction_roc > 360)
-					direction = (direction + direction_roc)%360;
+					direction = (direction + direction_roc) % 360;
 				else if (direction + direction_roc < 0)
-					direction = 360+((direction + direction_roc)%360);
+					direction = 360 + ((direction + direction_roc) % 360);
 				else
-					direction+=directionchange;
+					direction += directionchange;
 
 				if (intensity + intensity_roc > intensity_max)
 					intensity = intensity_max;
@@ -94,7 +97,7 @@ int main()
 					intensity = 0;
 				}
 				else
-					intensity+=intensity_roc;
+					intensity += intensity_roc;
 
 			}
 		}
@@ -104,16 +107,14 @@ int main()
 	test.intensity_max = 10000;
 	test.intensitychange_max = 1000;
 
-	for(unsigned int i = 0; i<10000; i++)
+	for (unsigned int i = 0; i < 10000; i++)
 	{
+		
 		test.cycle();
 		cout << "\nexists: " << test.exists;
 		cout << "\ndirection: " << test.direction;
 		cout << "\nintensity: " << test.intensity;
 
 	}
-};
-
-
-
+}
 
