@@ -20,6 +20,11 @@
 // Rewriting as a library (namespace Engine)
 // Moving code over from main.cpp
 namespace Engine {    // This is the proper way to set and use namespaces for libraries.  It's like this in the libstdc++ (std::) itself.
+	struct keyBind {
+		int keyid;
+		void (*funcp)();
+	};
+
 	struct Settings {
 		int w_width=800;
 		int w_height=600;
@@ -61,6 +66,8 @@ namespace Engine {    // This is the proper way to set and use namespaces for li
 	bool setup(Settings* enginearg, Camera_settings* cameraarg);
 	void updateMouseMode();
 	void setDrawFunc(void (*drawFunc)());
+	void addKeyDownBinding(int keyid, void (*funcp)());
+	void addKeyPressedBinding(int keyid, void (*funcp)());
 	void display();
 	void update();
 }

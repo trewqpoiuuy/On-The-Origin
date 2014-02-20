@@ -27,13 +27,13 @@ for d in [0,1,2]:
     varname = ['z','y','x'][d]
     for s in [-1,1]:
         compare = ['<','>'][(s+1)/2]
-        addline("if (getCreateVDataPAtVC(x+%d,y+%d,z+%d)->solid==0) {" % (transform(0,0,s,t)))
+        addline("if (getVDataDefAtVC(x+%d,y+%d,z+%d).solid==0) {" % (transform(0,0,s,t)))
         tab+=1
         ### Following generates verts
         for (a,b) in [(1,1),(1,-1),(-1,-1),(-1,1)]:
             #addline("// normalbufferdata[i  ] = %d; normalbufferdata[i+1] = %d; normalbufferdata[i+2] = %d;" % transform(0,0,s,t))
             addline("drawp->colors.push_back(%s); drawp->colors.push_back(%s); drawp->colors.push_back(%s);" % ("r","g","b"))
-            addline("drawp->normals.push_back(getCreateVDataPAtVC(%d,%d,%d)->xnormalc); drawp->normals.push_back(getCreateVDataPAtVC(%d,%d,%d)->ynormalc); drawp->normals.push_back(getCreateVDataPAtVC(%d,%d,%d)->znormalc);" % ((transform((s*a+1)/2, (b+1)/2, (s+1)/2, t))*3))
+            addline("drawp->normals.push_back(getCreateVDataPAtVC(x+%d,y+%d,z+%d)->xnormalc); drawp->normals.push_back(getCreateVDataPAtVC(x+%d,y+%d,z+%d)->ynormalc); drawp->normals.push_back(getCreateVDataPAtVC(x+%d,y+%d,z+%d)->znormalc);" % ((transform((s*a+1)/2, (b+1)/2, (s+1)/2, t))*3))
             addline("drawp->verts.push_back(x+%.1f); drawp->verts.push_back(y+%.1f); drawp->verts.push_back(z+%.1f);" % transform(s*.5*a, .5*b, s*.5,t))
             #addline("i+=nb;")
         tab-=1

@@ -6,6 +6,7 @@
  */
 
 #include "Engine.h"
+#include <vector>
 
 const double PI=3.14159265358979323846;
 
@@ -16,6 +17,10 @@ namespace Engine {
 	SDL_Window *sdlWindow;
 	//SDL_Renderer *sdlRenderer;
 	SDL_GLContext glContext;
+
+	std::vector<keyBind> keyDownBindings;
+	std::vector<keyBind> keyPressedBindings;
+
 	void (*engineDrawScene)();
 
 	void setupGL() {
@@ -63,6 +68,13 @@ namespace Engine {
 
 	void setDrawFunc(void (*drawFunc)()) {   // Passing a function as a pointer
 		engineDrawScene = drawFunc;
+	}
+
+	void addKeyDownBinding(int keyid, void (*funcp)()) {
+		keyDownBindings.push_back(keyBind{keyid,funcp});
+	}
+	void addKeyPressedBinding(int keyid, void (*funcp)()) {
+		keyPressedBindings.push_back(keyBind{keyid,funcp});
 	}
 
 	void display() {
@@ -243,6 +255,16 @@ namespace Engine {
 					camera->y=0;
 					camera->z=0;
 					break;
+				}
+				for (int i=0; i<keyDownBindings.size(); i++) {
+					if (event.key.keysym.sym==keyDownBindings[i].keyid) {
+						keyDownBindings[i].funcp();
+					}
+				}
+				for (int i=0; i<keyPressedBindings.size(); i++) {
+					if (event.key.keysym.sym==keyPressedBindings[i].keyid) {
+						keyPressedBindings[i].funcp();
+					}
 				}
 				break;
 			case (SDL_MOUSEMOTION):

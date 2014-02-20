@@ -9,6 +9,7 @@
 #define WORLD_H_
 
 #include <vector>
+#include <deque>
 #include <GL/gl.h>
 
 namespace World {
@@ -35,7 +36,7 @@ struct DrawData {
 };
 
 struct Chunk {
-	bool update;
+	bool update=false;
 	int cx;
 	int cy;
 	int cz;
@@ -55,28 +56,34 @@ struct WorldSettings {
 	int ocwy;  // Offset of chunks in y direction
 	int ocwz;  // Offset of chunks in z direction
 	float voxelsize;
+	VData defaultdata;
+	int normal_smoothing;
 };
 
 class World {
 
 
 
-	std::vector<Chunk> chunkstorage;
+	std::deque<Chunk> chunkstorage;
 	std::vector<Chunk*> chunkpdata;
 	// All chunk data and functions are internal.  Only Entities and Voxel Data should be interacted with externally.
 	void createChunkAtCC(int cx, int cy, int cz);  // Add new chunk at given Chunk Coordinates (CC)
 	Chunk* getChunkPAtCC(int cx, int cy, int cz);  // Try to get pointer to chunk at CC, return null pointer if doesn't exist
 	Chunk* getCreateChunkPAtCC(int cx, int cy, int cz);  // Try to get pointer to chunk at CC, create chunk if doesn't exist
+	Chunk* getChunkPAtVC(int x, int y, int z);
 	Chunk* getCreateChunkPAtVC(int x, int y, int z);  // Same, but use VC as source, find containing chunk
 	VData* getVDataPAtVC(int x, int y, int z);
+	VData getVDataDefAtVC(int x, int y, int z);  // Return a copy of the VData at VC, return copy of default if chunk doesn't exist
+												 // Only use for temporary calculations, e.g. graphics.  Do not use for world-editing.
 	VData* getCreateVDataPAtVC(int x, int y, int z);  // Try to get pointer to voxel at VC, create the chunk for voxel if doesn't exist
-	int VCtoCC(float d, int nvcd);
-	int VCrelC(float d, int nvcd);
+	int VCtoCC(int d, int nvcd);
+	int VCrelC(int d, int nvcd);
 	int scCW(int cx, int cy, int cz);
 	int scVC(int vx, int vy, int vz);
 	void generateNormalsInChunk(Chunk* chunkp);
 	void generateVertsInChunk(Chunk* chunkp);
 	void drawChunk(Chunk* chunkp);
+	void drawChunkDebug(Chunk* chunkp);
 	void init();
 public:
 	WorldSettings settings;
@@ -88,8 +95,10 @@ public:
 	std::vector<Entity*> getEntityPsInSphere(float x, float y, float z, float r);  // Returns an array of pointers to entities within radius
 	std::vector<Entity*> getEntityPsInRange(float x1, float y1, float z1, float x2, float y2, float z2);  // Returns array of pointers to entities within given range of xyz values
 	void applyFuncInRange(void (*func)(float x, float y, float z, VData* datap), float x1, float y1, float z1, float x2, float y2, float z2);
+	void voxelGeomSphere(float xc, float yc, float zc, float r, bool solid);
 	void update();
-	void draw();
+	void draw(int mode);
+	void drawDebugChunkAtCC(int x, int y, int z);
 };
 
 } /* namespace World */
