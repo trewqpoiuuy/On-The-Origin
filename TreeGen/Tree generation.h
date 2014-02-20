@@ -272,7 +272,7 @@ seed changeSeed(seed& treeSeed)
 		<< "leaf(d)ensity" << endl// Amount of leaf coverage per branch.
 		<< "(y)outh" << endl// age that branch grows as many branches as possible
 		<< "ad(u)lt" << endl;// age that branch stops growing more branches and grows features instead
-		<< "th(i)ckness" << endl;// aspiring thickness of the trunk
+		//<< "th(i)ckness" << endl;// aspiring thickness of the trunk
 
 		string toEdit;
 		cin >> toEdit;
@@ -388,6 +388,7 @@ tree spawnTree(int x, int y, int z, seed& treeSeed, DimensionStruct DimInfo, vec
 }
 tree growBranch(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStruct DimInfo)
 {
+		//cout << "Charizard chips" << endl;
        if(newTree.sunlight>=10 && newTree.water>=20 && newTree.nitrogen>=15 && newTree.potassium>=30 && newTree.phosphorus>=25)
        {
 			branch newBranch;
@@ -404,7 +405,9 @@ tree growBranch(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStr
 			newBranch.feature=0;
 			newBranch.leafCount=randInt(0,10)*newTree.treeSeed.leafDensity;
 			newBranch.isAlive=1;
-			newBranch.diameter = newTree.branches.at(newTree.branches.size()-branchWeighting).diameter-newTree.treeSeed.diameterloss;
+			//cout << "Gotta ketchup them all" << endl;
+			newBranch.diameter = (newTree.branches.at(newTree.branches.size()-branchWeighting-1).diameter)-(newTree.treeSeed.diameterloss);
+			//cout << "pokemon punching bags" << endl;
 			int featureChance=rand()%100;
 			if(featureChance/100<newTree.treeSeed.featureChance)
 			{
@@ -784,7 +787,7 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, vector<VectorS
 		if (interaction==99)
 		{
 			newForest.trees.at(target-1).isAlive=false;
-			cout << "Unable to bear the existential dread of living in a simulation, Tree " << target << " killed itself."<< endl;
+			cout << "Unable to bear the existential dread of living in a simulation, Tree " << target << " killed itself. RIP tree QQ"<< endl;
 		}
 	}
 
@@ -811,8 +814,13 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, vector<VectorS
 		   } */
 		   for(int f=0; f<newForest.trees.size(); f++) //feed the trees
 		   {
+			   	  cout << "trees: ";
+			   	  cout << newForest.trees.size() << endl;
+			   	  //cout << " I HATE ERRORS" << endl;
 				  //cout << f;
 				  newForest.trees.at(f).sunlight=newForest.trees.at(f).sunlight+(newForest.trees.at(f).sunlightcap*.1);
+
+					//cout << "pickachu pirates" << endl;
 
 				  if(newForest.trees.at(f).sunlight > newForest.trees.at(f).sunlightcap)
 				  {
@@ -869,6 +877,7 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, vector<VectorS
 				  //let the trees do their tree thing
 				  while(newForest.trees.at(f).age < newForest.trees.at(f).treeSeed.youth && newForest.trees.at(f).sunlight>=10 && newForest.trees.at(f).water>=20 && newForest.trees.at(f).nitrogen>=15 && newForest.trees.at(f).potassium>=30 && newForest.trees.at(f).phosphorus>=25)
 				  {
+					  	 cout << "bulbasaur baloney" << endl;
 						 newForest.trees.at(f)=growBranch(newForest.trees.at(f), ResourceVector, DimInfo);
 						 newForest.trees.at(f)=upkeep(newForest.trees.at(f), ResourceVector, DimInfo);
 						 //cout << "Tree " << f+1 << " grew a branch."<< endl;

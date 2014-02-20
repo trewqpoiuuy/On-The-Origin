@@ -4,7 +4,7 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
-#include "VectorIntLib.h" //delete 'Resources/' if broken
+#include "Resources/VectorIntLib.h" //delete 'Resources/' if broken
 #include "Tree generation.h"
 //#include "TreeRender.h"
 
@@ -37,6 +37,7 @@ int main(int argc, char **argv)
               cout << "Spawning origin tree. " << endl;
               seed treeSeed=generateSeed();
               tree newTree=spawnTree(originpointx,originpointy,0,treeSeed, DimInfo, ResourceVector);
+              //cout << newTree.isAlive;
               newForest.trees.push_back(newTree);
 
               startingtrees -= 1;
@@ -88,10 +89,13 @@ int main(int argc, char **argv)
               int decay;
               cout << "Decay:" <<endl;
               cin >> decay; */
+    	   	  cout << "Hello" << endl;
               while (newForest.trees.size() > 0) // number of alive trees
               {
 				newForest=generateForest(newForest,DimInfo, ResourceVector);
 			  }
+			  cout << "ITS DEAD!";
+
        }
        cin >> uselessThing;
 
