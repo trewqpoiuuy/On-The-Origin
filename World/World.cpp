@@ -16,15 +16,13 @@ const double PI=3.14159265358979323846;
 
 namespace World {
 
-Chunk* chunkpdebug;
-
 World::World() {
 	settings.ncwx = 512;
 	settings.ocwx = 256;
-	settings.ncwy = 512;
-	settings.ocwy = 256;
-	settings.ncwz = 32;
-	settings.ocwz = 16;
+	settings.ncwy = 32;
+	settings.ocwy = 16;
+	settings.ncwz = 512;
+	settings.ocwz = 256;
 	settings.nvcx = 8;
 	settings.nvcy = 8;
 	settings.nvcz = 8;
@@ -41,6 +39,7 @@ World::World(WorldSettings _settings) {
 
 void World::init() {
 	chunkpdata.resize(settings.ncwx*settings.ncwy*settings.ncwz, NULL);
+	printf("chunkpdata size is %d\n",chunkpdata.size());
 }
 
 int sc(int x, int y, int z, int xw, int yw, int zw) {
@@ -56,11 +55,30 @@ int World::scVC(int vx, int vy, int vz) {
 }
 
 int World::VCtoCC(int d, int nvcd) {
-	return d/nvcd-((d<0 && (d%nvcd)!=0) ? 1:0);
+	return d/nvcd-((d<0 && (d%nvcd)!=0) ? 1:0);  // Adjust for dumb division  (You can tell I really don't like c++'s integer math...)
 }
 
 int World::VCrelC(int d, int nvcd) {
 	return (d%nvcd+nvcd)%nvcd;  // Adjust for dumb modulo
+}
+
+int World::getMinVC_x() {
+	return settings.ocwx*settings.nvcx;
+}
+int World::getMinVC_y() {
+	return settings.ocwy*settings.nvcy;
+}
+int World::getMinVC_z() {
+	return settings.ocwz*settings.nvcz;
+}
+int World::getMaxVC_x() {
+	return (settings.ocwx+settings.ncwx)*settings.nvcx-1;
+}
+int World::getMaxVC_y() {
+	return (settings.ocwy+settings.ncwy)*settings.nvcy-1;
+}
+int World::getMaxVC_z() {
+	return (settings.ocwz+settings.ncwz)*settings.nvcz-1;
 }
 
 void World::createChunkAtCC(int cx, int cy, int cz) {
@@ -83,7 +101,7 @@ Chunk* World::getChunkPAtCC(int cx, int cy, int cz) {
 Chunk* World::getCreateChunkPAtCC(int cx, int cy, int cz) {
 	int p = scCW(cx,cy,cz);
 	int n=0;
-	Chunk* chunkp = chunkpdata.at(scCW(cx,cy,cz));  // \FIXME  // Return to pointers!
+	Chunk* chunkp = chunkpdata.at(scCW(cx,cy,cz));  // FIXME Breaks here
 
 	if (!chunkp) {
 		createChunkAtCC(cx, cy, cz);
@@ -133,8 +151,13 @@ VData* World::getCreateVDataPAtVC(int x, int y, int z) {
 }
 
 VData* World::editDataPAt(float x, float y, float z) {
-	getCreateChunkPAtVC(x,y,z)->update = true;
+	getCreateChunkPAtVC(x/settings.voxelsize,y/settings.voxelsize,z/settings.voxelsize)->update = true;
 	return getCreateVDataPAtVC(x/settings.voxelsize,y/settings.voxelsize,z/settings.voxelsize);
+}
+
+VData* World::editDataPAtVC(int vx, int vy, int vz) {
+	getCreateChunkPAtVC(vx,vy,vz)->update = true;
+	return getCreateVDataPAtVC(vx,vy,vz);
 }
 
 void World::applyFuncInRange(void (*func)(float x, float y, float z, VData* datap), float x1, float y1, float z1, float x2, float y2, float z2) {
@@ -148,11 +171,16 @@ void World::applyFuncInRange(void (*func)(float x, float y, float z, VData* data
 }
 
 void World::voxelGeomSphere(float xc, float yc, float zc, float r, bool solid) {
-	for (int z=xc-r; z<xc+r; z+=settings.voxelsize) {
+	xc/=settings.voxelsize;
+	yc/=settings.voxelsize;
+	zc/=settings.voxelsize;
+	r/=settings.voxelsize;
+
+	for (int z=zc-r; z<zc+r; z+=settings.voxelsize) {
 		for (int y=yc-r; y<yc+r; y+=settings.voxelsize) {
 			for (int x=xc-r; x<xc+r; x+=settings.voxelsize) {
 				if (pythag(x-xc,y-yc,z-zc)<r) {
-					editDataPAt(x,y,z)->solid=solid;
+					editDataPAtVC(x,y,z)->solid=solid;
 					//printf("#");
 				}
 				else {
@@ -166,37 +194,93 @@ void World::voxelGeomSphere(float xc, float yc, float zc, float r, bool solid) {
 }
 
 void World::generateNormalsInChunk(Chunk* chunkp) {
-	chunkpdebug = chunkp;
+	std::vector<bool> soliddata;
+	int ns=settings.normal_smoothing;
+	int sdwx=settings.nvcx+settings.normal_smoothing*2;
+	int sdwy=settings.nvcy+settings.normal_smoothing*2;
+	int sdwz=settings.nvcz+settings.normal_smoothing*2;
+	int sdlen=sdwx*sdwy*sdwz;
+	soliddata.resize(sdlen,false);
+	for (int czo=-1; czo<=1; czo++) {
+		for (int cyo=-1; cyo<=1; cyo++) {
+			for (int cxo=-1; cxo<=1; cxo++) {
+				Chunk* cp=getChunkPAtCC(chunkp->cx+cxo,chunkp->cy+cyo,chunkp->cz+czo);
+				if (cp) {
+					for (int vcz=0; vcz<settings.nvcz; vcz++) {
+						for (int vcy=0; vcy<settings.nvcy; vcy++) {
+							for (int vcx=0; vcx<settings.nvcx; vcx++) {
+								int abx=(cxo)*settings.nvcx+vcx+settings.normal_smoothing;
+								int aby=(cyo)*settings.nvcy+vcy+settings.normal_smoothing;
+								int abz=(czo)*settings.nvcz+vcz+settings.normal_smoothing;
+								if (abx>=0 && abx<sdwx &&
+									aby>=0 && aby<sdwy &&
+									abz>=0 && abz<sdwz) {
+									soliddata.at(sc3w(abx,aby,abz,sdwx,sdwy,sdwz))=cp->voxeldata.at(scVC(vcx,vcy,vcz)).solid;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	//chunkpdebug = chunkp;
 	printf("Chunk is at CC (%d,%d,%d)\n",chunkp->cx,chunkp->cy,chunkp->cz);
-	for (int vz=chunkp->cz*settings.nvcz; vz<(chunkp->cz+1)*settings.nvcz; vz++) {
+	/*for (int vz=chunkp->cz*settings.nvcz; vz<(chunkp->cz+1)*settings.nvcz; vz++) {
 		for (int vy=chunkp->cy*settings.nvcy; vy<(chunkp->cy+1)*settings.nvcy; vy++) {
-			for (int vx=chunkp->cx*settings.nvcx; vx<(chunkp->cx+1)*settings.nvcx; vx++) {
+			for (int vx=chunkp->cx*settings.nvcx; vx<(chunkp->cx+1)*settings.nvcx; vx++) {*/
+	for (int vcz=0; vcz<settings.nvcz; vcz++) {
+		for (int vcy=0; vcy<settings.nvcy; vcy++) {
+			for (int vcx=0; vcx<settings.nvcx; vcx++) {
 				//printf("\tProcessing voxel at (%d,%d,%d)\n",vx,vy,vz);
-				VData* tvp = getCreateVDataPAtVC(vx,vy,vz);
-				const int nrange=settings.normal_smoothing;
+				VData* tvp = &chunkp->voxeldata.at(scVC(vcx,vcy,vcz));
 				float normalx=0;
 				float normaly=0;
 				float normalz=0;
-				if (
-						getVDataDefAtVC(vx,vy,vz).solid ||
-						getVDataDefAtVC(vx-1,vy,vz).solid ||
-						getVDataDefAtVC(vx,vy-1,vz).solid ||
-						getVDataDefAtVC(vx-1,vy-1,vz).solid ||
-						getVDataDefAtVC(vx,vy,vz-1).solid ||
-						getVDataDefAtVC(vx-1,vy,vz-1).solid ||
-						getVDataDefAtVC(vx,vy-1,vz-1).solid ||
-						getVDataDefAtVC(vx-1,vy-1,vz-1).solid
-
-						) {
+				/*bool neighbors[8];
+				int n=0;
+				for (int vzo=-1; vzo<=0; vzo++) {
+					for (int vyo=-1; vyo<=0; vyo++) {
+						for (int vxo=-1; vxo<=0; vxo++) {
+							neighbors[n]=soliddata.at(sc3w(vcx+vxo+ns,vcy+vyo+ns,vcz+vzo+ns,sdwx,sdwy,sdwz));
+							n++;
+						}
+					}
+				}
+				bool exposed=false;  //Test if this corner is exposed, meaning not all neighbors are empty and not all are solid
+				for (int i=0; i<8 && !exposed; i++) {
+					if (neighbors[i]!=neighbors[0]) {
+						exposed=true;
+					}
+				}*/
+				bool exposed=false;  //Test if this corner is exposed, meaning not all neighbors are empty and not all are solid
+				bool first=true;
+				bool compare;
+				for (int vzo=-1; vzo<=0; vzo++) {
+					for (int vyo=-1; vyo<=0; vyo++) {
+						for (int vxo=-1; vxo<=0; vxo++) {
+							if (first) {
+								compare=soliddata.at(sc3w(vcx+vxo+ns,vcy+vyo+ns,vcz+vzo+ns,sdwx,sdwy,sdwz));
+								first=false;
+							}
+							else {
+								if (soliddata.at(sc3w(vcx+vxo+ns,vcy+vyo+ns,vcz+vzo+ns,sdwx,sdwy,sdwz))!=compare) {
+									exposed=true;
+								}
+							}
+						}
+					}
+				}
+				if (exposed) {
 					//printf("\t\t Testing:");
-					for (int zo=-nrange; zo<nrange; zo++) {
-						for (int yo=-nrange; yo<nrange; yo++) {
-							for (int xo=-nrange; xo<nrange; xo++) {    /// Crude normal approximation by calculating weighting of voxels in nrange cubic neighborhood
-								if (!getVDataDefAtVC(vx+xo,vy+yo,vz+zo).solid) {
-									float dist=pythag(xo+0.5,yo+0.5,zo+0.5);
-									float direcx = xo+0.5;
-									float direcy = yo+0.5;
-									float direcz = zo+0.5;
+					for (int vzo=-ns; vzo<ns; vzo++) {
+						for (int vyo=-ns; vyo<ns; vyo++) {
+							for (int vxo=-ns; vxo<ns; vxo++) {    /// Crude normal approximation by calculating weighting of voxels in nrange cubic neighborhood
+								if (!soliddata.at(sc3w(vcx+vxo+ns,vcy+vyo+ns,vcz+vzo+ns,sdwx,sdwy,sdwz))) {
+									float dist=pythag(vxo+0.5,vyo+0.5,vzo+0.5);
+									float direcx = vxo+0.5;
+									float direcy = vyo+0.5;
+									float direcz = vzo+0.5;
 									normalize3p(&direcx,&direcy,&direcz);
 									normalx+=direcx/dist;
 									normaly+=direcy/dist;
@@ -403,6 +487,18 @@ void World::update() {
 		}
 	}
 	printf("%d chunks processed in update\n",i);
+}
+
+void World::updateNextChunk() {
+	unsigned int i=0;
+	while (i<chunkstorage.size() && !chunkstorage.at(i).update) {
+		i+=1;
+	}
+	if (i<chunkstorage.size()) {
+		generateNormalsInChunk(&chunkstorage.at(i));
+		generateVertsInChunk(&chunkstorage.at(i));
+		chunkstorage.at(i).update=false;
+	}
 }
 
 void World::draw(int mode) {

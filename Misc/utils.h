@@ -24,4 +24,8 @@ float pythag(float x, float y, float z);
 
 void normalize3p(float* x, float* y, float* z);
 
+int sc(int x, int y, int z, int size);
+
+int sc3w(int x, int y, int z, int sizex, int sizey, int sizez);
+
 #endif /* UTILS_H_ */

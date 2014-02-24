@@ -53,7 +53,7 @@ void renderscene() {
 		glDisable(GL_LIGHTING);
 	}
 	glColor3f(1.,0.,0.);
-	drawSphere(0,0,0,1,20,20);
+	//drawSphere(0,0,0,1,20,20);
 	testworld.draw(drawdebugmode);
 	//testworld.drawDebugChunkAtCC(0,0,0);
 }
@@ -61,29 +61,30 @@ void renderscene() {
 void carvevoxels1() {
 	//voxel_test.fill(1);
 
-	float cave_c_x=128;
+	float cave_c_x=0;
 	//float cave_c_y=256-120;
-	float cave_c_y=512/2;
-	float cave_c_z=128;
+	float cave_c_y=0;
+	float cave_c_z=0;
 	float cave_r=512/2-50;
+	cave_r=120;
 
-	testworld.voxelGeomSphere(cave_c_x,cave_c_y,cave_c_z,cave_r+30,1);
+	testworld.voxelGeomSphere(cave_c_x,cave_c_y,cave_c_z,cave_r+30,true);
 	//testworld.voxelGeomSphere(cave_c_x,cave_c_y,cave_c_z,cave_r-0,0);
-	testworld.voxelGeomSphere(cave_c_x,cave_c_y,cave_c_z,cave_r,0);
+	//testworld.voxelGeomSphere(cave_c_x,cave_c_y,cave_c_z,cave_r,false);
 	for (int i=0; i<1000*4; i++) {
 		float a=((float)(rand()%10000))*PI*2/10000;
 		float b=((float)(rand()%10000))*PI*2/10000-PI;
-		testworld.voxelGeomSphere(cave_c_x+cave_r*cos(a)*cos(b),cave_c_y+cave_r*sin(b),cave_c_z+cave_r*sin(a)*cos(b),rand()%20,0);
+		testworld.voxelGeomSphere(cave_c_x+cave_r*cos(a)*cos(b),cave_c_y+cave_r*sin(b),cave_c_z+cave_r*sin(a)*cos(b),rand()%20,false);
 		printf("%f,%f\n",a,b);
 	}
 }
 
 void carvevoxels2() {
-	testworld.voxelGeomSphere(128., 128., 128., 36., 1);
+	testworld.voxelGeomSphere(0., 0., 0., 36., true);
 	for (int z=-2; z<=2; z++) {
 		for (int y=-2; y<=2; y++) {
 			for (int x=-2; x<=2; x++) {
-				testworld.voxelGeomSphere( 128+28*x, 128+28*y, 128+28*z, 16., 0);
+				testworld.voxelGeomSphere( 28*x, 28*y, 28*z, 16., false);
 				printf("Added sphere %d %d %d\n",x,y,z);
 			}
 		}
@@ -111,7 +112,15 @@ void toggleNormalsDebug() {
 	normalsdebugmode = !normalsdebugmode;
 }
 
+void updateKey() {
+	testworld.updateNextChunk();
+}
+
 int main(int argc, char *argv[]) {
+	testworld.settings.nvcx=32;
+	testworld.settings.nvcy=32;
+	testworld.settings.nvcz=32;
+	testworld.settings.normal_smoothing=2;
 	/*for (int i=-8; i<8; i++) {
 		testworld.editDataPAt(0,i,0)->solid = true;
 	}
@@ -119,20 +128,27 @@ int main(int argc, char *argv[]) {
 	testworld.editDataPAt(2,2,0)->solid = true;
 	testworld.editDataPAt(2,0,0)->solid = true;
 	testworld.editDataPAt(0,4,0)->solid = true;*/
-	//carvevoxels2();
-	testworld.voxelGeomSphere(0,0,0,30,true);
+	//carvevoxels1();
+	//testworld.editDataPAt(0,0,0)->solid=true;
 	printf("Hello world!\n");
 	Engine::setup(&engine, &camera);
 	Engine::setDrawFunc(&renderscene);
 	Engine::addKeyDownBinding(SDLK_y,&setDebugMode0);
 	Engine::addKeyDownBinding(SDLK_u,&setDebugMode1);
+	Engine::addKeyDownBinding(SDLK_RETURN,&updateKey);
+
+	for (int i=0; i<5; i++) {
+		testworld.voxelGeomSphere(0,0,i*128,30,true);
+		testworld.settings.normal_smoothing=2+i;
+		testworld.update();
+	}
+
 
 	engine.run = true;
+	unsigned long int counter = 0;
 	while (engine.run) {
-		/*for (int i=0; i<cell_test.cells.size(); i++) {
-			cell_test.cells[i].physics();
-		}*/
-		testworld.update();
+		counter+=1;
+		testworld.updateNextChunk();
 		Engine::updateMouseMode();
 		Engine::update();
 		Engine::display();

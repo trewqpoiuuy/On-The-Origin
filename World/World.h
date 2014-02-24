@@ -91,14 +91,22 @@ public:
 	World(WorldSettings _settings);  // In EACH direction:  Number of voxels per chunk, number of chunks in world
 	VData defaultData;
 	VData* editDataPAt(float x, float y, float z);  // Returns pointer to Voxel data at coords (x,y,z)
+	VData* editDataPAtVC(int x, int y, int z);  // Returns pointer to Voxel data at Voxel coords (x,y,z)
 	VData retrieveDataAt(float x, float y, float z);  // Returns a copy of the Voxel at coords, or a copy of default if no chunk exists
 	std::vector<Entity*> getEntityPsInSphere(float x, float y, float z, float r);  // Returns an array of pointers to entities within radius
 	std::vector<Entity*> getEntityPsInRange(float x1, float y1, float z1, float x2, float y2, float z2);  // Returns array of pointers to entities within given range of xyz values
 	void applyFuncInRange(void (*func)(float x, float y, float z, VData* datap), float x1, float y1, float z1, float x2, float y2, float z2);
 	void voxelGeomSphere(float xc, float yc, float zc, float r, bool solid);
 	void update();
+	void updateNextChunk();
 	void draw(int mode);
 	void drawDebugChunkAtCC(int x, int y, int z);
+	int getMinVC_x();  // Get lowest possible Voxel Coordinate in x direction
+	int getMinVC_y();  // Get lowest possible Voxel Coordinate in y direction
+	int getMinVC_z();  // Get lowest possible Voxel Coordinate in z direction
+	int getMaxVC_x();  // Get highest possible Voxel Coordinate in x direction
+	int getMaxVC_y();  // Get highest possible Voxel Coordinate in y direction
+	int getMaxVC_z();  // Get highest possible Voxel Coordinate in z direction
 };
 
 } /* namespace World */
