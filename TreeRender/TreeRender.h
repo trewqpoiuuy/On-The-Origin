@@ -158,7 +158,7 @@ void drawForest()
 			zpos += 1;
 		}
 
-		glTranslatef(i - correction, 0.0f, zpos);
+		glTranslatef(renderforest.trees.at(i).x,renderforest.trees.at(i).z,renderforest.trees.at(i).y);
 
 		for (int f = 0; f < renderforest.trees.at(i).branches.size();)
 		{
@@ -202,7 +202,7 @@ void drawForest()
 			f++;
 		}
 		
-		glTranslatef(-(i - correction), 0.0f, -zpos);
+		glTranslatef(-renderforest.trees.at(i).x,-renderforest.trees.at(i).z,-renderforest.trees.at(i).y);
 		
 		i++;
 	}
@@ -229,12 +229,12 @@ void renderScene(void)
 
 	// Draw ground
 	glColor3f(0.5f, 0.5f, 0.5f);
-	glBegin(GL_QUADS);
+	/*glBegin(GL_QUADS);
 	glVertex3f(-10.0f, 0.0f, 10.0f);
 	glVertex3f(-10.0f, 0.0f, -10.0f);
 	glVertex3f(10.0f, 0.0f, -10.0f);
 	glVertex3f(10.0f, 0.0f, 10.0f);
-	glEnd();
+	glEnd();*/
 
 	drawForest();
 }
