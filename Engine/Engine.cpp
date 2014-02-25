@@ -7,6 +7,8 @@
 
 #include "Engine.h"
 #include <vector>
+#include <SDL2/SDL_thread.h>
+#include <SDL2/SDL_timer.h>
 
 const double PI=3.14159265358979323846;
 
@@ -21,9 +23,27 @@ namespace Engine {
 	std::vector<keyBind> keyDownBindings;
 	std::vector<keyBind> keyPressedBindings;
 
+	SDL_Thread *updateLoopThread;
+	SDL_Thread *renderLoopThread;
+
+	int framecounter=0;
+	int updatelastframe=0;
+
 	void (*engineDrawScene)();
 
+	void setupSDL() {
+		SDL_Init( SDL_INIT_EVERYTHING );
+		int mode = SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE;
+		if (engine->fullscreen) {
+			mode = (mode | SDL_WINDOW_FULLSCREEN_DESKTOP); // TODO: Make this toggleable during program run
+		}
+		sdlWindow = SDL_CreateWindow(engine->windowname, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, engine->w_width, engine->w_height, mode);
+		//sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
+	}
+
 	void setupGL() {
+		glContext = SDL_GL_CreateContext(sdlWindow);
 		glEnable(GL_DEPTH_TEST);
 		glClearColor(0, 0, 0, 0);
 		glFrontFace(GL_CW);
@@ -36,15 +56,9 @@ namespace Engine {
 
 	}
 
-	void setupSDL() {
-		SDL_Init( SDL_INIT_EVERYTHING );
-		int mode = SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE;
-		if (engine->fullscreen) {
-			mode = (mode | SDL_WINDOW_FULLSCREEN_DESKTOP); // TODO: Make this toggleable during program run
-		}
-		sdlWindow = SDL_CreateWindow(engine->windowname, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, engine->w_width, engine->w_height, mode);
-		//sdlRenderer = SDL_CreateRenderer(sdlWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-		glContext = SDL_GL_CreateContext(sdlWindow);
+	int setupSDL_thread(void *p) {
+		setupSDL();
+		return 0;
 	}
 
 	void updateMouseMode() {
@@ -60,8 +74,13 @@ namespace Engine {
 			engine->w_height=engine->r360_p_width*2+engine->r360_p_spacing;
 		}
 
-		setupSDL();
-		setupGL();
+
+		//setupSDL();
+		/*updateLoopThread = SDL_CreateThread(setupSDL_thread, "updatethread", (void *)NULL);
+		int r;
+		SDL_WaitThread(updateLoopThread, &r);*/
+
+		//setupGL();
 
 		return true; // TODO: Consider adding Error detection, use this return for success
 	}
@@ -231,9 +250,11 @@ namespace Engine {
 	}
 
 	void update() {
+		printf("update() was called\n");
 		SDL_Event event;
 		while (SDL_PollEvent(&event)) // Loop until all events for this cycle are handled
 		{
+			printf("Event was detected\n");
 			switch (event.type) {
 			case (SDL_QUIT):
 				engine->run=false;
@@ -369,4 +390,52 @@ namespace Engine {
 
 	}
 
+	int updateLoop(void *p) {
+		setupSDL();
+		setupGL();
+		while (engine->run) {
+			Engine::updateMouseMode();
+			Engine::update();
+			Engine::display();
+			framecounter+=1;
+			int ups=20; // Updates per second
+			SDL_Delay(1000/ups);
+			//printf("Update\n");
+			int framessinceupdate = framecounter-updatelastframe;
+			float fps = framessinceupdate*ups;
+			printf("FPS: %f\n",fps);
+			updatelastframe = framecounter;
+		}
+		return 0;
+	}
+	int renderLoop(void *p) {
+		//setupGL();
+		//SDL_Init( SDL_INIT_VIDEO );
+		while (engine->run) {
+			//Engine::display();
+			framecounter+=1;
+			//printf("Frame %d\n",framecounter);
+		}
+		return 0;
+	}
+
+	void startUpdateLoop() {
+		updateLoopThread = SDL_CreateThread(updateLoop, "updatethread", (void *)NULL);
+		//updateLoopThread = SDL_CreateThread(updateLoop, NULL);
+	    if ( updateLoopThread == NULL ) {
+	        fprintf(stderr, "Unable to create thread: %s\n", SDL_GetError());
+	        return;
+	    }
+	}
+	void startRenderLoop() {
+		renderLoopThread = SDL_CreateThread(renderLoop, "renderthread", (void *)NULL);
+	}
+	void finishUpdateLoop() {
+		int r;
+		SDL_WaitThread(updateLoopThread, &r);
+	}
+	void finishRenderLoop() {
+		int r;
+		SDL_WaitThread(renderLoopThread, &r);
+	}
 }

@@ -70,6 +70,13 @@ namespace Engine {    // This is the proper way to set and use namespaces for li
 	void addKeyPressedBinding(int keyid, void (*funcp)());
 	void display();
 	void update();
+	void startUpdateThread();
+	int updateLoop(void *p);
+	//int renderLoop(void *p);
+	void startUpdateLoop();
+	//void startRenderLoop();
+	void finishUpdateLoop();
+	//void finishRenderLoop();
 }
 
 #endif /* ENGINE_H_ */

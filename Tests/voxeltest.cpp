@@ -117,9 +117,9 @@ void updateKey() {
 }
 
 int main(int argc, char *argv[]) {
-	testworld.settings.nvcx=32;
-	testworld.settings.nvcy=32;
-	testworld.settings.nvcz=32;
+	testworld.settings.nvcx=128;
+	testworld.settings.nvcy=128;
+	testworld.settings.nvcz=128;
 	testworld.settings.normal_smoothing=2;
 	/*for (int i=-8; i<8; i++) {
 		testworld.editDataPAt(0,i,0)->solid = true;
@@ -130,6 +130,7 @@ int main(int argc, char *argv[]) {
 	testworld.editDataPAt(0,4,0)->solid = true;*/
 	//carvevoxels1();
 	//testworld.editDataPAt(0,0,0)->solid=true;
+	testworld.voxelGeomSphere(0,0,0,30,true);
 	printf("Hello world!\n");
 	Engine::setup(&engine, &camera);
 	Engine::setDrawFunc(&renderscene);
@@ -137,21 +138,26 @@ int main(int argc, char *argv[]) {
 	Engine::addKeyDownBinding(SDLK_u,&setDebugMode1);
 	Engine::addKeyDownBinding(SDLK_RETURN,&updateKey);
 
-	for (int i=0; i<5; i++) {
+	/*for (int i=0; i<5; i++) {
 		testworld.voxelGeomSphere(0,0,i*128,30,true);
-		testworld.settings.normal_smoothing=2+i;
+		testworld.settings.normal_smoothing=i+1;
 		testworld.update();
-	}
+	}*/
 
 
 	engine.run = true;
+	Engine::startUpdateLoop();
+	//Engine::startRenderLoop();
 	unsigned long int counter = 0;
+	//Engine::updateLoop((void *)NULL);
 	while (engine.run) {
 		counter+=1;
 		testworld.updateNextChunk();
-		Engine::updateMouseMode();
-		Engine::update();
-		Engine::display();
+		//Engine::updateMouseMode();
+		//Engine::update();
+		//Engine::display();
 	}
+	//Engine::finishRenderLoop();
+	Engine::finishUpdateLoop();
 	return 0;
 }
