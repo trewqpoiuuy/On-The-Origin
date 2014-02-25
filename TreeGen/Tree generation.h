@@ -61,7 +61,7 @@ struct seed
        int youth; // age that branch grows as many branches as possible
        int adult; // age that branch stops growing more branches and grows features instead
  
-       int thickness; // aspiring thickness of the tree
+       float thickness; // aspiring thickness of the tree
        float diameterloss; //the change in thickness between each generation of branch.
 
        int primaryColor[3]; //Bark color
@@ -89,7 +89,7 @@ struct tree
        bool isAlive;
        int reproduced; // 0 = nil 1 = ready 2 = done
 
-       int thickness; // thickness of the tree
+       float thickness; // thickness of the tree
 
        vector<branch> branches;
        vector<branch> deadBranches;
@@ -159,9 +159,22 @@ seed goForthAndMultiply(seed& seed1, seed& seed2)
        newSeed.featureChance= absoluteFloatMutation(seed1.featureChance,seed2.featureChance, .01*radiation);
        newSeed.youth=absoluteIntMutation(seed1.youth,seed2.youth, 1*radiation);
        newSeed.adult=absoluteIntMutation(seed1.adult,seed2.adult, 1*radiation);
-       newSeed.thickness = absoluteIntMutation(seed1.thickness,seed2.thickness, 1*radiation);
+       newSeed.thickness = absoluteFloatMutation(seed1.thickness,seed2.thickness, .01*radiation);
+       if(newSeed.thickness <= 0)
+       {
+    	   newSeed.thickness = .01;
+       }
        newSeed.diameterloss = absoluteFloatMutation(seed1.diameterloss,seed2.diameterloss, .01*radiation);
- 
+
+       if(newSeed.diameterloss <= 0)
+       {
+           newSeed.diameterloss = .01;
+       }
+
+       if(newSeed.diameterloss >= .5)
+       {
+    	   newSeed.diameterloss = .49;
+       }
        return newSeed;
 }
  
@@ -181,8 +194,8 @@ seed generateSeed() //Completely new seed with no inheritance
        treeSeed.canopyWeight=randFloat(0,10);
        treeSeed.youth = randInt(50,100);
        treeSeed.adult = randInt(treeSeed.youth+50, treeSeed.youth+100);
-       treeSeed.thickness = randInt(1,10);
-       treeSeed.diameterloss = randFloat(0,.9);
+       treeSeed.thickness = randFloat(.1,1);
+       treeSeed.diameterloss = randFloat(0,.1);
  
        treeSeed.primaryColor[0]=randInt(0,255);
        treeSeed.primaryColor[1]=randInt(0,255);
@@ -368,7 +381,7 @@ tree spawnTree(int x, int y, int z, seed& treeSeed, DimensionStruct DimInfo, vec
 	   PlantIDAssign(x, y, z, DimInfo, ResourceVector, plantID);
        newTree.age=0;
        newTree.treeSeed=treeSeed;
-       newTree.thickness=treeSeed.thickness/treeSeed.adult;
+       newTree.thickness=treeSeed.thickness;
        branch trunk;
        trunk.connection=0;
        trunk.xAngle=randFloat(-treeSeed.angleVariance,treeSeed.angleVariance);
@@ -411,6 +424,10 @@ tree growBranch(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStr
 			newBranch.leafCount=randInt(0,10)*newTree.treeSeed.leafDensity;
 			newBranch.isAlive=1;
 			newBranch.diameter = newTree.branches.at(newTree.branches.size()-branchWeighting-1).diameter-newTree.treeSeed.diameterloss;
+			if(newBranch.diameter <= 0)
+			{
+				newBranch.diameter = .01;
+			}
 			int featureChance=rand()%100;
 			if(featureChance/100<newTree.treeSeed.featureChance)
 			{
@@ -493,14 +510,15 @@ forest reaper(forest& newForest) //checks forest for trees with isAlive false, a
        for(int f = 0; f < newForest.trees.size(); f++)
        {
               newForest.trees.at(f).age += 1;
+              /*
               if(newForest.trees.at(f).thickness < newForest.trees.at(f).treeSeed.thickness) //grow trees
               {
                   newForest.trees.at(f).thickness += (newForest.trees.at(f).treeSeed.thickness) / (newForest.trees.at(f).treeSeed.adult);
-              }
+              }*/
 
               if(newForest.trees.at(f).isAlive == false || newForest.trees.at(f).age > newForest.trees.at(f).treeSeed.youth+newForest.trees.at(f).treeSeed.adult)
               {
-                     cout << "Don't fear the reaper";
+                     //cout << "Don't fear the reaper";
                      newForest.deadtrees.push_back(newForest.trees.at(f));
                      newForest.trees.erase(newForest.trees.begin()+f);
               }
@@ -717,10 +735,10 @@ forest generateTree(forest& newForest, DimensionStruct DimInfo, vector<VectorStr
 }
 forest generateForest(forest& newForest, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector, int turn, int turnstogo, int target)
 {         
-
+	/*
 	turn += 1;
 	cout << "Turn: " << turn << endl;
-	cout << "Turnstogo: " << turnstogo << endl;
+	cout << "Turnstogo: " << turnstogo << endl;*/
 
 	/* feed-=decay;
 	if (feed<=0)
@@ -784,11 +802,10 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, vector<VectorS
 			newForest.trees.at(f).nitrogen = newForest.trees.at(f).nitrogencap;
 		  }
 		  //let the trees do their tree thing
-		  newForest.trees.at(f)=upkeep(newForest.trees.at(f), ResourceVector, DimInfo);
 		  while(newForest.trees.at(f).age < newForest.trees.at(f).treeSeed.youth && newForest.trees.at(f).sunlight>=10 && newForest.trees.at(f).water>=20 && newForest.trees.at(f).nitrogen>=15 && newForest.trees.at(f).potassium>=30 && newForest.trees.at(f).phosphorus>=25)
 		  {
 				 newForest.trees.at(f)=growBranch(newForest.trees.at(f), ResourceVector, DimInfo);
-				 
+				 newForest.trees.at(f)=upkeep(newForest.trees.at(f), ResourceVector, DimInfo);
 				 //cout << "Tree " << f+1 << " grew a branch."<< endl;
 		  }
 
@@ -801,14 +818,14 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, vector<VectorS
 
 	
 	cout << "Number of trees: " << newForest.trees.size() << endl;
-	cout << "Number of dead trees: " << newForest.deadtrees.size() << endl;
+	/*cout << "Number of dead trees: " << newForest.deadtrees.size() << endl;
 	
 	for(int f=0; f<newForest.trees.size();f++)
 	{
 		  cout << "Tree number: " << f+1 << endl;
 		  cout << "Number of Branches: " << newForest.trees.at(f).branches.size() << endl;
 		  cout << "Number of Dead Branches: " << newForest.trees.at(f).deadBranches.size() << endl;
-	}
+	}*/
 	turnstogo -= 1;
 	return newForest;
 		  
