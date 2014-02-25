@@ -1,3 +1,3 @@
 cd C:\Users\BKnutson\Dropbox\Computer Science\CS 2
-g++ -o TreeTest -I C:\Users\BKnutson\Documents\GitHub\On-The-Origin\Resources -I C:\Users\BKnutson\Documents\GitHub\On-The-Origin\TreeGen "C:\Users\BKnutson\Documents\GitHub\On-The-Origin\Tests\Tree generation test.cpp"
+g++ "C:\Users\BKnutson\Documents\GitHub\On-The-Origin\Tests\Tree generation test.cpp" "C:\Users\BKnutson\Documents\GitHub\On-The-Origin\Engine\Engine.cpp" -lmingw32 -lopengl32 -lglu32 -lSDL2main -lSDL2 -std=c++11 -o TreeTest
 pause
