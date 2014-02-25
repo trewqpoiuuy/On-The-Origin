@@ -90,9 +90,10 @@ public:
 	World();
 	World(WorldSettings _settings);  // In EACH direction:  Number of voxels per chunk, number of chunks in world
 	VData defaultData;
-	VData* editDataPAt(float x, float y, float z);  // Returns pointer to Voxel data at coords (x,y,z)
-	VData* editDataPAtVC(int x, int y, int z);  // Returns pointer to Voxel data at Voxel coords (x,y,z)
-	VData retrieveDataAt(float x, float y, float z);  // Returns a copy of the Voxel at coords, or a copy of default if no chunk exists
+	VData* editDataPAt(float x, float y, float z);  // Returns pointer to VData at coords (x,y,z)
+	VData* editDataPAtVC(int x, int y, int z);  // Returns pointer to VData at Voxel coords (x,y,z)
+	VData retrieveDataAt(float x, float y, float z);  // Returns a copy of the VData at coords, or a copy of default if no chunk exists
+	VData retrieveDataAtVC(int x, int y, int z);  // Returns a copy of the VData at Voxel coords, or a copy of default if no chunk exists
 	std::vector<Entity*> getEntityPsInSphere(float x, float y, float z, float r);  // Returns an array of pointers to entities within radius
 	std::vector<Entity*> getEntityPsInRange(float x1, float y1, float z1, float x2, float y2, float z2);  // Returns array of pointers to entities within given range of xyz values
 	void applyFuncInRange(void (*func)(float x, float y, float z, VData* datap), float x1, float y1, float z1, float x2, float y2, float z2);
@@ -107,6 +108,13 @@ public:
 	int getMaxVC_x();  // Get highest possible Voxel Coordinate in x direction
 	int getMaxVC_y();  // Get highest possible Voxel Coordinate in y direction
 	int getMaxVC_z();  // Get highest possible Voxel Coordinate in z direction
+
+	float getMin_x();  // Get lowest possible real Coordinate in x direction
+	float getMin_y();  // Get lowest possible real Coordinate in y direction
+	float getMin_z();  // Get lowest possible real Coordinate in z direction
+	float getMax_x();  // Get highest possible real Coordinate in x direction
+	float getMax_y();  // Get highest possible real Coordinate in y direction
+	float getMax_z();  // Get highest possible real Coordinate in z direction
 };
 
 } /* namespace World */

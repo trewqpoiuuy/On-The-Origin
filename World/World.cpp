@@ -80,6 +80,24 @@ int World::getMaxVC_y() {
 int World::getMaxVC_z() {
 	return (settings.ocwz+settings.ncwz)*settings.nvcz-1;
 }
+float World::getMin_x() {
+	return (settings.ocwx*settings.nvcx)*settings.voxelsize;
+}
+float World::getMin_y() {
+	return (settings.ocwy*settings.nvcy)*settings.voxelsize;
+}
+float World::getMin_z() {
+	return (settings.ocwz*settings.nvcz)*settings.voxelsize;
+}
+float World::getMax_x() {
+	return ((settings.ocwx+settings.ncwx)*settings.nvcx-1)*settings.voxelsize;
+}
+float World::getMax_y() {
+	return ((settings.ocwy+settings.ncwy)*settings.nvcy-1)*settings.voxelsize;
+}
+float World::getMax_z() {
+	return ((settings.ocwz+settings.ncwz)*settings.nvcz-1)*settings.voxelsize;
+}
 
 void World::createChunkAtCC(int cx, int cy, int cz) {
 	Chunk chunk;
@@ -152,12 +170,20 @@ VData* World::getCreateVDataPAtVC(int x, int y, int z) {
 
 VData* World::editDataPAt(float x, float y, float z) {
 	getCreateChunkPAtVC(x/settings.voxelsize,y/settings.voxelsize,z/settings.voxelsize)->update = true;
-	return getCreateVDataPAtVC(x/settings.voxelsize,y/settings.voxelsize,z/settings.voxelsize);
+	return getVDataPAtVC(x/settings.voxelsize,y/settings.voxelsize,z/settings.voxelsize);
 }
 
 VData* World::editDataPAtVC(int vx, int vy, int vz) {
 	getCreateChunkPAtVC(vx,vy,vz)->update = true;
-	return getCreateVDataPAtVC(vx,vy,vz);
+	return getVDataPAtVC(vx,vy,vz);
+}
+
+VData World::retrieveDataAt(float x, float y, float z) {
+	return getVDataDefAtVC(x/settings.voxelsize,y/settings.voxelsize,z/settings.voxelsize);
+}
+
+VData World::retrieveDataAtVC(int vx, int vy, int vz) {
+	return getVDataDefAtVC(vx,vy,vz);
 }
 
 void World::applyFuncInRange(void (*func)(float x, float y, float z, VData* datap), float x1, float y1, float z1, float x2, float y2, float z2) {
