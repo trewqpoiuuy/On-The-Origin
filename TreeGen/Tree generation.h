@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <string>
 #include <cstdlib>
 #include <ctime>
 
@@ -357,9 +358,9 @@ seed changeSeed(seed& treeSeed)
 	}
 	return treeSeed;
 }
-tree spawnTree(int x, int y, int z, seed& treeSeed, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector)
+tree spawnTree(int x, int y, int z, seed& treeSeed, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector, string plantID)
 {     
-       tree newTree;
+	   tree newTree;
        newTree.sunlight=0;   //
        newTree.water=0;      //
        newTree.phosphorus=0; //Resources
@@ -375,8 +376,9 @@ tree spawnTree(int x, int y, int z, seed& treeSeed, DimensionStruct DimInfo, vec
 	   newTree.fire=0;
        newTree.x=x;
        newTree.y=y;
-	   newTree.roots=randInt(10,40);
        newTree.z=z;
+	   newTree.roots=randInt(10,40);
+	   PlantIDAssign(x, y, z, DimInfo, ResourceVector, plantID);
        newTree.age=0;
        newTree.treeSeed=treeSeed;
        newTree.thickness=treeSeed.thickness;
@@ -396,6 +398,10 @@ tree spawnTree(int x, int y, int z, seed& treeSeed, DimensionStruct DimInfo, vec
        newTree.nitrogencap+=trunk.length/1.5;
        newTree.potassiumcap+=trunk.length*1.5;
        newTree.branches.push_back(trunk);
+	   if (!PlantIDCheck(x, y, z, DimInfo, ResourceVector))
+	   {
+			newTree.isAlive=0;
+	   }
        //newForest.trees.push_back(newTree);
        return newTree;
 }
@@ -456,7 +462,7 @@ tree upkeep(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStruct 
        for(int i=0; i<newTree.branches.size(); i++)
        {
               totalLength+=newTree.branches.at(i).length;
-              if(newTree.sunlight-totalLength*.0025<0 || newTree.water-totalLength*.005<0 || newTree.nitrogen-totalLength*.00375<0 || newTree.potassium-totalLength*.0075<0 || newTree.phosphorus-totalLength*.00625<0)
+              if(newTree.sunlight-totalLength*.005<0 || newTree.water-totalLength*.01<0 || newTree.nitrogen-totalLength*.0075<0 || newTree.potassium-totalLength*.015<0 || newTree.phosphorus-totalLength*.0125<0)
               {
               //cout << "test2";
                      for(int j=1; j<newTree.branches.size()-i; j++)
@@ -489,12 +495,12 @@ tree upkeep(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStruct 
                      }
               }
        }
-       newTree.sunlight=newTree.sunlight-totalLength*.0025;
+       newTree.sunlight=newTree.sunlight-totalLength*.005;
       
-       newTree.water=newTree.water-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "water",-(totalLength*.005));
-       newTree.nitrogen=newTree.nitrogen-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "nitrogen", -(totalLength*.00375));
-       newTree.potassium=newTree.potassium-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "potassium", -(totalLength*.0075));
-       newTree.phosphorus=newTree.phosphorus-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "phosphorus", -(totalLength*.00625));
+       newTree.water=newTree.water-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "water",-(totalLength*.01));
+       newTree.nitrogen=newTree.nitrogen-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "nitrogen", -(totalLength*.0075));
+       newTree.potassium=newTree.potassium-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "potassium", -(totalLength*.015));
+       newTree.phosphorus=newTree.phosphorus-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "phosphorus", -(totalLength*.0125));
        return newTree;
  
 }
@@ -613,7 +619,29 @@ forest reproduce(forest& newForest, DimensionStruct DimInfo, vector<VectorStruct
                            seed newSeed=goForthAndMultiply(canReproduce.at(0).treeSeed, canReproduce.at(1).treeSeed);
                            canReproduce.erase(canReproduce.begin());
                            canReproduce.erase(canReproduce.begin());
-                           tree newTree = spawnTree(newForest.trees.at(f).x+randInt(0,3), newForest.trees.at(f).y+randInt(0,3), newForest.trees.at(f).z, newSeed, DimInfo, ResourceVector);
+						   int newX=newForest.trees.at(f).x+randInt(-6,6);
+						   int newY=newForest.trees.at(f).y+randInt(-6,6);
+						   int newZ=newForest.trees.at(f).z;
+						   if (newX<0)
+						   {
+								newX=0;
+						   }
+						   if (newX>DimInfo.width)
+						   {
+								newX=DimInfo.width;
+						   }
+						   if (newY<0)
+						   {
+								newY=0;
+						   }
+						   if (newY>DimInfo.width)
+						   {
+								newY=DimInfo.width;
+						   }
+						   char PlantIDArray[10];
+						   sprintf( PlantIDArray, "%d",newForest.trees.size());
+						   string newPlantID=PlantIDArray;
+                           tree newTree = spawnTree(newX, newY, newZ, newSeed, DimInfo, ResourceVector, newPlantID);
                            newForest.trees.push_back(newTree);
                      }
               }
