@@ -17,8 +17,8 @@ int main(int argc, char **argv)
        srand(time(NULL));
        int uselessThing=rand(); //First value of rand is the seed, so this gets rid of it
        int depth = 10;
-       int length = 100;
-       int width = 100;
+       int length = 200;
+       int width = 200;
        int TopsoilDepth = 3;
        DimensionStruct DimInfo;
        DimInfo.length = length;
@@ -32,8 +32,8 @@ int main(int argc, char **argv)
        int startingtrees;
 	   cout << "How many trees to start?" << endl;
 	   cin >> startingtrees;
-       int originpointx = 45;
-       int originpointy = 45;
+       int originpointx = 100;
+       int originpointy = 100;
        while(startingtrees > 0)
        {
               cout << "Spawning origin tree. " << endl;
@@ -42,7 +42,7 @@ int main(int argc, char **argv)
               newForest.trees.push_back(newTree);
 
               startingtrees -= 1;
-              originpointx += randInt(-5,5);
+              originpointx += randInt(-10,10);
               if(originpointx > length)
               {
                      originpointx = length;
@@ -51,7 +51,7 @@ int main(int argc, char **argv)
               {
                      originpointx = 0;
               }
-              originpointy += randInt(-5,5);
+              originpointy += randInt(-10,10);
               if(originpointy > width)
               {
                      originpointy = width;
