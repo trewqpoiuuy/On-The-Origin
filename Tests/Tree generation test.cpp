@@ -38,7 +38,10 @@ int main(int argc, char **argv)
        {
               cout << "Spawning origin tree. " << endl;
               seed treeSeed=generateSeed();
-              tree newTree=spawnTree(originpointx,originpointy,0,treeSeed, DimInfo, ResourceVector);
+			  char PlantIDArray[10];
+			  sprintf( PlantIDArray, "%d",newForest.trees.size());
+			  string newPlantID=PlantIDArray;
+              tree newTree=spawnTree(originpointx,originpointy,0,treeSeed, DimInfo, ResourceVector, newPlantID);
               newForest.trees.push_back(newTree);
 
               startingtrees -= 1;
@@ -175,8 +178,11 @@ int main(int argc, char **argv)
             	  			cin >> cloney;
             	  			cout << "Z:" << endl;
             	  			cin >> clonez;
-            	  			tree newTree=spawnTree(clonex,cloney,clonez,newForest.trees.at(target-1).treeSeed, DimInfo, ResourceVector);
-            	              newForest.trees.push_back(newTree);
+							char PlantIDArray[10];
+						    sprintf( PlantIDArray, "%d",newForest.trees.size());
+						    string newPlantID=PlantIDArray;
+            	  			tree newTree=spawnTree(clonex ,cloney ,clonez , newForest.trees.at(target-1).treeSeed , DimInfo, ResourceVector, newPlantID);
+            	            newForest.trees.push_back(newTree);
 
             	  		}
             	  		if (interaction==5)
