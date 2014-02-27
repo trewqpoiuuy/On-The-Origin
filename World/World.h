@@ -8,6 +8,7 @@
 #ifndef WORLD_H_
 #define WORLD_H_
 
+#include <string>
 #include <vector>
 #include <deque>
 #include <GL/gl.h>
@@ -20,12 +21,21 @@ class Entity {
 	float z;
 };
 
+struct VResourceStruct {
+	unsigned int water;
+	unsigned int nitrogen;
+	unsigned int phosphorus;
+	unsigned int potassium;
+	std::vector<std::string> plantID;
+};
+
 struct VData {
 	bool solid;
 	float xnormalc;
 	float ynormalc;  // This normal represents only one corner, that which is towards the negative direction
 	float znormalc;  // (-0.5 voxel lengths from center in each direction)
-	//TODO: Solid, color, resources
+	VResourceStruct resources;
+	//TODO: Solid, color
 };
 
 struct DrawData {
