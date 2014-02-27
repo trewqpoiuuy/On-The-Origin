@@ -117,9 +117,9 @@ void updateKey() {
 }
 
 int main(int argc, char *argv[]) {
-	testworld.settings.nvcx=64;
-	testworld.settings.nvcy=64;
-	testworld.settings.nvcz=64;
+	testworld.settings.nvcx=16;
+	testworld.settings.nvcy=16;
+	testworld.settings.nvcz=16;
 	testworld.settings.normal_smoothing=2;
 	testworld.init();
 	/*for (int i=-8; i<8; i++) {

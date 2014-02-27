@@ -29,12 +29,6 @@ World::World() {
 	settings.voxelsize = 1;
 	settings.defaultdata = VData{false,0,0,0};  // Default VData for when chunks don't exist or aren't loaded.  E.g.: Not solid, and all resources zero
 	settings.normal_smoothing = 3;
-	init();
-}
-
-World::World(WorldSettings _settings) {
-	settings = _settings;
-	init();
 }
 
 void World::init() {

@@ -84,7 +84,6 @@ class World {
 	void generateVertsInChunk(Chunk* chunkp);
 	void drawChunk(Chunk* chunkp);
 	void drawChunkDebug(Chunk* chunkp);
-	void init();
 public:
 	WorldSettings settings;
 	World();

@@ -74,6 +74,7 @@ void addVertex(Data* data, GLfloat x, GLfloat y, GLfloat z) {
 	data->colors_temp.push_back(data->b_temp);
 }
 void finishData(Data* data) {
+	printf("data verts_temp size is %d\n",data->verts_temp.size());
 	data->lockdata=true;
 	data->verts = data->verts_temp;
 	data->verts_temp.clear();
