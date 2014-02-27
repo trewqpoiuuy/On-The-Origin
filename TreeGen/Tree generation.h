@@ -626,17 +626,17 @@ forest reproduce(forest& newForest, DimensionStruct DimInfo, vector<VectorStruct
 						   {
 								newX=0;
 						   }
-						   if (newX>DimInfo.width)
+						   if (newX>DimInfo.width-1)
 						   {
-								newX=DimInfo.width;
+								newX=DimInfo.width-1;
 						   }
 						   if (newY<0)
 						   {
 								newY=0;
 						   }
-						   if (newY>DimInfo.width)
+						   if (newY>DimInfo.length-1)
 						   {
-								newY=DimInfo.width;
+								newY=DimInfo.length-1;
 						   }
 						   char PlantIDArray[10];
 						   sprintf( PlantIDArray, "%d",newForest.trees.size());
