@@ -1,0 +1,380 @@
+/*
+ * voxelobject.cpp
+ *
+ *  Created on: Dec 17, 2013
+ *      Author: theron
+ */
+
+#include "VoxelObject.h"
+#include <GL/gl.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+
+const int V_CSG_UNION=0;
+const int V_CSG_SUBTRACT=1;
+const int V_CSG_INTERSECTION=2;
+const int V_CSG_XOR=3;
+
+int VoxelObject::vdaddr(int x, int y, int z) {
+	return x+size*y+size*size*z;
+}
+
+VoxelObject::VoxelObject() {
+	size=256;
+	init();
+}
+
+VoxelObject::VoxelObject(int a_size) {
+	size=a_size;
+	init();
+}
+
+void VoxelObject::init() {
+	offset=0;
+	d_solid.resize(size*size*size,0);
+}
+
+bool VoxelObject::dropSeed(float* x, float* y, float* z) {
+	// Returns false if seed is being placed inside existing soil
+	// Otherwise, adjusts y downwards until seed is sitting on top of a voxel
+	if (/*this->get(*x, *y, *z)*/false) {
+		return false;
+	}
+	else {
+		/*while (*y>0 && !this->get(*x, *y, *z)) {
+			*y-=1;
+		}
+		*y=ceil(*y);*/
+		return true;
+	}
+}
+
+void VoxelObject::fill(bool state) {
+	for (int z=0; z<size; z++) {
+		for (int y=0; y<size; y++) {
+			for (int x=0; x<size; x++) {
+				d_solid[vdaddr(x,y,z)]=state;
+			}
+		}
+	}
+}
+
+void VoxelObject::set(int x, int y, int z, bool state) {
+	d_solid[vdaddr(x,y,z)]=state; // Replace with chunk-based code
+}
+
+bool VoxelObject::get(int x, int y, int z) {
+	return d_solid[vdaddr(x,y,z)]; // Replace with chunk-based code
+}
+
+void VoxelObject::voxelSphere(float centerx, float centery, float centerz, float radius, bool state) {
+	for (int z=std::max((int)(centerz-radius),0); z<std::min((int)(centerz+radius),size); z++) {
+		for (int y=std::max((int)(centery-radius),0); y<std::min((int)(centery+radius),size); y++) {
+			for (int x=std::max((int)(centerx-radius),0); x<std::min((int)(centerx+radius),size); x++) {
+				if ((x-centerx-offset)*(x-centerx-offset)+(y-centery-offset)*(y-centery-offset)+(z-centerz-offset)*(z-centerz-offset)<radius*radius) {  // This is ugly.  Use std::pow()?
+					d_solid[vdaddr(x,y,z)]=state;
+				}
+			}
+		}
+	}
+}
+
+void VoxelObject::voxelSphereNoise(float centerx, float centery, float centerz, float radius, bool state) {
+	for (int z=std::max((int)(centerz-radius),0); z<std::min((int)(centerz+radius),size); z++) {
+		for (int y=std::max((int)(centery-radius),0); y<std::min((int)(centery+radius),size); y++) {
+			for (int x=std::max((int)(centerx-radius),0); x<std::min((int)(centerx+radius),size); x++) {
+				if ((x-centerx-offset)*(x-centerx-offset)+(y-centery-offset)*(y-centery-offset)+(z-centerz-offset)*(z-centerz-offset)<radius*radius+rand()%100-50) {  // This is ugly.  Use std::pow()?
+					d_solid[vdaddr(x,y,z)]=state;
+				}
+			}
+		}
+	}
+}
+
+void VoxelObject::draw() {
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_NORMAL_ARRAY);
+    //glEnableClientState(GL_COLOR_ARRAY);
+    //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glVertexPointer(3, GL_FLOAT, 3*sizeof(GLfloat), &verts[0]);
+    glNormalPointer(GL_FLOAT, 3*sizeof(GLfloat), &normals[0]);
+    //glColorPointer(3, GL_FLOAT, 3*sizeof(GLfloat), &colors.front());
+    //glTexCoordPointer(2, GL_FLOAT, 0, &texcoords.front());
+    glDrawArrays(GL_QUADS, 0*sizeof(GLfloat), verts.size()/12*sizeof(GLfloat));
+    //printf("Drawing %d verts from voxel object\n",verts.size()/3);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_NORMAL_ARRAY);
+    //glDisableClientState(GL_COLOR_ARRAY);
+    //glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+}
+
+void VoxelObject::updateMesh() {
+
+	/*int xd=1;
+	int yd=1;
+	int zd=1;
+
+	if (sin(player_yaw)<0) { xd=-1; }    // Double-negatives for consistency
+	if (-sin(player_pitch)<0) { yd=-1; }    // var equals sign of expression
+	if (-cos(player_yaw)<0) { zd=-1; }
+
+
+	int xs=size*(xd<0);
+	int xe=size*(xd>0);
+	int ys=size*(yd<0);
+	int ye=size*(yd>0);
+	int zs=size*(zd<0);
+	int ze=size*(zd>0);*/
+
+	/*for (int i=0; i<nbufferdatatotal*nb; i++) {
+		vertexbufferdata[i]=0;
+		normalbufferdata[i]=0;
+		colorbufferdata[i]=0;
+	}*/
+	verts.clear();
+	normals.clear();
+	colors.clear();
+	texcoords.clear();
+
+	/*for (int z=zs+zd; zd*z<zd*(ze-zd); z+=zd) {
+		for (int y=ys+yd; yd*y<yd*(ye-yd); y+=yd) {
+			for (int x=xs+xd; xd*x<xd*(xe-xd); x+=xd) {*/ // Leave optimization crap alone
+	for (int z=2; z<size-2; z++) {
+		for (int y=2; y<size-2; y++) {
+			for (int x=2; x<size-2; x++) {
+				if (d_solid[vdaddr(x,y,z)]==1) {
+					/*float normalx=0;
+					float normaly=0;
+					float normalz=0;
+					for (int oz=-1; oz<=1; oz++) {
+						for (int oy=0; oy<=1; oy++) {
+							for (int ox=-1; ox<=1; ox++) {
+								normalx-=(ox*(d_solid[vdaddr(x+ox,y+oy,z+oz)]));
+								normaly-=(oy*(d_solid[vdaddr(x+ox,y+oy,z+oz)]));
+								normalz-=(oz*(d_solid[vdaddr(x+ox,y+oy,z+oz)]));
+
+							}
+						}
+					}
+					float m=sqrt(normalx*normalx+normaly*normaly+normalz*normalz);
+					if (m!=0) {
+						normalx = normalx/m;
+						normaly = normaly/m;
+						normalz = normalz/m;
+					}*/
+
+					float r = 1.0;
+					float g = 0.0;
+					float b = 0.0;
+
+					//////// C++ Generated by voxelcuberule.py ////////
+					if (d_solid[vdaddr(x+0,y+0,z-1)]==0) {
+						float normalx=0;
+						float normaly=0;
+						float normalz=0;
+						for (int oz=-2; oz<=2; oz++) {
+							for (int oy=-2; oy<=2; oy++) {
+								for (int ox=-2; ox<=2; ox++) {
+									normalx-=(ox*(d_solid[vdaddr(x+ox,y+oy,z+oz)]));
+									normaly-=(oy*(d_solid[vdaddr(x+ox,y+oy,z+oz)]));
+									normalz-=(oz*(d_solid[vdaddr(x+ox,y+oy,z+oz)]));
+								}
+							}
+						}
+						normalz+=-2.000000;
+						float m=sqrt(normalx*normalx+normaly*normaly+normalz*normalz);
+						if (m!=0) {
+							normalx = normalx/m;
+							normaly = normaly/m;
+							normalz = normalz/m;
+						}
+						colors.push_back(r); colors.push_back(g); colors.push_back(b);
+						normals.push_back(normalx); normals.push_back(normaly); normals.push_back(normalz);
+						verts.push_back(x-0.5); verts.push_back(y+0.5); verts.push_back(z-0.5);
+						colors.push_back(r); colors.push_back(g); colors.push_back(b);
+						normals.push_back(normalx); normals.push_back(normaly); normals.push_back(normalz);
+						verts.push_back(x-0.5); verts.push_back(y-0.5); verts.push_back(z-0.5);
+						colors.push_back(r); colors.push_back(g); colors.push_back(b);
+						normals.push_back(normalx); normals.push_back(normaly); normals.push_back(normalz);
+						verts.push_back(x+0.5); verts.push_back(y-0.5); verts.push_back(z-0.5);
+						colors.push_back(r); colors.push_back(g); colors.push_back(b);
+						normals.push_back(normalx); normals.push_back(normaly); normals.push_back(normalz);
+						verts.push_back(x+0.5); verts.push_back(y+0.5); verts.push_back(z-0.5);
+					}
+					if (d_solid[vdaddr(x+0,y+0,z+1)]==0) {
+						float normalx=0;
+						float normaly=0;
+						float normalz=0;
+						for (int oz=-2; oz<=2; oz++) {
+							for (int oy=-2; oy<=2; oy++) {
+								for (int ox=-2; ox<=2; ox++) {
+									normalx-=(ox*(d_solid[vdaddr(x+ox,y+oy,z+oz)]));
+									normaly-=(oy*(d_solid[vdaddr(x+ox,y+oy,z+oz)]));
+									normalz-=(oz*(d_solid[vdaddr(x+ox,y+oy,z+oz)]));
+								}
+							}
+						}
+						normalz+=2.000000;
+						float m=sqrt(normalx*normalx+normaly*normaly+normalz*normalz);
+						if (m!=0) {
+							normalx = normalx/m;
+							normaly = normaly/m;
+							normalz = normalz/m;
+						}
+						colors.push_back(r); colors.push_back(g); colors.push_back(b);
+						normals.push_back(normalx); normals.push_back(normaly); normals.push_back(normalz);
+						verts.push_back(x+0.5); verts.push_back(y+0.5); verts.push_back(z+0.5);
+						colors.push_back(r); colors.push_back(g); colors.push_back(b);
+						normals.push_back(normalx); normals.push_back(normaly); normals.push_back(normalz);
+						verts.push_back(x+0.5); verts.push_back(y-0.5); verts.push_back(z+0.5);
+						colors.push_back(r); colors.push_back(g); colors.push_back(b);
+						normals.push_back(normalx); normals.push_back(normaly); normals.push_back(normalz);
+						verts.push_back(x-0.5); verts.push_back(y-0.5); verts.push_back(z+0.5);
+						colors.push_back(r); colors.push_back(g); colors.push_back(b);
+						normals.push_back(normalx); normals.push_back(normaly); normals.push_back(normalz);
+						verts.push_back(x-0.5); verts.push_back(y+0.5); verts.push_back(z+0.5);
+					}
+					if (d_solid[vdaddr(x+0,y-1,z+0)]==0) {
+						float normalx=0;
+						float normaly=0;
+						float normalz=0;
+						for (int oz=-2; oz<=2; oz++) {
+							for (int oy=-2; oy<=2; oy++) {
+								for (int ox=-2; ox<=2; ox++) {
+									normalx-=(ox*(d_solid[vdaddr(x+ox,y+oy,z+oz)]));
+									normaly-=(oy*(d_solid[vdaddr(x+ox,y+oy,z+oz)]));
+									normalz-=(oz*(d_solid[vdaddr(x+ox,y+oy,z+oz)]));
+								}
+							}
+						}
+						normaly+=-2.000000;
+						float m=sqrt(normalx*normalx+normaly*normaly+normalz*normalz);
+						if (m!=0) {
+							normalx = normalx/m;
+							normaly = normaly/m;
+							normalz = normalz/m;
+						}
+						colors.push_back(r); colors.push_back(g); colors.push_back(b);
+						normals.push_back(normalx); normals.push_back(normaly); normals.push_back(normalz);
+						verts.push_back(x+0.5); verts.push_back(y-0.5); verts.push_back(z-0.5);
+						colors.push_back(r); colors.push_back(g); colors.push_back(b);
+						normals.push_back(normalx); normals.push_back(normaly); normals.push_back(normalz);
+						verts.push_back(x-0.5); verts.push_back(y-0.5); verts.push_back(z-0.5);
+						colors.push_back(r); colors.push_back(g); colors.push_back(b);
+						normals.push_back(normalx); normals.push_back(normaly); normals.push_back(normalz);
+						verts.push_back(x-0.5); verts.push_back(y-0.5); verts.push_back(z+0.5);
+						colors.push_back(r); colors.push_back(g); colors.push_back(b);
+						normals.push_back(normalx); normals.push_back(normaly); normals.push_back(normalz);
+						verts.push_back(x+0.5); verts.push_back(y-0.5); verts.push_back(z+0.5);
+					}
+					if (d_solid[vdaddr(x+0,y+1,z+0)]==0) {
+						float normalx=0;
+						float normaly=0;
+						float normalz=0;
+						for (int oz=-2; oz<=2; oz++) {
+							for (int oy=-2; oy<=2; oy++) {
+								for (int ox=-2; ox<=2; ox++) {
+									normalx-=(ox*(d_solid[vdaddr(x+ox,y+oy,z+oz)]));
+									normaly-=(oy*(d_solid[vdaddr(x+ox,y+oy,z+oz)]));
+									normalz-=(oz*(d_solid[vdaddr(x+ox,y+oy,z+oz)]));
+								}
+							}
+						}
+						normaly+=2.000000;
+						float m=sqrt(normalx*normalx+normaly*normaly+normalz*normalz);
+						if (m!=0) {
+							normalx = normalx/m;
+							normaly = normaly/m;
+							normalz = normalz/m;
+						}
+						colors.push_back(r); colors.push_back(g); colors.push_back(b);
+						normals.push_back(normalx); normals.push_back(normaly); normals.push_back(normalz);
+						verts.push_back(x+0.5); verts.push_back(y+0.5); verts.push_back(z+0.5);
+						colors.push_back(r); colors.push_back(g); colors.push_back(b);
+						normals.push_back(normalx); normals.push_back(normaly); normals.push_back(normalz);
+						verts.push_back(x-0.5); verts.push_back(y+0.5); verts.push_back(z+0.5);
+						colors.push_back(r); colors.push_back(g); colors.push_back(b);
+						normals.push_back(normalx); normals.push_back(normaly); normals.push_back(normalz);
+						verts.push_back(x-0.5); verts.push_back(y+0.5); verts.push_back(z-0.5);
+						colors.push_back(r); colors.push_back(g); colors.push_back(b);
+						normals.push_back(normalx); normals.push_back(normaly); normals.push_back(normalz);
+						verts.push_back(x+0.5); verts.push_back(y+0.5); verts.push_back(z-0.5);
+					}
+					if (d_solid[vdaddr(x-1,y+0,z+0)]==0) {
+						float normalx=0;
+						float normaly=0;
+						float normalz=0;
+						for (int oz=-2; oz<=2; oz++) {
+							for (int oy=-2; oy<=2; oy++) {
+								for (int ox=-2; ox<=2; ox++) {
+									normalx-=(ox*(d_solid[vdaddr(x+ox,y+oy,z+oz)]));
+									normaly-=(oy*(d_solid[vdaddr(x+ox,y+oy,z+oz)]));
+									normalz-=(oz*(d_solid[vdaddr(x+ox,y+oy,z+oz)]));
+								}
+							}
+						}
+						normalx+=-2.000000;
+						float m=sqrt(normalx*normalx+normaly*normaly+normalz*normalz);
+						if (m!=0) {
+							normalx = normalx/m;
+							normaly = normaly/m;
+							normalz = normalz/m;
+						}
+						colors.push_back(r); colors.push_back(g); colors.push_back(b);
+						normals.push_back(normalx); normals.push_back(normaly); normals.push_back(normalz);
+						verts.push_back(x-0.5); verts.push_back(y-0.5); verts.push_back(z+0.5);
+						colors.push_back(r); colors.push_back(g); colors.push_back(b);
+						normals.push_back(normalx); normals.push_back(normaly); normals.push_back(normalz);
+						verts.push_back(x-0.5); verts.push_back(y-0.5); verts.push_back(z-0.5);
+						colors.push_back(r); colors.push_back(g); colors.push_back(b);
+						normals.push_back(normalx); normals.push_back(normaly); normals.push_back(normalz);
+						verts.push_back(x-0.5); verts.push_back(y+0.5); verts.push_back(z-0.5);
+						colors.push_back(r); colors.push_back(g); colors.push_back(b);
+						normals.push_back(normalx); normals.push_back(normaly); normals.push_back(normalz);
+						verts.push_back(x-0.5); verts.push_back(y+0.5); verts.push_back(z+0.5);
+					}
+					if (d_solid[vdaddr(x+1,y+0,z+0)]==0) {
+						float normalx=0;
+						float normaly=0;
+						float normalz=0;
+						for (int oz=-2; oz<=2; oz++) {
+							for (int oy=-2; oy<=2; oy++) {
+								for (int ox=-2; ox<=2; ox++) {
+									normalx-=(ox*(d_solid[vdaddr(x+ox,y+oy,z+oz)]));
+									normaly-=(oy*(d_solid[vdaddr(x+ox,y+oy,z+oz)]));
+									normalz-=(oz*(d_solid[vdaddr(x+ox,y+oy,z+oz)]));
+								}
+							}
+						}
+						normalx+=2.000000;
+						float m=sqrt(normalx*normalx+normaly*normaly+normalz*normalz);
+						if (m!=0) {
+							normalx = normalx/m;
+							normaly = normaly/m;
+							normalz = normalz/m;
+						}
+						colors.push_back(r); colors.push_back(g); colors.push_back(b);
+						normals.push_back(normalx); normals.push_back(normaly); normals.push_back(normalz);
+						verts.push_back(x+0.5); verts.push_back(y+0.5); verts.push_back(z+0.5);
+						colors.push_back(r); colors.push_back(g); colors.push_back(b);
+						normals.push_back(normalx); normals.push_back(normaly); normals.push_back(normalz);
+						verts.push_back(x+0.5); verts.push_back(y+0.5); verts.push_back(z-0.5);
+						colors.push_back(r); colors.push_back(g); colors.push_back(b);
+						normals.push_back(normalx); normals.push_back(normaly); normals.push_back(normalz);
+						verts.push_back(x+0.5); verts.push_back(y-0.5); verts.push_back(z-0.5);
+						colors.push_back(r); colors.push_back(g); colors.push_back(b);
+						normals.push_back(normalx); normals.push_back(normaly); normals.push_back(normalz);
+						verts.push_back(x+0.5); verts.push_back(y-0.5); verts.push_back(z+0.5);
+					}
+					////////       End of generated code       ////////
+
+
+
+				}
+			}
+		}
+		printf("Extracting voxels line %d of %d\n",z,size);
+	}
+	printf("Extracted %d vertices from voxel\n",verts.size());
+}

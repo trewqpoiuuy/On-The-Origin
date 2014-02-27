@@ -619,8 +619,8 @@ forest reproduce(forest& newForest, DimensionStruct DimInfo, vector<VectorStruct
                            seed newSeed=goForthAndMultiply(canReproduce.at(0).treeSeed, canReproduce.at(1).treeSeed);
                            canReproduce.erase(canReproduce.begin());
                            canReproduce.erase(canReproduce.begin());
-						   int newX=newForest.trees.at(f).x+randInt(-6,6);
-						   int newY=newForest.trees.at(f).y+randInt(-6,6);
+						   int newX=newForest.trees.at(f).x+randInt(-30,30);
+						   int newY=newForest.trees.at(f).y+randInt(-30,30);
 						   int newZ=newForest.trees.at(f).z;
 						   if (newX<0)
 						   {
@@ -802,10 +802,11 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, vector<VectorS
 			newForest.trees.at(f).nitrogen = newForest.trees.at(f).nitrogencap;
 		  }
 		  //let the trees do their tree thing
+		  newForest.trees.at(f)=upkeep(newForest.trees.at(f), ResourceVector, DimInfo);
 		  while(newForest.trees.at(f).age < newForest.trees.at(f).treeSeed.youth && newForest.trees.at(f).sunlight>=10 && newForest.trees.at(f).water>=20 && newForest.trees.at(f).nitrogen>=15 && newForest.trees.at(f).potassium>=30 && newForest.trees.at(f).phosphorus>=25)
 		  {
 				 newForest.trees.at(f)=growBranch(newForest.trees.at(f), ResourceVector, DimInfo);
-				 newForest.trees.at(f)=upkeep(newForest.trees.at(f), ResourceVector, DimInfo);
+				 
 				 //cout << "Tree " << f+1 << " grew a branch."<< endl;
 		  }
 

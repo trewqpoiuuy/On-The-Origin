@@ -9,17 +9,17 @@
 #include "../TreeRender/TreeRender.h"
 #include "../Engine/Engine.h"
 
-using namespace std;
-using namespace veclib;
+//using namespace std;
+//using namespace veclib;
 
 int main(int argc, char **argv)
 {
        srand(time(NULL));
        int uselessThing=rand(); //First value of rand is the seed, so this gets rid of it
-       int depth = 10;
-       int length = 200;
-       int width = 200;
-       int TopsoilDepth = 3;
+       int depth = 3;
+       int length = 1000;
+       int width = 1000;
+       int TopsoilDepth = 1;
        DimensionStruct DimInfo;
        DimInfo.length = length;
        DimInfo.width = width;
@@ -32,8 +32,8 @@ int main(int argc, char **argv)
        int startingtrees;
 	   cout << "How many trees to start?" << endl;
 	   cin >> startingtrees;
-       int originpointx = 100;
-       int originpointy = 100;
+       int originpointx = 500;
+       int originpointy = 500;
        while(startingtrees > 0)
        {
               cout << "Spawning origin tree. " << endl;
@@ -41,28 +41,29 @@ int main(int argc, char **argv)
 			  char PlantIDArray[10];
 			  sprintf( PlantIDArray, "%d",newForest.trees.size());
 			  string newPlantID=PlantIDArray;
-              tree newTree=spawnTree(originpointx,originpointy,0,treeSeed, DimInfo, ResourceVector, newPlantID);
+			  int treex=originpointx + randInt(-499,499);
+              if(treex > length-1)
+              {
+                     treex = length-1;
+              }
+			  if(treex < 0)
+              {
+                     treex = 0;
+              }
+              int treey = originpointy+  randInt(-499,499);
+              if(treey > width-1)
+              {
+                     treey = width-1;
+              }
+              if(treey < 0)
+              {
+                     treey = 0;
+              }
+              tree newTree=spawnTree(treex,treey,0,treeSeed, DimInfo, ResourceVector, newPlantID);
               newForest.trees.push_back(newTree);
 
               startingtrees -= 1;
-              originpointx += randInt(-10,10);
-              if(originpointx > length)
-              {
-                     originpointx = length;
-              }
-			  if(originpointx < 0)
-              {
-                     originpointx = 0;
-              }
-              originpointy += randInt(-10,10);
-              if(originpointy > width)
-              {
-                     originpointy = width;
-              }
-              if(originpointy < 0)
-              {
-                     originpointy = 0;
-              }
+
        }
 
 
@@ -235,31 +236,51 @@ int main(int argc, char **argv)
 							Engine::Camera_settings camera;
 
 							Engine::setup(&engine, &camera);
-								Engine::setDrawFunc(&renderScene);
-								engine.run = true;
-								while (engine.run) {
+							Engine::setDrawFunc(&renderScene);
+							engine.run = true;
+#define threaded
+#ifdef threaded
+							Engine::startUpdateLoop();
+#endif
+#ifndef threaded
+							Engine::setupSDL();
+							Engine::setupGL();
+#endif
+							while (engine.run) {
 
-									if (treeupdate > 1000) //Tree generation and updating
+								if (treeupdate > 1000 || true) //Tree generation and updating
+								{
+									newForest=generateForest(newForest,DimInfo, ResourceVector, turn, turnstogo, target);
+									for (int i = 0; i < newForest.trees.size();)
 									{
-										newForest=generateForest(newForest,DimInfo, ResourceVector, turn, turnstogo, target);
-										for (int i = 0; i < newForest.trees.size();)
-										{
-											newForest.trees.at(i) = CalcXYZ(newForest.trees.at(i));
+										newForest.trees.at(i) = CalcXYZ(newForest.trees.at(i));
 
-											i++;
-										}
-
-										passForest(newForest);
-										treeupdate = 0;
+										i++;
 									}
 
-									Engine::updateMouseMode();
-									Engine::update();
-									Engine::display();
-
-									treeupdate++;
+									passForest(newForest);  // Copying all data is potential bottleneck.  Consider using pointers
+									drawForest();
+#ifdef threaded
+									SDL_mutexP(Engine::renderLock);
+#endif
+									VertexArrayUtils::finishData(&drawdata);
+#ifdef threaded
+									SDL_mutexV(Engine::renderLock);
+#endif
+									treeupdate = 0;
 								}
+#ifndef threaded
+								VertexArrayUtils::drawData(&drawdata);
+								Engine::updateMouseMode();
+								Engine::update();
+								Engine::display();
+#endif
 
+								treeupdate++;
+							}
+#ifdef threaded
+							Engine::finishUpdateLoop();
+#endif
 							///// End 3-d render code /////
 						}
 

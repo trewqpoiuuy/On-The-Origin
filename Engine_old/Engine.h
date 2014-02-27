@@ -16,7 +16,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_opengl.h>
 #include <GL/glu.h>
-#include <vector>
 
 // Rewriting as a library (namespace Engine)
 // Moving code over from main.cpp
@@ -56,7 +55,6 @@ namespace Engine {    // This is the proper way to set and use namespaces for li
 		float lr_speed=2;
 		float ud_v=0;
 		float ud_speed=2;   // Defaults, defaults, defaults ...
-		float speed2powexpoffset=-4;
 		float eyespread=1;  // For riftmode
 		#ifdef _WIN32
 		float sensitivity=200;  // Sensitivity needs to be set to less (more sensitive) on Windows...
@@ -65,24 +63,13 @@ namespace Engine {    // This is the proper way to set and use namespaces for li
 		#endif
 	};
 
-	extern SDL_mutex *renderLock;
-
 	bool setup(Settings* enginearg, Camera_settings* cameraarg);
-	void setupSDL();
-	void setupGL();
 	void updateMouseMode();
 	void setDrawFunc(void (*drawFunc)());
 	void addKeyDownBinding(int keyid, void (*funcp)());
 	void addKeyPressedBinding(int keyid, void (*funcp)());
 	void display();
 	void update();
-	void startUpdateThread();
-	int updateLoop(void *p);
-	//int renderLoop(void *p);
-	void startUpdateLoop();
-	//void startRenderLoop();
-	void finishUpdateLoop();
-	//void finishRenderLoop();
 }
 
 #endif /* ENGINE_H_ */

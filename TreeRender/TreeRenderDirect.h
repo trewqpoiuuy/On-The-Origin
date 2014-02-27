@@ -168,7 +168,7 @@ void drawForest()
 			zpos += 1;
 		}
 
-		glTranslatef(renderforest.trees.at(i).x,renderforest.trees.at(i).z,renderforest.trees.at(i).y);
+		glTranslatef(renderforest.trees.at(i).x * 2,renderforest.trees.at(i).z * 2,renderforest.trees.at(i).y * 2);
 
 		for (int f = 0; f < renderforest.trees.at(i).branches.size();)
 		{
@@ -209,7 +209,7 @@ void drawForest()
 					renderforest.trees.at(i).branches.at(f).diameter * renderforest.trees.at(i).thickness * 0.5,
 					0.0f, 0.0f, 0.0f,
 					renderforest.trees.at(i).thickness,
-					10.0f, cap);
+					20.0f, cap);
 			}
 			else
 			{
@@ -217,13 +217,13 @@ void drawForest()
 					renderforest.trees.at(i).branches.at(f).diameter  * renderforest.trees.at(i).thickness * 0.5,
 					renderforest.trees.at(i).branches.at(ch).xyzPos.at(0), renderforest.trees.at(i).branches.at(ch).xyzPos.at(1), renderforest.trees.at(i).branches.at(ch).xyzPos.at(2),
 					renderforest.trees.at(i).branches.at(ch).diameter  * renderforest.trees.at(i).thickness * 0.5,
-					10.0f, cap);
+					20.0f, cap);
 			}
 
 			f++;
 		}
 		
-		glTranslatef(-renderforest.trees.at(i).x,-renderforest.trees.at(i).z,-renderforest.trees.at(i).y);
+		glTranslatef(-renderforest.trees.at(i).x * 2,-renderforest.trees.at(i).z * 2,-renderforest.trees.at(i).y * 2);
 		
 		i++;
 	}
