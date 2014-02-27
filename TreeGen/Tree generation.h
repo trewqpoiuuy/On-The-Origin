@@ -831,3 +831,81 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, vector<VectorS
 	return newForest;
 		  
 }
+
+forest userInteraction(int interaction, int target, forest& newForest, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector)
+{
+	if (interaction==1)
+   {
+		 cout << "FIRE FIRE FIRE!!!" << endl;
+		 cout << "POWER OF FIRE: " << endl;
+		 int power;
+		 cin >> power;
+		 cout << "FIRE: " << endl;
+		 cout << "X: " << newForest.trees.at(target-1).x << endl;
+		 cout << "Y: " << newForest.trees.at(target-1).y << endl;
+		 cout << "Z: " << newForest.trees.at(target-1).z << endl;
+		 cout << "POWER: " << power << endl;
+		 cout << "CONFIRM? (y/n)" << endl;
+		 char choosy;
+		 cin >> choosy;
+		 if (choosy == 'y')
+		 {
+			 spark(newForest, newForest.trees.at(target-1).x, newForest.trees.at(target-1).y, newForest.trees.at(target-1).z, power);
+			 cout << "Fire has been started." <<endl;
+		 }
+   }
+   if (interaction==2)
+   {
+		newForest.trees.at(target-1).isAlive=false;
+		cout << "Tree " << target << " is dead. Because you killed it. You monster."<< endl;
+   }
+   if (interaction==3)
+   {
+		int waterToAdd;
+		int phosphorusToAdd;
+		int potassiumToAdd;
+		int nitrogenToAdd;
+		cout << "How much water are you adding?" << endl;
+		cin >> waterToAdd;
+		cout << "How much phosphorus are you adding?" << endl;
+		cin >> phosphorusToAdd;
+		cout << "How much potassium are you adding?" << endl;
+		cin >> potassiumToAdd;
+		cout << "How much nitrogen are you adding?" << endl;
+		cin >> nitrogenToAdd;
+		newForest.trees.at(target-1).water+=waterToAdd;
+		newForest.trees.at(target-1).phosphorus+=phosphorusToAdd;
+		newForest.trees.at(target-1).potassium+=potassiumToAdd;
+		newForest.trees.at(target-1).nitrogen+=nitrogenToAdd;
+		cout << "Tree " << target << " has been fed. Om Nom Nom."<< endl;
+	}
+	if (interaction==4)
+	{
+		int clonex;
+		int cloney;
+		int clonez;
+		cout << "Where do you want to put the clone?"<< endl
+		<< "X: " << endl;
+		cin >> clonex;
+		cout << "Y:" << endl;
+		cin >> cloney;
+		cout << "Z:" << endl;
+		cin >> clonez;
+		char PlantIDArray[10];
+		sprintf( PlantIDArray, "%d",newForest.trees.size());
+		string newPlantID=PlantIDArray;
+		tree newTree=spawnTree(clonex ,cloney ,clonez , newForest.trees.at(target-1).treeSeed , DimInfo, ResourceVector, newPlantID);
+		newForest.trees.push_back(newTree);
+
+	}
+	if (interaction==5)
+	{
+		cout << "WARNING: Weird things happen when you change the seed of a tree mid-growth. They will look even more unnatural than they already do." << endl;
+		newForest.trees.at(target-1).treeSeed=changeSeed(newForest.trees.at(target-1).treeSeed);
+	}
+	if (interaction==99)
+	{
+		newForest.trees.at(target-1).isAlive=false;
+		cout << "Unable to bear the existential dread of living in a simulation, Tree " << target << " killed itself."<< endl;
+	}
+}
