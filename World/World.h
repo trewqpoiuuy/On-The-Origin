@@ -89,6 +89,7 @@ public:
 	WorldSettings settings;
 	World();
 	World(WorldSettings _settings);  // In EACH direction:  Number of voxels per chunk, number of chunks in world
+	void init();
 	VData defaultData;
 	VData* editDataPAt(float x, float y, float z);  // Returns pointer to VData at coords (x,y,z)
 	VData* editDataPAtVC(int x, int y, int z);  // Returns pointer to VData at Voxel coords (x,y,z)

@@ -7,6 +7,7 @@
 #include "math.h"
 #include <stdlib.h>
 #include <SDL2/SDL_opengl.h>
+#include "../Engine/VertexArrayUtils.h"
 
 using namespace std;
 
@@ -112,9 +113,12 @@ tree CalcXYZ(tree Wtree)
 	return Wtree;
 }
 
+forest renderforest;
+VertexArrayUtils::Data drawdata;
+
 void drawBranch(float x1, float y1, float z1, float len1, float x2, float y2, float z2, float len2, float resize, bool cap)
 {
-	glBegin(GL_QUADS);
+	/*glBegin(GL_QUADS);
 	glVertex3f(x2 / resize, y2 / resize, z2 / resize + len2);
 	glVertex3f(x2 / resize - len2, y2 / resize, z2 / resize);
 	glVertex3f(x1 / resize - len1, y1 / resize, z1 / resize);
@@ -137,20 +141,43 @@ void drawBranch(float x1, float y1, float z1, float len1, float x2, float y2, fl
 	glVertex3f(x2 / resize, y2 / resize, z2 / resize - len2);
 	glVertex3f(x1 / resize, y1 / resize, z1 / resize - len1);
 	glVertex3f(x1 / resize - len1, y1 / resize, z1 / resize);
-	glEnd();
+	glEnd();*/
+	
+	VertexArrayUtils::addVertex(&drawdata, x2 / resize, y2 / resize, z2 / resize + len2);
+	VertexArrayUtils::addVertex(&drawdata, x2 / resize - len2, y2 / resize, z2 / resize);
+	VertexArrayUtils::addVertex(&drawdata, x1 / resize - len1, y1 / resize, z1 / resize);
+	VertexArrayUtils::addVertex(&drawdata, x1 / resize, y1 / resize, z1 / resize + len1);
+
+	VertexArrayUtils::addVertex(&drawdata, x2 / resize + len2, y2 / resize, z2 / resize);
+	VertexArrayUtils::addVertex(&drawdata, x2 / resize, y2 / resize, z2 / resize + len2);
+	VertexArrayUtils::addVertex(&drawdata, x1 / resize, y1 / resize, z1 / resize + len1);
+	VertexArrayUtils::addVertex(&drawdata, x1 / resize + len1, y1 / resize, z1 / resize);
+
+	VertexArrayUtils::addVertex(&drawdata, x2 / resize, y2 / resize, z2 / resize - len2);
+	VertexArrayUtils::addVertex(&drawdata, x2 / resize + len2, y2 / resize, z2 / resize);
+	VertexArrayUtils::addVertex(&drawdata, x1 / resize + len1, y1 / resize, z1 / resize);
+	VertexArrayUtils::addVertex(&drawdata, x1 / resize, y1 / resize, z1 / resize - len1);
+
+	VertexArrayUtils::addVertex(&drawdata, x2 / resize - len2, y2 / resize, z2 / resize);
+	VertexArrayUtils::addVertex(&drawdata, x2 / resize, y2 / resize, z2 / resize - len2);
+	VertexArrayUtils::addVertex(&drawdata, x1 / resize, y1 / resize, z1 / resize - len1);
+	VertexArrayUtils::addVertex(&drawdata, x1 / resize - len1, y1 / resize, z1 / resize);
+	
 	if (cap == true)
 	{
-		glBegin(GL_QUADS);
+		/*glBegin(GL_QUADS);
 		glVertex3f(x1 / resize + len1, y1 / resize, z1 / resize);
 
 		glVertex3f(x1 / resize, y1 / resize, z1 / resize + len1);
 		glVertex3f(x1 / resize - len1, y1 / resize, z1 / resize);
 		glVertex3f(x1 / resize, y1 / resize, z1 / resize - len1);
-		glEnd();
+		glEnd();*/
+		VertexArrayUtils::addVertex(&drawdata, x1 / resize + len1, y1 / resize, z1 / resize);
+		VertexArrayUtils::addVertex(&drawdata, x1 / resize, y1 / resize, z1 / resize + len1);
+		VertexArrayUtils::addVertex(&drawdata, x1 / resize - len1, y1 / resize, z1 / resize);
+		VertexArrayUtils::addVertex(&drawdata, x1 / resize, y1 / resize, z1 / resize - len1);
 	}
 }
-
-forest renderforest;
 
 void drawForest()
 {
@@ -168,8 +195,9 @@ void drawForest()
 			zpos += 1;
 		}
 
-		glTranslatef(renderforest.trees.at(i).x,renderforest.trees.at(i).z,renderforest.trees.at(i).y);
-
+		//glTranslatef(renderforest.trees.at(i).x,renderforest.trees.at(i).z,renderforest.trees.at(i).y);
+		VertexArrayUtils::setOffset(&drawdata, renderforest.trees.at(i).x * 2,renderforest.trees.at(i).z * 2,renderforest.trees.at(i).y * 2);
+		
 		for (int f = 0; f < renderforest.trees.at(i).branches.size();)
 		{
 
@@ -196,12 +224,17 @@ void drawForest()
 
 			//cout << treeSeed.primaryColor[0] * primColor << endl;
 
-			glColorMaterial(GL_FRONT, GL_DIFFUSE);
-			glEnable(GL_COLOR_MATERIAL);
+			//glColorMaterial(GL_FRONT, GL_DIFFUSE);
+			//glEnable(GL_COLOR_MATERIAL);
 
-			glColor3f(((renderforest.trees.at(i).treeSeed.primaryColor[0] * primColor) + (renderforest.trees.at(i).treeSeed.secondaryColor[0] * secoColor) + (renderforest.trees.at(i).treeSeed.tertiaryColor[0] * tertColor)) / 255,
+			/*glColor3f(((renderforest.trees.at(i).treeSeed.primaryColor[0] * primColor) + (renderforest.trees.at(i).treeSeed.secondaryColor[0] * secoColor) + (renderforest.trees.at(i).treeSeed.tertiaryColor[0] * tertColor)) / 255,
 				((renderforest.trees.at(i).treeSeed.primaryColor[1] * primColor) + (renderforest.trees.at(i).treeSeed.secondaryColor[1] * secoColor) + (renderforest.trees.at(i).treeSeed.tertiaryColor[1] * tertColor)) / 255,
-				((renderforest.trees.at(i).treeSeed.primaryColor[2] * primColor) + (renderforest.trees.at(i).treeSeed.secondaryColor[2] * secoColor) + (renderforest.trees.at(i).treeSeed.tertiaryColor[2] * tertColor)) / 255);
+				((renderforest.trees.at(i).treeSeed.primaryColor[2] * primColor) + (renderforest.trees.at(i).treeSeed.secondaryColor[2] * secoColor) + (renderforest.trees.at(i).treeSeed.tertiaryColor[2] * tertColor)) / 255);*/
+			VertexArrayUtils::setColor(&drawdata, ((renderforest.trees.at(i).treeSeed.primaryColor[0] * primColor) + (renderforest.trees.at(i).treeSeed.secondaryColor[0] * secoColor) + (renderforest.trees.at(i).treeSeed.tertiaryColor[0] * tertColor)) / 255,
+							((renderforest.trees.at(i).treeSeed.primaryColor[1] * primColor) + (renderforest.trees.at(i).treeSeed.secondaryColor[1] * secoColor) + (renderforest.trees.at(i).treeSeed.tertiaryColor[1] * tertColor)) / 255,
+							((renderforest.trees.at(i).treeSeed.primaryColor[2] * primColor) + (renderforest.trees.at(i).treeSeed.secondaryColor[2] * secoColor) + (renderforest.trees.at(i).treeSeed.tertiaryColor[2] * tertColor)) / 255);
+
+			
 			//cout << "diam: " << renderforest.trees.at(i).branches.at(f).diameter << " thick: " << renderforest.trees.at(i).thickness << endl;
 			if (ch < 0)
 			{
@@ -223,7 +256,7 @@ void drawForest()
 			f++;
 		}
 		
-		glTranslatef(-renderforest.trees.at(i).x,-renderforest.trees.at(i).z,-renderforest.trees.at(i).y);
+		//glTranslatef(-renderforest.trees.at(i).x,-renderforest.trees.at(i).z,-renderforest.trees.at(i).y);
 		
 		i++;
 	}
@@ -251,7 +284,7 @@ void renderScene(void)
 	//glLightfv(GL_LIGHT1, GL_SPECULAR, light1spec);
 */
 	// Draw ground
-	glColor3f(0.5f, 0.5f, 0.5f);
+	//glColor3f(0.5f, 0.5f, 0.5f);
 	/*glBegin(GL_QUADS);
 	glVertex3f(-10.0f, 0.0f, 10.0f);
 	glVertex3f(-10.0f, 0.0f, -10.0f);
@@ -259,7 +292,7 @@ void renderScene(void)
 	glVertex3f(10.0f, 0.0f, 10.0f);
 	glEnd();*/
 
-	drawForest();
+	VertexArrayUtils::drawData(&drawdata);
 }
 
 void passForest(forest &RendForest)
