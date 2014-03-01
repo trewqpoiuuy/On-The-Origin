@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <ctime>
 #define PI 3.14159265
+#define treeMax 8000
 
 using namespace veclib;
 using namespace std;
@@ -529,11 +530,11 @@ tree growBranch(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStr
 			newTree.phosphoruscap+=newBranch.length*10;
 			newTree.nitrogencap+=newBranch.length/7.5;
 			newTree.potassiumcap+=newBranch.length*7.5;
-			newTree.sunlight=newTree.sunlight-(newBranch.length*.025+newBranch.feature*1);
+			newTree.sunlight=newTree.sunlight-(newBranch.length*.025+newBranch.feature*3);
 			newTree.water=newTree.water+(ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "water", (newBranch.length*.05+newBranch.feature*5))-(newBranch.leafCount*(newTree.treeSeed.leafSize)));
-			newTree.nitrogen=newTree.nitrogen+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "nitrogen", (newBranch.length*.0375+newBranch.feature*3));
-			newTree.potassium=newTree.potassium+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "potassium", (newBranch.length*.075));
-			newTree.phosphorus=newTree.phosphorus+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "phosphorus", (newBranch.length*.0625+newBranch.feature*2));
+			newTree.nitrogen=newTree.nitrogen+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "nitrogen", (newBranch.length*.0375+newBranch.feature*10));
+			newTree.potassium=newTree.potassium+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "potassium", (newBranch.length*.075)+newBranch.feature*6);
+			newTree.phosphorus=newTree.phosphorus+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "phosphorus", (newBranch.length*.0625+newBranch.feature*7));
        }
        /* if(newTree.branches.size() == 20)
        {
@@ -615,6 +616,7 @@ forest reaper(forest& newForest) //checks forest for trees with isAlive false, a
                      newForest.trees.erase(newForest.trees.begin()+f);
               }
        }
+	   newForest.deadtrees.clear();
        return newForest;
 }
 
@@ -690,7 +692,9 @@ forest firefight(forest& newForest)
 
 forest reproduce(forest& newForest, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector)
 {
-       for(int f = 0; f < newForest.trees.size(); f++)
+    if(newForest.trees.size()<treeMax)
+	{
+		for(int f = 0; f < newForest.trees.size(); f++)
        {
               vector<tree> canReproduce;
               for(int g = 0; g < newForest.trees.at(f).branches.size(); g++)
@@ -739,7 +743,8 @@ forest reproduce(forest& newForest, DimensionStruct DimInfo, vector<VectorStruct
               }
 
        }
-       return newForest;
+	}
+    return newForest;
 }
 forest generateTree(forest& newForest, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector,int turns)
 {
