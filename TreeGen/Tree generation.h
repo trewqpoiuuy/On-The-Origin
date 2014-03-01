@@ -841,12 +841,12 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, vector<VectorS
 	for(int f=0; f<newForest.trees.size(); f++) //feed the trees
 	{
 		  //cout << f;
-		  newForest.trees.at(f).sunlight=newForest.trees.at(f).sunlight+(newForest.trees.at(f).sunlightcap);
+		  newForest.trees.at(f).sunlight=newForest.trees.at(f).sunlight+(newForest.trees.at(f).sunlightcap*100);
 
-		  if(newForest.trees.at(f).sunlight > newForest.trees.at(f).sunlightcap)
+		  if(newForest.trees.at(f).sunlight > newForest.trees.at(f).sunlightcap*100)
 		  {
 			//cout << "threw out " <<newForest.trees.at(f).sunlightcap-newForest.trees.at(f).sunlight << " sunlight.";
-			newForest.trees.at(f).sunlight = newForest.trees.at(f).sunlightcap;
+			newForest.trees.at(f).sunlight = newForest.trees.at(f).sunlightcap*100;
 		  }
 		for(int v=0; v<newForest.trees.at(f).rootsIn.size(); v++)
 		{

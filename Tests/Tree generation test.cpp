@@ -184,12 +184,11 @@ int main(int argc, char **argv)
 
 										i++;
 									}
-
-									passForest(newForest);  // Copying all data is potential bottleneck.  Consider using pointers
-									drawForest(0,0,10000.);
 #ifdef threaded
 									SDL_mutexP(Engine::renderLock);
 #endif
+									passForest(newForest);  // Copying all data is potential bottleneck.  Consider using pointers
+									drawForest(0,0,10000.);
 									VertexArrayUtils::finishData(&drawdata);
 #ifdef threaded
 									SDL_mutexV(Engine::renderLock);

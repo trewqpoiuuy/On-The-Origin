@@ -33,6 +33,9 @@ namespace Engine {
 
 	SDL_mutex *renderLock = NULL;
 
+	float renderMin=1.0;
+	float renderMax=2048.0;
+
 	void setupSDL() {
 		SDL_Init( SDL_INIT_EVERYTHING );
 		int mode = SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE;
@@ -193,7 +196,7 @@ namespace Engine {
 			glViewport(0, 0, engine->w_width/2, engine->w_height); // Left
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
-			gluPerspective(60,(float)engine->w_width/(float)engine->w_height/2,1.,512.);
+			gluPerspective(60,(float)engine->w_width/(float)engine->w_height/2,renderMin,renderMax);
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
 			gluLookAt(0, 0, 0,
@@ -208,7 +211,7 @@ namespace Engine {
 			glViewport(engine->w_width/2, 0, engine->w_width/2, engine->w_height); // Right
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
-			gluPerspective(60,(float)engine->w_width/(float)engine->w_height/2,1.,512.);
+			gluPerspective(60,(float)engine->w_width/(float)engine->w_height/2,renderMin,renderMax);
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
 			gluLookAt(0, 0, 0,
@@ -229,7 +232,7 @@ namespace Engine {
 
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
-			gluPerspective(60,(float)engine->w_width/(float)engine->w_height,1.,512.);
+			gluPerspective(60,(float)engine->w_width/(float)engine->w_height,renderMin,renderMax);
 
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
@@ -289,7 +292,7 @@ namespace Engine {
 				case (SDLK_r):
 					engine->riftmode = !engine->riftmode;
 					break;
-				case (SDLK_f):
+				case (SDLK_F11):
 					engine->fullscreen = !engine->fullscreen;
 					//SDL_SetWindowFullscreen(sdlWindow, engine->fullscreen);
 					SDL_DestroyWindow(sdlWindow);
