@@ -165,7 +165,7 @@ int main(int argc, char **argv)
 							Engine::setup(&engine, &camera);
 							Engine::setDrawFunc(&renderScene);
 							engine.run = true;
-//#define threaded
+#define threaded
 #ifdef threaded
 							Engine::startUpdateLoop();
 #endif
@@ -186,7 +186,7 @@ int main(int argc, char **argv)
 									}
 
 									passForest(newForest);  // Copying all data is potential bottleneck.  Consider using pointers
-									drawForest();
+									drawForest(0,0,10000.);
 #ifdef threaded
 									SDL_mutexP(Engine::renderLock);
 #endif

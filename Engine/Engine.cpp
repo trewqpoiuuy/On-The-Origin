@@ -193,7 +193,7 @@ namespace Engine {
 			glViewport(0, 0, engine->w_width/2, engine->w_height); // Left
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
-			gluPerspective(60,(float)engine->w_width/(float)engine->w_height,1.,512.);
+			gluPerspective(60,(float)engine->w_width/(float)engine->w_height/2,1.,512.);
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
 			gluLookAt(0, 0, 0,
@@ -208,7 +208,7 @@ namespace Engine {
 			glViewport(engine->w_width/2, 0, engine->w_width/2, engine->w_height); // Right
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
-			gluPerspective(60,(float)engine->w_width/(float)engine->w_height,1.,512.);
+			gluPerspective(60,(float)engine->w_width/(float)engine->w_height/2,1.,512.);
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
 			gluLookAt(0, 0, 0,
@@ -285,6 +285,16 @@ namespace Engine {
 					camera->lr_speed/=1.01;
 					camera->fb_speed/=1.01;
 					camera->ud_speed/=1.01;
+					break;
+				case (SDLK_r):
+					engine->riftmode = !engine->riftmode;
+					break;
+				case (SDLK_f):
+					engine->fullscreen = !engine->fullscreen;
+					//SDL_SetWindowFullscreen(sdlWindow, engine->fullscreen);
+					SDL_DestroyWindow(sdlWindow);
+					setupSDL();
+					setupGL();
 					break;
 				}
 				for (int i=0; i<keyDownBindings.size(); i++) {

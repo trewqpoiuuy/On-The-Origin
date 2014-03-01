@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <SDL2/SDL_opengl.h>
 #include "../Engine/VertexArrayUtils.h"
+#include "../Misc/utils.h"
 
 using namespace std;
 
@@ -179,7 +180,7 @@ void drawBranch(float x1, float y1, float z1, float len1, float x2, float y2, fl
 	}
 }
 
-void drawForest()
+void drawForest(float drawfromX, float drawfromZ, float drawRadius)
 {
 	int correction = 0;
 	float zpos = 0;
@@ -196,67 +197,70 @@ void drawForest()
 		}
 
 		//glTranslatef(renderforest.trees.at(i).x,renderforest.trees.at(i).z,renderforest.trees.at(i).y);
-		VertexArrayUtils::setOffset(&drawdata, renderforest.trees.at(i).x * 2,renderforest.trees.at(i).z * 2,renderforest.trees.at(i).y * 2);
-		
-		for (int f = 0; f < renderforest.trees.at(i).branches.size();)
-		{
+		if (pythag(renderforest.trees.at(i).x+drawfromX,renderforest.trees.at(i).z+drawfromZ,0)<drawRadius) {
 
-			float colorwheel = (renderforest.trees.at(i).branches.at(f).xyzPos.at(1) / renderforest.trees.at(i).maxvals[1]);
-			//cout << colorwheel << endl;
-			float primColor = 2 * (-colorwheel + 0.5f);
-			float tertColor = 2 * (colorwheel - 0.5f);
-			if (primColor < 0)
+			VertexArrayUtils::setOffset(&drawdata, renderforest.trees.at(i).x * 2,renderforest.trees.at(i).z * 2,renderforest.trees.at(i).y * 2);
+
+			for (int f = 0; f < renderforest.trees.at(i).branches.size();)
 			{
-				primColor = 0;
+
+				float colorwheel = (renderforest.trees.at(i).branches.at(f).xyzPos.at(1) / renderforest.trees.at(i).maxvals[1]);
+				//cout << colorwheel << endl;
+				float primColor = 2 * (-colorwheel + 0.5f);
+				float tertColor = 2 * (colorwheel - 0.5f);
+				if (primColor < 0)
+				{
+					primColor = 0;
+				}
+				if (tertColor < 0)
+				{
+					tertColor = 0;
+				}
+				float secoColor = 1 - (primColor + tertColor);
+
+				int ch = renderforest.trees.at(i).branches.at(f).connection - 1;
+				bool cap = false;
+				if (renderforest.trees.at(i).branches.at(f).children.size() < 1)
+				{
+					cap = true;
+				}
+
+				//cout << treeSeed.primaryColor[0] * primColor << endl;
+
+				//glColorMaterial(GL_FRONT, GL_DIFFUSE);
+				//glEnable(GL_COLOR_MATERIAL);
+
+				/*glColor3f(((renderforest.trees.at(i).treeSeed.primaryColor[0] * primColor) + (renderforest.trees.at(i).treeSeed.secondaryColor[0] * secoColor) + (renderforest.trees.at(i).treeSeed.tertiaryColor[0] * tertColor)) / 255,
+					((renderforest.trees.at(i).treeSeed.primaryColor[1] * primColor) + (renderforest.trees.at(i).treeSeed.secondaryColor[1] * secoColor) + (renderforest.trees.at(i).treeSeed.tertiaryColor[1] * tertColor)) / 255,
+					((renderforest.trees.at(i).treeSeed.primaryColor[2] * primColor) + (renderforest.trees.at(i).treeSeed.secondaryColor[2] * secoColor) + (renderforest.trees.at(i).treeSeed.tertiaryColor[2] * tertColor)) / 255);*/
+				VertexArrayUtils::setColor(&drawdata, ((renderforest.trees.at(i).treeSeed.primaryColor[0] * primColor) + (renderforest.trees.at(i).treeSeed.secondaryColor[0] * secoColor) + (renderforest.trees.at(i).treeSeed.tertiaryColor[0] * tertColor)) / 255,
+								((renderforest.trees.at(i).treeSeed.primaryColor[1] * primColor) + (renderforest.trees.at(i).treeSeed.secondaryColor[1] * secoColor) + (renderforest.trees.at(i).treeSeed.tertiaryColor[1] * tertColor)) / 255,
+								((renderforest.trees.at(i).treeSeed.primaryColor[2] * primColor) + (renderforest.trees.at(i).treeSeed.secondaryColor[2] * secoColor) + (renderforest.trees.at(i).treeSeed.tertiaryColor[2] * tertColor)) / 255);
+
+
+				//cout << "diam: " << renderforest.trees.at(i).branches.at(f).diameter << " thick: " << renderforest.trees.at(i).thickness << endl;
+				if (ch < 0)
+				{
+					drawBranch(renderforest.trees.at(i).branches.at(f).xyzPos.at(0), renderforest.trees.at(i).branches.at(f).xyzPos.at(1), renderforest.trees.at(i).branches.at(f).xyzPos.at(2),
+						renderforest.trees.at(i).branches.at(f).diameter * renderforest.trees.at(i).thickness * 0.5,
+						0.0f, 0.0f, 0.0f,
+						renderforest.trees.at(i).thickness,
+						10.0f, cap);
+				}
+				else
+				{
+					drawBranch(renderforest.trees.at(i).branches.at(f).xyzPos.at(0), renderforest.trees.at(i).branches.at(f).xyzPos.at(1), renderforest.trees.at(i).branches.at(f).xyzPos.at(2),
+						renderforest.trees.at(i).branches.at(f).diameter  * renderforest.trees.at(i).thickness * 0.5,
+						renderforest.trees.at(i).branches.at(ch).xyzPos.at(0), renderforest.trees.at(i).branches.at(ch).xyzPos.at(1), renderforest.trees.at(i).branches.at(ch).xyzPos.at(2),
+						renderforest.trees.at(i).branches.at(ch).diameter  * renderforest.trees.at(i).thickness * 0.5,
+						10.0f, cap);
+				}
+
+				f++;
 			}
-			if (tertColor < 0)
-			{
-				tertColor = 0;
-			}
-			float secoColor = 1 - (primColor + tertColor);
-
-			int ch = renderforest.trees.at(i).branches.at(f).connection - 1;
-			bool cap = false;
-			if (renderforest.trees.at(i).branches.at(f).children.size() < 1)
-			{
-				cap = true;
-			}
-
-			//cout << treeSeed.primaryColor[0] * primColor << endl;
-
-			//glColorMaterial(GL_FRONT, GL_DIFFUSE);
-			//glEnable(GL_COLOR_MATERIAL);
-
-			/*glColor3f(((renderforest.trees.at(i).treeSeed.primaryColor[0] * primColor) + (renderforest.trees.at(i).treeSeed.secondaryColor[0] * secoColor) + (renderforest.trees.at(i).treeSeed.tertiaryColor[0] * tertColor)) / 255,
-				((renderforest.trees.at(i).treeSeed.primaryColor[1] * primColor) + (renderforest.trees.at(i).treeSeed.secondaryColor[1] * secoColor) + (renderforest.trees.at(i).treeSeed.tertiaryColor[1] * tertColor)) / 255,
-				((renderforest.trees.at(i).treeSeed.primaryColor[2] * primColor) + (renderforest.trees.at(i).treeSeed.secondaryColor[2] * secoColor) + (renderforest.trees.at(i).treeSeed.tertiaryColor[2] * tertColor)) / 255);*/
-			VertexArrayUtils::setColor(&drawdata, ((renderforest.trees.at(i).treeSeed.primaryColor[0] * primColor) + (renderforest.trees.at(i).treeSeed.secondaryColor[0] * secoColor) + (renderforest.trees.at(i).treeSeed.tertiaryColor[0] * tertColor)) / 255,
-							((renderforest.trees.at(i).treeSeed.primaryColor[1] * primColor) + (renderforest.trees.at(i).treeSeed.secondaryColor[1] * secoColor) + (renderforest.trees.at(i).treeSeed.tertiaryColor[1] * tertColor)) / 255,
-							((renderforest.trees.at(i).treeSeed.primaryColor[2] * primColor) + (renderforest.trees.at(i).treeSeed.secondaryColor[2] * secoColor) + (renderforest.trees.at(i).treeSeed.tertiaryColor[2] * tertColor)) / 255);
-
 			
-			//cout << "diam: " << renderforest.trees.at(i).branches.at(f).diameter << " thick: " << renderforest.trees.at(i).thickness << endl;
-			if (ch < 0)
-			{
-				drawBranch(renderforest.trees.at(i).branches.at(f).xyzPos.at(0), renderforest.trees.at(i).branches.at(f).xyzPos.at(1), renderforest.trees.at(i).branches.at(f).xyzPos.at(2),
-					renderforest.trees.at(i).branches.at(f).diameter * renderforest.trees.at(i).thickness * 0.5,
-					0.0f, 0.0f, 0.0f,
-					renderforest.trees.at(i).thickness,
-					10.0f, cap);
-			}
-			else
-			{
-				drawBranch(renderforest.trees.at(i).branches.at(f).xyzPos.at(0), renderforest.trees.at(i).branches.at(f).xyzPos.at(1), renderforest.trees.at(i).branches.at(f).xyzPos.at(2),
-					renderforest.trees.at(i).branches.at(f).diameter  * renderforest.trees.at(i).thickness * 0.5,
-					renderforest.trees.at(i).branches.at(ch).xyzPos.at(0), renderforest.trees.at(i).branches.at(ch).xyzPos.at(1), renderforest.trees.at(i).branches.at(ch).xyzPos.at(2),
-					renderforest.trees.at(i).branches.at(ch).diameter  * renderforest.trees.at(i).thickness * 0.5,
-					10.0f, cap);
-			}
-
-			f++;
+			//glTranslatef(-renderforest.trees.at(i).x,-renderforest.trees.at(i).z,-renderforest.trees.at(i).y);
 		}
-		
-		//glTranslatef(-renderforest.trees.at(i).x,-renderforest.trees.at(i).z,-renderforest.trees.at(i).y);
 		
 		i++;
 	}
