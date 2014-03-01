@@ -447,11 +447,11 @@ tree spawnTree(int x, int y, int z, seed& treeSeed, DimensionStruct DimInfo, vec
        newTree.phosphorus=0; //Resources
        newTree.nitrogen=0;   //
        newTree.potassium=0;  //
-	   newTree.sunlightcap=100;   //
-       newTree.watercap=100;    //
-       newTree.phosphoruscap=100; //Resource caps
-       newTree.nitrogencap=100;   //
-       newTree.potassiumcap=100;  //
+	   newTree.sunlightcap=200;   //
+       newTree.watercap=200;    //
+       newTree.phosphoruscap=200; //Resource caps
+       newTree.nitrogencap=200;   //
+       newTree.potassiumcap=200;  //
        newTree.isAlive=true;
        newTree.reproduced=0;
 	   newTree.fire=0;
@@ -471,17 +471,17 @@ tree spawnTree(int x, int y, int z, seed& treeSeed, DimensionStruct DimInfo, vec
        trunk.connection=0;
        trunk.xAngle=randFloat(-treeSeed.angleVariance,treeSeed.angleVariance);
        trunk.yAngle=randFloat(-treeSeed.angleVariance,treeSeed.angleVariance);
-       trunk.length=randFloat(1,40);
+       trunk.length=randFloat(10,40);
        trunk.feature=0;
 	   //trunk.width=1
 	   trunk.leafCount=randInt(0,10)*newTree.treeSeed.leafDensity;
        trunk.isAlive=1;
        trunk.diameter=1;
-	   newTree.sunlightcap+=trunk.leafCount*treeSeed.leafSize*10;
-	   newTree.watercap+=trunk.leafCount*treeSeed.leafSize*20;
-	   newTree.phosphoruscap+=trunk.length*1.25;
-       newTree.nitrogencap+=trunk.length/1.5;
-       newTree.potassiumcap+=trunk.length*1.5;
+	   newTree.sunlightcap+=trunk.leafCount*treeSeed.leafSize*75;
+	   newTree.watercap+=trunk.leafCount*treeSeed.leafSize*125;
+	   newTree.phosphoruscap+=trunk.length*10;
+       newTree.nitrogencap+=trunk.length/7.5;
+       newTree.potassiumcap+=trunk.length*7.5;
        newTree.branches.push_back(trunk);
 	   if (!PlantIDCheck(x, y, z, DimInfo, ResourceVector))
 	   {
@@ -492,7 +492,7 @@ tree spawnTree(int x, int y, int z, seed& treeSeed, DimensionStruct DimInfo, vec
 }
 tree growBranch(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStruct DimInfo)
 {
-       if(newTree.sunlight>=10 && newTree.water>=20 && newTree.nitrogen>=15 && newTree.potassium>=30 && newTree.phosphorus>=25)
+       if(newTree.sunlight>=1 && newTree.water>=2 && newTree.nitrogen>=2 && newTree.potassium>=3 && newTree.phosphorus>=3)
        {
 			branch newBranch;
 			int branchWeighting=randInt(0,newTree.branches.size())*newTree.treeSeed.branchDensity; //Weights connection points
@@ -524,16 +524,16 @@ tree growBranch(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStr
 		    {
 				newTree=growRoot(newTree, ResourceVector, DimInfo);
 		    }
-			newTree.sunlightcap+=newBranch.leafCount*newTree.treeSeed.leafSize*10;
-			newTree.watercap+=newBranch.leafCount*newTree.treeSeed.leafSize*20;
-			newTree.phosphoruscap+=newBranch.length*1.25;
-			newTree.nitrogencap+=newBranch.length/1.5;
-			newTree.potassiumcap+=newBranch.length*1.5;
-			newTree.sunlight=newTree.sunlight-(newBranch.length*.25+newBranch.feature*5);
-			newTree.water=newTree.water+(ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "water", (newBranch.length*.5+newBranch.feature*5))-(newBranch.leafCount*(newTree.treeSeed.leafSize)));
-			newTree.nitrogen=newTree.nitrogen+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "nitrogen", (newBranch.length*.375+newBranch.feature*10));
-			newTree.potassium=newTree.potassium+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "potassium", (newBranch.length*.75));
-			newTree.phosphorus=newTree.phosphorus+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "phosphorus", (newBranch.length*.625+newBranch.feature*7));
+			newTree.sunlightcap+=newBranch.leafCount*newTree.treeSeed.leafSize*50;
+			newTree.watercap+=newBranch.leafCount*newTree.treeSeed.leafSize*100;
+			newTree.phosphoruscap+=newBranch.length*10;
+			newTree.nitrogencap+=newBranch.length/7.5;
+			newTree.potassiumcap+=newBranch.length*7.5;
+			newTree.sunlight=newTree.sunlight-(newBranch.length*.025+newBranch.feature*1);
+			newTree.water=newTree.water+(ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "water", (newBranch.length*.05+newBranch.feature*5))-(newBranch.leafCount*(newTree.treeSeed.leafSize)));
+			newTree.nitrogen=newTree.nitrogen+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "nitrogen", (newBranch.length*.0375+newBranch.feature*3));
+			newTree.potassium=newTree.potassium+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "potassium", (newBranch.length*.075));
+			newTree.phosphorus=newTree.phosphorus+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "phosphorus", (newBranch.length*.0625+newBranch.feature*2));
        }
        /* if(newTree.branches.size() == 20)
        {
@@ -559,11 +559,11 @@ tree upkeep(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStruct 
                      {
                            //cout << "killing a branch";
 							newTree.branches.at(newTree.branches.size()-1).isAlive=0;
-							newTree.sunlightcap-=newTree.branches.at(newTree.branches.size()-1).leafCount*newTree.treeSeed.leafSize*5;
-							newTree.watercap-=newTree.branches.at(newTree.branches.size()-1).leafCount*newTree.treeSeed.leafSize*20;
-							newTree.phosphoruscap-=newTree.branches.at(newTree.branches.size()-1).length*1.25;
-							newTree.nitrogencap-=newTree.branches.at(newTree.branches.size()-1).length/1.5;
-							newTree.potassiumcap-=newTree.branches.at(newTree.branches.size()-1).length*1.5;
+							newTree.sunlightcap-=newTree.branches.at(newTree.branches.size()-1).leafCount*newTree.treeSeed.leafSize*50;
+							newTree.watercap-=newTree.branches.at(newTree.branches.size()-1).leafCount*newTree.treeSeed.leafSize*100;
+							newTree.phosphoruscap-=newTree.branches.at(newTree.branches.size()-1).length*10;
+							newTree.nitrogencap-=newTree.branches.at(newTree.branches.size()-1).length/7.5;
+							newTree.potassiumcap-=newTree.branches.at(newTree.branches.size()-1).length*7.5;
 							ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "water",-(newTree.branches.at(newTree.branches.size()-1).leafCount*newTree.treeSeed.leafSize*20));
 							ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "nitrogen", -(newTree.branches.at(newTree.branches.size()-1).length/1.5));
 							ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "potassium", -(newTree.branches.at(newTree.branches.size()-1).length*1.5));
@@ -902,7 +902,7 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, vector<VectorS
 		}
 		  //let the trees do their tree thing
 		  newForest.trees.at(f)=upkeep(newForest.trees.at(f), ResourceVector, DimInfo);
-		  while(newForest.trees.at(f).age < newForest.trees.at(f).treeSeed.youth && newForest.trees.at(f).sunlight>=10 && newForest.trees.at(f).water>=20 && newForest.trees.at(f).nitrogen>=15 && newForest.trees.at(f).potassium>=30 && newForest.trees.at(f).phosphorus>=25)
+		  while(newForest.trees.at(f).age < newForest.trees.at(f).treeSeed.youth && newForest.trees.at(f).sunlight>=1 && newForest.trees.at(f).water>=2 && newForest.trees.at(f).nitrogen>=2 && newForest.trees.at(f).potassium>=3 && newForest.trees.at(f).phosphorus>=3)
 		  {
 				 newForest.trees.at(f)=growBranch(newForest.trees.at(f), ResourceVector, DimInfo);
 				 
