@@ -16,7 +16,7 @@ int main(int argc, char **argv)
 {
        srand(time(NULL));
        int uselessThing=rand(); //First value of rand is the seed, so this gets rid of it
-       int depth = 3;
+       int depth = 45;
        int length = 1000;
        int width = 1000;
        int TopsoilDepth = 1;
