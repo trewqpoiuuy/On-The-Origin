@@ -601,7 +601,7 @@ forest reaper(forest& newForest) //checks forest for trees with isAlive false, a
 {
        for(int f = 0; f < newForest.trees.size(); f++)
        {
-              newForest.trees.at(f).age += 1;
+             // newForest.trees.at(f).age += 1;
               /*
               if(newForest.trees.at(f).thickness < newForest.trees.at(f).treeSeed.thickness) //grow trees
               {
@@ -840,7 +840,7 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, vector<VectorS
 	for(int f=0; f<newForest.trees.size(); f++) //feed the trees
 	{
 		  //cout << f;
-		  newForest.trees.at(f).sunlight=newForest.trees.at(f).sunlight+(newForest.trees.at(f).sunlightcap*.1);
+		  newForest.trees.at(f).sunlight=newForest.trees.at(f).sunlight+(newForest.trees.at(f).sunlightcap);
 
 		  if(newForest.trees.at(f).sunlight > newForest.trees.at(f).sunlightcap)
 		  {
@@ -897,6 +897,7 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, vector<VectorS
 			ResourceChange(get<0>(newForest.trees.at(f).rootsIn.at(v)), get<1>(newForest.trees.at(f).rootsIn.at(v)), get<2>(newForest.trees.at(f).rootsIn.at(v)), DimInfo, ResourceVector, "nitrogen", -(newForest.trees.at(f).nitrogencap-newForest.trees.at(f).nitrogen));
 			newForest.trees.at(f).nitrogen = newForest.trees.at(f).nitrogencap;
 			}
+			//cout <<NitrogenGrab(get<0>(newForest.trees.at(f).rootsIn.at(v)), get<1>(newForest.trees.at(f).rootsIn.at(v)), get<2>(newForest.trees.at(f).rootsIn.at(v)), DimInfo, ResourceVector);
 		}
 		  //let the trees do their tree thing
 		  newForest.trees.at(f)=upkeep(newForest.trees.at(f), ResourceVector, DimInfo);
@@ -906,8 +907,8 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, vector<VectorS
 				 
 				 //cout << "Tree " << f+1 << " grew a branch."<< endl;
 		  }
-
-		  //cout << "Tree " << f+1 << " done."<< endl;
+		
+		  //cout << "Tree " << f+1 << " has "<< newForest.trees.at(f).roots.size()<<" roots." << endl;
 	}
 	newForest = reproduce(newForest, DimInfo, ResourceVector);
 	newForest = reaper(newForest);

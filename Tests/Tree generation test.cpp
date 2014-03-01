@@ -59,7 +59,7 @@ int main(int argc, char **argv)
               {
                      treey = 0;
               }
-              tree newTree=spawnTree(treex,treey,0,treeSeed, DimInfo, ResourceVector, newPlantID);
+              tree newTree=spawnTree(treex,treey,depth,treeSeed, DimInfo, ResourceVector, newPlantID);
               newForest.trees.push_back(newTree);
 
               startingtrees -= 1;
