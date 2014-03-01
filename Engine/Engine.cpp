@@ -407,7 +407,7 @@ namespace Engine {
 			glBufferData(GL_ARRAY_BUFFER, nbufferdata * 3 * sizeof(float), vertexbufferdata, GL_STATIC_DRAW);
 			glBufferData(GL_ARRAY_BUFFER, nbufferdata * 3 * sizeof(float), normalbufferdata, GL_STATIC_DRAW);
 		}*/
-
+		printf("Camera at (%f,%f,%f)\n",camera->x,camera->y,camera->z);
 	}
 
 	int updateLoop(void *p) {
@@ -424,9 +424,9 @@ namespace Engine {
 			int ups=60; // Updates per second
 			SDL_Delay(1000/ups);
 			//printf("Update\n");
-			int framessinceupdate = framecounter-updatelastframe;
-			float fps = framessinceupdate*ups;
-			printf("FPS: %f\n",fps);
+			//int framessinceupdate = framecounter-updatelastframe;
+			//float fps = framessinceupdate*ups;
+			//printf("FPS: %f\n",fps);
 			updatelastframe = framecounter;
 		}
 		return 0;
