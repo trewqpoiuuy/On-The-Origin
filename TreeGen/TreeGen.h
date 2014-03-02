@@ -1,13 +1,17 @@
 #include <iostream>
 #include <vector>
+#include <tuple>
 #include <string>
 #include <cstdlib>
 #include <ctime>
+#include <tuple>
 #define PI 3.14159265
 #define treeMax 8000
 
 using namespace veclib;
-using namespace std;
+
+namespace TreeGen {
+
 float randFloat(float min, float max)
 {
        //Returns a random floating point number between min and max
@@ -21,7 +25,7 @@ int randInt(int min, int max)
        return r;
 }
 
-tuple<int,int,int> sphericalToCartesian(float xAngle,float yAngle,int length, int originX, int originY, int originZ)
+std::tuple<int,int,int> sphericalToCartesian(float xAngle,float yAngle,int length, int originX, int originY, int originZ)
 {
 	int x=(length*cos(xAngle*(PI/180))*sin(yAngle*(PI/180)))+originX;
 	int y=(length*sin(xAngle*(PI/180))*sin(yAngle*(PI/180)))+originY;
@@ -52,11 +56,11 @@ struct branch
  
        int feature; //0=nothing, 1=flower, 2=fruit, 3= seed pod. More to come
        bool isAlive;
-       vector<int> children; //Branches connected to this one
+       std::vector<int> children; //Branches connected to this one
  
        //3d stuff
-       vector<float> xyzPos;
-       vector<float> pRot;
+       std::vector<float> xyzPos;
+       std::vector<float> pRot;
 };
 struct root
 {
@@ -71,8 +75,8 @@ struct root
        bool isAlive;
  
        //3d stuff
-       vector<float> xyzPos;
-       vector<float> pRot;
+       std::vector<float> xyzPos;
+       std::vector<float> pRot;
 };
 struct seed
 {
@@ -116,10 +120,10 @@ struct tree
 
        float thickness; // thickness of the tree
 
-       vector<tuple<int,int,int>> rootsIn;
-	   vector<branch> branches;
-	   vector<root> roots;
-       vector<branch> deadBranches;
+       std::vector<std::tuple<int,int,int>> rootsIn;
+	   std::vector<branch> branches;
+	   std::vector<root> roots;
+       std::vector<branch> deadBranches;
        seed treeSeed;
  
        //3d stuff (placeholder for determing color)
@@ -129,9 +133,9 @@ struct tree
 struct forest
 {
        int treenum; //useless right now
-       vector<tree> trees;
-       vector<tree> deadtrees;
-	   vector<fire> fires;
+       std::vector<tree> trees;
+       std::vector<tree> deadtrees;
+	   std::vector<fire> fires;
 };
 int absoluteIntMutation(int variable1, int variable2, int rads)
 {
@@ -234,68 +238,68 @@ seed generateSeed() //Completely new seed with no inheritance
        treeSeed.tertiaryColor[1]=randInt(0,255);
        treeSeed.tertiaryColor[2]=randInt(0,255);
       
-       //cout << "Seed Data:" << endl;
-       //cout << "Primary: " << treeSeed.primaryColor[0] << " " << treeSeed.primaryColor[1] << " " << treeSeed.primaryColor[2] << endl;
-       //cout << "Secondary: " << treeSeed.secondaryColor[0] << " " << treeSeed.secondaryColor[1] << " " << treeSeed.secondaryColor[2] << endl;
-       //cout << "Tertiary: " << treeSeed.tertiaryColor[0] << " " << treeSeed.tertiaryColor[1] << " " << treeSeed.tertiaryColor[2] << endl;
-       //cout << "Branch Density: " << treeSeed.branchDensity << " Angle Variance: " << treeSeed.angleVariance << " Feature Chance: "<< treeSeed.featureChance << " Length Variance: " << treeSeed.lengthVariance << endl;
+       //std::cout << "Seed Data:" << "\n";
+       //std::cout << "Primary: " << treeSeed.primaryColor[0] << " " << treeSeed.primaryColor[1] << " " << treeSeed.primaryColor[2] << "\n";
+       //std::cout << "Secondary: " << treeSeed.secondaryColor[0] << " " << treeSeed.secondaryColor[1] << " " << treeSeed.secondaryColor[2] << "\n";
+       //std::cout << "Tertiary: " << treeSeed.tertiaryColor[0] << " " << treeSeed.tertiaryColor[1] << " " << treeSeed.tertiaryColor[2] << "\n";
+       //std::cout << "Branch Density: " << treeSeed.branchDensity << " Angle Variance: " << treeSeed.angleVariance << " Feature Chance: "<< treeSeed.featureChance << " Length Variance: " << treeSeed.lengthVariance << "\n";
        return treeSeed;
 }
 seed userDefinedSeed()
 {
 	seed treeSeed;
-	cout << "Please enter values for: " << endl;
+	std::cout << "Please enter values for: " << "\n";
     /*
         ~See Tree generation.h for the significance of these values~
     */
-	cout << "Branch Density:(0-2, decimals allowed) " << endl;
-    cin >> treeSeed.branchDensity;
-	cout << "Angle Variance:(0-90, decimals allowed)" << endl;
-    cin >> treeSeed.angleVariance;
-	cout << "Feature Chance:(0-1, decimals allowed) " << endl;
-    cin >> treeSeed.featureChance;
-	cout << "Length Variance:(0-2, decimals allowed) " << endl;
-    cin >> treeSeed.lengthVariance;
-	cout << "Leaf Density:(0-2, decimals allowed) " << endl;
-	cin >> treeSeed.leafDensity;
+	std::cout << "Branch Density:(0-2, decimals allowed) " << "\n";
+    std::cin >> treeSeed.branchDensity;
+	std::cout << "Angle Variance:(0-90, decimals allowed)" << "\n";
+    std::cin >> treeSeed.angleVariance;
+	std::cout << "Feature Chance:(0-1, decimals allowed) " << "\n";
+    std::cin >> treeSeed.featureChance;
+	std::cout << "Length Variance:(0-2, decimals allowed) " << "\n";
+    std::cin >> treeSeed.lengthVariance;
+	std::cout << "Leaf Density:(0-2, decimals allowed) " << "\n";
+	std::cin >> treeSeed.leafDensity;
 	
-	cout << "Leaf Size:(0-1, decimals allowed) " << endl;
-    cin >> treeSeed.leafSize;
-	cout << "Age at which the tree stops growing:(integer)" << endl;
-    cin >> treeSeed.youth;
-	cout << "Years after reaching maturity that the tree will live:" << endl;
-    cin >> treeSeed.adult;
-	cout << "Branch Thickness:(1-100, aspiring width of the trunk) " << endl;
-	cin >> treeSeed.thickness;
+	std::cout << "Leaf Size:(0-1, decimals allowed) " << "\n";
+    std::cin >> treeSeed.leafSize;
+	std::cout << "Age at which the tree stops growing:(integer)" << "\n";
+    std::cin >> treeSeed.youth;
+	std::cout << "Years after reaching maturity that the tree will live:" << "\n";
+    std::cin >> treeSeed.adult;
+	std::cout << "Branch Thickness:(1-100, aspiring width of the trunk) " << "\n";
+	std::cin >> treeSeed.thickness;
  
-	cout << "Primary Color:(0-255, integers) " << endl;
-	cout << "R" << endl;
-    cin >> treeSeed.primaryColor[0];
-	cout << "G" << endl;
-    cin >> treeSeed.primaryColor[1];
-	cout << "B" << endl;
-    cin >> treeSeed.primaryColor[2];
-	cout << "Secondary Color:(0-255, integers) " << endl;
-	cout << "R" << endl;
-    cin >> treeSeed.secondaryColor[0];
-	cout << "G" << endl;
-    cin >> treeSeed.secondaryColor[1];
-	cout << "B" << endl;
-    cin >> treeSeed.secondaryColor[2];
-	cout << "Tertiary Color:(0-255, integers) " << endl;
-	cout << "R" << endl;
-    cin >> treeSeed.tertiaryColor[0];
-	cout << "G" << endl;
-    cin >> treeSeed.tertiaryColor[1];
-	cout << "B" << endl;
-    cin >> treeSeed.tertiaryColor[2];
+	std::cout << "Primary Color:(0-255, integers) " << "\n";
+	std::cout << "R" << "\n";
+    std::cin >> treeSeed.primaryColor[0];
+	std::cout << "G" << "\n";
+    std::cin >> treeSeed.primaryColor[1];
+	std::cout << "B" << "\n";
+    std::cin >> treeSeed.primaryColor[2];
+	std::cout << "Secondary Color:(0-255, integers) " << "\n";
+	std::cout << "R" << "\n";
+    std::cin >> treeSeed.secondaryColor[0];
+	std::cout << "G" << "\n";
+    std::cin >> treeSeed.secondaryColor[1];
+	std::cout << "B" << "\n";
+    std::cin >> treeSeed.secondaryColor[2];
+	std::cout << "Tertiary Color:(0-255, integers) " << "\n";
+	std::cout << "R" << "\n";
+    std::cin >> treeSeed.tertiaryColor[0];
+	std::cout << "G" << "\n";
+    std::cin >> treeSeed.tertiaryColor[1];
+	std::cout << "B" << "\n";
+    std::cin >> treeSeed.tertiaryColor[2];
       
-	cout << "Seed Data:" << endl;
-	cout << "Primary: " << treeSeed.primaryColor[0] << " " << treeSeed.primaryColor[1] << " " << treeSeed.primaryColor[2] << endl;
-	cout << "Secondary: " << treeSeed.secondaryColor[0] << " " << treeSeed.secondaryColor[1] << " " << treeSeed.secondaryColor[2] << endl;
-	cout << "Tertiary: " << treeSeed.tertiaryColor[0] << " " << treeSeed.tertiaryColor[1] << " " << treeSeed.tertiaryColor[2] << endl;
-	cout << "Branch Density: " << treeSeed.branchDensity << " Angle Variance: " << treeSeed.angleVariance << " Feature Chance: "<< treeSeed.featureChance << " Length Variance: " << treeSeed.lengthVariance << endl;
-	cout << " Youth: " << treeSeed.youth << " Adult: " << treeSeed.adult << " Leaf Density: " << treeSeed.leafDensity << " Leaf Size: " << treeSeed.leafSize << endl;
+	std::cout << "Seed Data:" << "\n";
+	std::cout << "Primary: " << treeSeed.primaryColor[0] << " " << treeSeed.primaryColor[1] << " " << treeSeed.primaryColor[2] << "\n";
+	std::cout << "Secondary: " << treeSeed.secondaryColor[0] << " " << treeSeed.secondaryColor[1] << " " << treeSeed.secondaryColor[2] << "\n";
+	std::cout << "Tertiary: " << treeSeed.tertiaryColor[0] << " " << treeSeed.tertiaryColor[1] << " " << treeSeed.tertiaryColor[2] << "\n";
+	std::cout << "Branch Density: " << treeSeed.branchDensity << " Angle Variance: " << treeSeed.angleVariance << " Feature Chance: "<< treeSeed.featureChance << " Length Variance: " << treeSeed.lengthVariance << "\n";
+	std::cout << " Youth: " << treeSeed.youth << " Adult: " << treeSeed.adult << " Leaf Density: " << treeSeed.leafDensity << " Leaf Size: " << treeSeed.leafSize << "\n";
 	return treeSeed;
 }
 seed changeSeed(seed& treeSeed)
@@ -303,89 +307,89 @@ seed changeSeed(seed& treeSeed)
 	string choice="y";
 	while (choice=="y")
 	{
-		cout << "What variable would you like to edit?" << endl
-		<< "(b)ranchDensity" << endl//The higher the value, the lower branches attach
-		<< "(a)ngleVariance" << endl//Variation in angle
-		<< "(f)eatureChance" << endl//likelihood of generating features
-		<< "(l)engthVariance" << endl//lower value-> shorter branches
+		std::cout << "What variable would you like to edit?" << "\n"
+		<< "(b)ranchDensity" << "\n"//The higher the value, the lower branches attach
+		<< "(a)ngleVariance" << "\n"//Variation in angle
+		<< "(f)eatureChance" << "\n"//likelihood of generating features
+		<< "(l)engthVariance" << "\n"//lower value-> shorter branches
 
-		<< "leaf(s)ize" << endl//size of leaf
-		<< "leaf(d)ensity" << endl// Amount of leaf coverage per branch.
-		<< "(y)outh" << endl// age that branch grows as many branches as possible
-		<< "ad(u)lt" << endl// age that branch stops growing more branches and grows features instead
-		<< "th(i)ckness" << endl;// aspiring thickness of the trunk
+		<< "leaf(s)ize" << "\n"//size of leaf
+		<< "leaf(d)ensity" << "\n"// Amount of leaf coverage per branch.
+		<< "(y)outh" << "\n"// age that branch grows as many branches as possible
+		<< "ad(u)lt" << "\n"// age that branch stops growing more branches and grows features instead
+		<< "th(i)ckness" << "\n";// aspiring thickness of the trunk
 
 		string toEdit;
-		cin >> toEdit;
+		std::cin >> toEdit;
 		if (toEdit=="b")
 		{
 			float newValue;
-			cout << "New Value? " << endl;
-			cin >> newValue;
+			std::cout << "New Value? " << "\n";
+			std::cin >> newValue;
 			treeSeed.branchDensity=newValue;
 			
 		}
 		if (toEdit=="a")
 		{
 			float newValue;
-			cout << "New Value? " << endl;
-			cin >> newValue;
+			std::cout << "New Value? " << "\n";
+			std::cin >> newValue;
 			treeSeed.angleVariance=newValue;
 			
 		}
 		if (toEdit=="f")
 		{
 			float newValue;
-			cout << "New Value? " << endl;
-			cin >> newValue;
+			std::cout << "New Value? " << "\n";
+			std::cin >> newValue;
 			treeSeed.featureChance=newValue;
 			
 		}
 		if (toEdit=="l")
 		{
 			float newValue;
-			cout << "New Value? " << endl;
-			cin >> newValue;
+			std::cout << "New Value? " << "\n";
+			std::cin >> newValue;
 			treeSeed.lengthVariance=newValue;
 			
 		}
 		if (toEdit=="s")
 		{
 			float newValue;
-			cout << "New Value? " << endl;
-			cin >> newValue;
+			std::cout << "New Value? " << "\n";
+			std::cin >> newValue;
 			treeSeed.leafSize=newValue;
 			
 		}
 		if (toEdit=="d")
 		{
 			float newValue;
-			cout << "New Value? " << endl;
-			cin >> newValue;
+			std::cout << "New Value? " << "\n";
+			std::cin >> newValue;
 			treeSeed.leafDensity=newValue;
 			
 		}
 		if (toEdit=="y")
 		{
 			int newValue;
-			cout << "New Value? " << endl;
-			cin >> newValue;
+			std::cout << "New Value? " << "\n";
+			std::cin >> newValue;
 			treeSeed.youth=newValue;
 			
 		}
 		if (toEdit=="u")
 		{
 			float newValue;
-			cout << "New Value? " << endl;
-			cin >> newValue;
+			std::cout << "New Value? " << "\n";
+			std::cin >> newValue;
 			treeSeed.adult=newValue;
 		}
-		cout << "Edit another variable? (y/n) " << endl;
-		cin >> choice;
+		std::cout << "Edit another variable? (y/n) " << "\n";
+		std::cin >> choice;
 	}
 	return treeSeed;
 }
-tree growRoot(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStruct DimInfo)
+tree growRoot(tree& newTree, std::vector<VectorStruct>& ResourceVector,DimensionStruct DimInfo)
 {
 	root newRoot;
 	newRoot.connection=0;
@@ -419,7 +423,7 @@ tree growRoot(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStruc
 	}
 	if(newTree.rootsIn.size()==0)
 	{
-		//cout << "root";
+		//std::cout << "root";
 		newTree.rootsIn.push_back(cartCoords);
 	} else {
 		for(int q=0;q<newTree.rootsIn.size();q++)
@@ -430,7 +434,7 @@ tree growRoot(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStruc
 			}
 			if(q==newTree.rootsIn.size())
 			{
-				//cout << "root";
+				//std::cout << "root";
 				newTree.rootsIn.push_back(cartCoords);
 			}
 		}
@@ -440,7 +444,7 @@ tree growRoot(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStruc
 	newTree.roots.push_back(newRoot);
     return newTree;
 }
-tree spawnTree(int x, int y, int z, seed& treeSeed, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector, string plantID)
+tree spawnTree(int x, int y, int z, seed& treeSeed, DimensionStruct DimInfo, std::vector<VectorStruct>& ResourceVector, string plantID)
 {     
 	   tree newTree;
        newTree.sunlight=0;   //
@@ -491,13 +495,13 @@ tree spawnTree(int x, int y, int z, seed& treeSeed, DimensionStruct DimInfo, vec
        //newForest.trees.push_back(newTree);
        return newTree;
 }
-tree growBranch(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStruct DimInfo)
+tree growBranch(tree& newTree, std::vector<VectorStruct>& ResourceVector,DimensionStruct DimInfo)
 {
        if(newTree.sunlight>=1 && newTree.water>=2 && newTree.nitrogen>=2 && newTree.potassium>=3 && newTree.phosphorus>=3)
        {
 			branch newBranch;
 			int branchWeighting=randInt(0,newTree.branches.size())*newTree.treeSeed.branchDensity; //Weights connection points
-			if(branchWeighting>=newTree.branches.size())
+			if(branchWeighting>=(int)newTree.branches.size())
 			{
 				branchWeighting=newTree.branches.size()-1; //Makes sure branches only connect to existing branches
 			}
@@ -546,19 +550,19 @@ tree growBranch(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStr
 }
 
  
-tree upkeep(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStruct DimInfo)
+tree upkeep(tree& newTree, std::vector<VectorStruct>& ResourceVector,DimensionStruct DimInfo)
 {
-       //cout << "Upkeepan";
+       //std::cout << "Upkeepan";
        int totalLength=newTree.roots.size();
-       for(int i=0; i<newTree.branches.size(); i++)
+       for(unsigned int i=0; i<newTree.branches.size(); i++)
        {
               totalLength+=newTree.branches.at(i).length;
               if(newTree.sunlight-totalLength*.005<0 || newTree.water-totalLength*.01<0 || newTree.nitrogen-totalLength*.0075<0 || newTree.potassium-totalLength*.015<0 || newTree.phosphorus-totalLength*.0125<0)
               {
-              //cout << "test2";
-                     for(int j=1; j<newTree.branches.size()-i; j++)
+              //std::cout << "test2";
+                     for(unsigned int j=1; j<newTree.branches.size()-i; j++)
                      {
-                           //cout << "killing a branch";
+                           //std::cout << "killing a branch";
 							newTree.branches.at(newTree.branches.size()-1).isAlive=0;
 							newTree.sunlightcap-=newTree.branches.at(newTree.branches.size()-1).leafCount*newTree.treeSeed.leafSize*50;
 							newTree.watercap-=newTree.branches.at(newTree.branches.size()-1).leafCount*newTree.treeSeed.leafSize*100;
@@ -572,18 +576,18 @@ tree upkeep(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStruct 
 							newTree.roots.pop_back();
 							newTree.roots.pop_back();
 							newTree.roots.pop_back();
-							//cout << "test";
+							//std::cout << "test";
 							newTree.branches.at(newTree.branches.at(newTree.branches.size()-1).connection-1).children.pop_back();
-							//cout << "adding it to dead branches";
+							//std::cout << "adding it to dead branches";
                             newTree.deadBranches.push_back(newTree.branches.at(newTree.branches.size()-1));
-							//cout << "erasing from live branches";
+							//std::cout << "erasing from live branches";
 							newTree.branches.pop_back();
-							//cout << "Ash Ketchup";
+							//std::cout << "Ash Ketchup";
                      }
                     
                      if(newTree.branches.size() == 1) //if the tree runs out of branches, it's dead.
                      {
-                           //cout << "tree is kill";
+                           //std::cout << "tree is kill";
                            newTree.isAlive = false;
                      }
               }
@@ -600,7 +604,7 @@ tree upkeep(tree& newTree, vector<VectorStruct>& ResourceVector,DimensionStruct 
  
 forest reaper(forest& newForest) //checks forest for trees with isAlive false, and moves them to deadtrees.
 {
-       for(int f = 0; f < newForest.trees.size(); f++)
+       for(unsigned int f = 0; f < newForest.trees.size(); f++)
        {
              // newForest.trees.at(f).age += 1;
               /*
@@ -611,7 +615,7 @@ forest reaper(forest& newForest) //checks forest for trees with isAlive false, a
 
               if(newForest.trees.at(f).isAlive == false || newForest.trees.at(f).age > newForest.trees.at(f).treeSeed.youth+newForest.trees.at(f).treeSeed.adult)
               {
-                     //cout << "Don't fear the reaper";
+                     //std::cout << "Don't fear the reaper";
                      newForest.deadtrees.push_back(newForest.trees.at(f));
                      newForest.trees.erase(newForest.trees.begin()+f);
               }
@@ -639,19 +643,19 @@ fire combust(tree& newTree)
 	flame.y = newTree.y;
 	flame.z = newTree.z;
 	flame.fire = newTree.fire;
-	cout << "tree has combusted!" << endl;
+	std::cout << "tree has combusted!" << "\n";
 	return flame;
 }
 
 forest firefight(forest& newForest)
 {
-	for (int g = 0; g < newForest.trees.size(); g++)
+	for (unsigned int g = 0; g < newForest.trees.size(); g++)
 	{
 		if (newForest.trees.at(g).fire > 0)
 		{
 			newForest.trees.at(g).fire -= 10;
 			newForest.trees.at(g).water -= 10;
-			cout << "tree " << g << " is burning!" << newForest.trees.at(g).fire << " / " << newForest.trees.at(g).water << endl;
+			std::cout << "tree " << g << " is burning!" << newForest.trees.at(g).fire << " / " << newForest.trees.at(g).water << "\n";
 
 			if (newForest.trees.at(g).fire > 0 && newForest.trees.at(g).water <= 0)
 			{
@@ -662,7 +666,7 @@ forest firefight(forest& newForest)
 		}
 	}
 
-	for (int u = 0; u < newForest.fires.size(); u++)
+	for (unsigned int u = 0; u < newForest.fires.size(); u++)
 	{
 		newForest.fires.at(u).fire -= 1;
 
@@ -673,11 +677,11 @@ forest firefight(forest& newForest)
 		else
 		{
 			//spread the flames
-			for (int k = 0; k < newForest.trees.size(); k++)
+			for (unsigned int k = 0; k < newForest.trees.size(); k++)
 			{
 				tree newTree = newForest.trees.at(k);
 				fire newFire = newForest.fires.at(u);
-				cout << "FIRE HAS SPREAD!";
+				std::cout << "FIRE HAS SPREAD!";
 				if (abs(newFire.x - newTree.x) < (newFire.fire / 10) && abs(newFire.y - newTree.y) < (newFire.fire / 10) && abs(newFire.z - newTree.z) < (newFire.fire / 10))
 				{
 					newForest.trees.at(k).fire = newForest.fires.at(u).fire;
@@ -690,19 +694,19 @@ forest firefight(forest& newForest)
 	return newForest;
 }
 
-forest reproduce(forest& newForest, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector)
+forest reproduce(forest& newForest, DimensionStruct DimInfo, std::vector<VectorStruct>& ResourceVector)
 {
     if(newForest.trees.size()<treeMax)
 	{
-		for(int f = 0; f < newForest.trees.size(); f++)
+		for(unsigned int f = 0; f < newForest.trees.size(); f++)
        {
-              vector<tree> canReproduce;
-              for(int g = 0; g < newForest.trees.at(f).branches.size(); g++)
+              std::vector<tree> canReproduce;
+              for(unsigned int g = 0; g < newForest.trees.at(f).branches.size(); g++)
               {
                      if(newForest.trees.at(f).branches.at(g).feature==3) //&& find(canReproduce.begin(),canReproduce.end(), newForest.trees.at(f))==canReproduce.end()
                      {
                            canReproduce.push_back(newForest.trees.at(f));
-                           /* cout << "Tree: " << f << " Branch: "<< g<< " Reproduced" << endl;
+                           /* std::cout << "Tree: " << f << " Branch: "<< g<< " Reproduced" << "\n";
                            newForest.trees.at(f).reproduced = 2;
                            tree oldTree = newForest.trees.at(f);
                            seed newSeed = generateSeed();
@@ -746,15 +750,15 @@ forest reproduce(forest& newForest, DimensionStruct DimInfo, vector<VectorStruct
 	}
     return newForest;
 }
-forest generateTree(forest& newForest, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector,int turns)
+forest generateTree(forest& newForest, DimensionStruct DimInfo, std::vector<VectorStruct>& ResourceVector,int turns)
 {
 	 for(int turn=0;turn<turns; turn++)
 	 {
-		  cout << "Turn " << turn << endl;
+		  std::cout << "Turn " << turn << "\n";
 		  newForest.trees.at(0).sunlight=newForest.trees.at(0).sunlight+(newForest.trees.at(0).sunlightcap*.1);
 		  if(newForest.trees.at(0).sunlight > newForest.trees.at(0).sunlightcap)
 		  {
-			//cout << "threw out " <<newForest.trees.at(0).sunlightcap-newForest.trees.at(0).sunlight << " sunlight.";
+			//std::cout << "threw out " <<newForest.trees.at(0).sunlightcap-newForest.trees.at(0).sunlight << " sunlight.";
 			newForest.trees.at(0).sunlight = newForest.trees.at(0).sunlightcap;
 		  }
 		  if(WaterGrab(newForest.trees.at(0).x, newForest.trees.at(0).y, newForest.trees.at(0).z, DimInfo, ResourceVector)> newForest.trees.at(0).roots.size())
@@ -812,30 +816,30 @@ forest generateTree(forest& newForest, DimensionStruct DimInfo, vector<VectorStr
 
 		   for(int f=0;f<newForest.trees.at(0).branches.size();f++) //prints out tree data
 		   {
-				  cout << "Branch #"  << f+1 << ": " ;
-				  cout << "Connection Point: " << newForest.trees.at(0).branches.at(f).connection << " ";
-				  cout << "X Angle: " << newForest.trees.at(0).branches.at(f).xAngle << " ";
-				  cout << "Y Angle: " << newForest.trees.at(0).branches.at(f).yAngle << " ";
-				  cout <<  "Length: " << newForest.trees.at(0).branches.at(f).length << " ";
-				  cout << "Feature: " << newForest.trees.at(0).branches.at(f).feature << " " << endl;
-				  cout << "Children: ";
-				  for(int g=0;g<newForest.trees.at(0).branches.at(f).children.size();g++)
+				  std::cout << "Branch #"  << f+1 << ": " ;
+				  std::cout << "Connection Point: " << newForest.trees.at(0).branches.at(f).connection << " ";
+				  std::cout << "X Angle: " << newForest.trees.at(0).branches.at(f).xAngle << " ";
+				  std::cout << "Y Angle: " << newForest.trees.at(0).branches.at(f).yAngle << " ";
+				  std::cout <<  "Length: " << newForest.trees.at(0).branches.at(f).length << " ";
+				  std::cout << "Feature: " << newForest.trees.at(0).branches.at(f).feature << " " << "\n";
+				  std::cout << "Children: ";
+				  for(unsigned int g=0;g<newForest.trees.at(0).branches.at(f).children.size();g++)
 				  {
-						 cout << newForest.trees.at(0).branches.at(f).children.at(g) <<" ";
+						 std::cout << newForest.trees.at(0).branches.at(f).children.at(g) <<" ";
 				  }
-				  cout << endl;
+				  std::cout << "\n";
 		   }
-		   cout << "Sunlight: " << newForest.trees.at(0).sunlight << " Water: " << newForest.trees.at(0).water << " Phosphorus: " << newForest.trees.at(0).phosphorus << " Potassium: " << newForest.trees.at(0).potassium << " Nitrogen: " << newForest.trees.at(0).nitrogen << endl;
+		   std::cout << "Sunlight: " << newForest.trees.at(0).sunlight << " Water: " << newForest.trees.at(0).water << " Phosphorus: " << newForest.trees.at(0).phosphorus << " Potassium: " << newForest.trees.at(0).potassium << " Nitrogen: " << newForest.trees.at(0).nitrogen << "\n";
 		}
 		newForest.trees.at(0).isAlive=0;
 		return newForest;
 }
-forest generateForest(forest& newForest, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector, int turn, int turnstogo, int target)
+forest generateForest(forest& newForest, DimensionStruct DimInfo, std::vector<VectorStruct>& ResourceVector, int turn, int turnstogo, int target)
 {         
 	/*
 	turn += 1;
-	cout << "Turn: " << turn << endl;
-	cout << "Turnstogo: " << turnstogo << endl;*/
+	std::cout << "Turn: " << turn << "\n";
+	std::cout << "Turnstogo: " << turnstogo << "\n";*/
 
 	/* feed-=decay;
 	if (feed<=0)
@@ -843,20 +847,20 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, vector<VectorS
 		  feed=0;
 	} */
 	int rootRate=10000;
-	for(int f=0; f<newForest.trees.size(); f++) //feed the trees
+	for(unsigned int f=0; f<newForest.trees.size(); f++) //feed the trees
 	{
-		  //cout << f;
+		  //std::cout << f;
 		  newForest.trees.at(f).sunlight=newForest.trees.at(f).sunlight+(newForest.trees.at(f).sunlightcap*100);
 
 		  if(newForest.trees.at(f).sunlight > newForest.trees.at(f).sunlightcap*100)
 		  {
-			//cout << "threw out " <<newForest.trees.at(f).sunlightcap-newForest.trees.at(f).sunlight << " sunlight.";
+			//std::cout << "threw out " <<newForest.trees.at(f).sunlightcap-newForest.trees.at(f).sunlight << " sunlight.";
 			newForest.trees.at(f).sunlight = newForest.trees.at(f).sunlightcap*100;
 		  }
-		for(int v=0; v<newForest.trees.at(f).rootsIn.size(); v++)
+		for(unsigned int v=0; v<newForest.trees.at(f).rootsIn.size(); v++)
 		{
-			//cout << v;
-			//cout << get<0>(newForest.trees.at(f).rootsIn.at(v)) << " " << get<1>(newForest.trees.at(f).rootsIn.at(v)) << " " <<get<2>(newForest.trees.at(f).rootsIn.at(v));
+			//std::cout << v;
+			//std::cout << get<0>(newForest.trees.at(f).rootsIn.at(v)) << " " << get<1>(newForest.trees.at(f).rootsIn.at(v)) << " " <<get<2>(newForest.trees.at(f).rootsIn.at(v));
 			if(WaterGrab(get<0>(newForest.trees.at(f).rootsIn.at(v)), get<1>(newForest.trees.at(f).rootsIn.at(v)), get<2>(newForest.trees.at(f).rootsIn.at(v)), DimInfo, ResourceVector)> newForest.trees.at(f).roots.size()*rootRate)//newForest.trees.at(f).rootsIn.size())
 			{
 			newForest.trees.at(f).water=newForest.trees.at(f).water+ResourceChange(get<0>(newForest.trees.at(f).rootsIn.at(v)), get<1>(newForest.trees.at(f).rootsIn.at(v)), get<2>(newForest.trees.at(f).rootsIn.at(v)), DimInfo, ResourceVector, "water", -newForest.trees.at(f).roots.size()*rootRate);//newForest.trees.at(f).rootsIn.size());
@@ -903,7 +907,7 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, vector<VectorS
 			ResourceChange(get<0>(newForest.trees.at(f).rootsIn.at(v)), get<1>(newForest.trees.at(f).rootsIn.at(v)), get<2>(newForest.trees.at(f).rootsIn.at(v)), DimInfo, ResourceVector, "nitrogen", -(newForest.trees.at(f).nitrogencap-newForest.trees.at(f).nitrogen));
 			newForest.trees.at(f).nitrogen = newForest.trees.at(f).nitrogencap;
 			}
-			//cout <<NitrogenGrab(get<0>(newForest.trees.at(f).rootsIn.at(v)), get<1>(newForest.trees.at(f).rootsIn.at(v)), get<2>(newForest.trees.at(f).rootsIn.at(v)), DimInfo, ResourceVector);
+			//std::cout <<NitrogenGrab(get<0>(newForest.trees.at(f).rootsIn.at(v)), get<1>(newForest.trees.at(f).rootsIn.at(v)), get<2>(newForest.trees.at(f).rootsIn.at(v)), DimInfo, ResourceVector);
 		}
 		  //let the trees do their tree thing
 		  newForest.trees.at(f)=upkeep(newForest.trees.at(f), ResourceVector, DimInfo);
@@ -911,10 +915,10 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, vector<VectorS
 		  {
 				 newForest.trees.at(f)=growBranch(newForest.trees.at(f), ResourceVector, DimInfo);
 				 
-				 //cout << "Tree " << f+1 << " grew a branch."<< endl;
+				 //std::cout << "Tree " << f+1 << " grew a branch."<< "\n";
 		  }
 		
-		  //cout << "Tree " << f+1 << " has "<< newForest.trees.at(f).roots.size()<<" roots." << endl;
+		  //std::cout << "Tree " << f+1 << " has "<< newForest.trees.at(f).roots.size()<<" roots." << "\n";
 	}
 	newForest = reproduce(newForest, DimInfo, ResourceVector);
 	newForest = reaper(newForest);
@@ -922,46 +926,46 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, vector<VectorS
 
 
 	
-	cout << "Number of trees: " << newForest.trees.size() << endl;
-	/*cout << "Number of dead trees: " << newForest.deadtrees.size() << endl;
+	std::cout << "Number of trees: " << newForest.trees.size() << "\n";
+	/*std::cout << "Number of dead trees: " << newForest.deadtrees.size() << "\n";
 	
 	for(int f=0; f<newForest.trees.size();f++)
 	{
-		  cout << "Tree number: " << f+1 << endl;
-		  cout << "Number of Branches: " << newForest.trees.at(f).branches.size() << endl;
-		  cout << "Number of Dead Branches: " << newForest.trees.at(f).deadBranches.size() << endl;
+		  std::cout << "Tree number: " << f+1 << "\n";
+		  std::cout << "Number of Branches: " << newForest.trees.at(f).branches.size() << "\n";
+		  std::cout << "Number of Dead Branches: " << newForest.trees.at(f).deadBranches.size() << "\n";
 	}*/
 	turnstogo -= 1;
 	return newForest;
 		  
 }
 
-forest userInteraction(int interaction, int target, forest& newForest, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector)
+forest userInteraction(int interaction, int target, forest& newForest, DimensionStruct DimInfo, std::vector<VectorStruct>& ResourceVector)
 {
 	if (interaction==1)
    {
-		 cout << "FIRE FIRE FIRE!!!" << endl;
-		 cout << "POWER OF FIRE: " << endl;
+		 std::cout << "FIRE FIRE FIRE!!!" << "\n";
+		 std::cout << "POWER OF FIRE: " << "\n";
 		 int power;
-		 cin >> power;
-		 cout << "FIRE: " << endl;
-		 cout << "X: " << newForest.trees.at(target-1).x << endl;
-		 cout << "Y: " << newForest.trees.at(target-1).y << endl;
-		 cout << "Z: " << newForest.trees.at(target-1).z << endl;
-		 cout << "POWER: " << power << endl;
-		 cout << "CONFIRM? (y/n)" << endl;
+		 std::cin >> power;
+		 std::cout << "FIRE: " << "\n";
+		 std::cout << "X: " << newForest.trees.at(target-1).x << "\n";
+		 std::cout << "Y: " << newForest.trees.at(target-1).y << "\n";
+		 std::cout << "Z: " << newForest.trees.at(target-1).z << "\n";
+		 std::cout << "POWER: " << power << "\n";
+		 std::cout << "CONFIRM? (y/n)" << "\n";
 		 char choosy;
-		 cin >> choosy;
+		 std::cin >> choosy;
 		 if (choosy == 'y')
 		 {
 			 spark(newForest, newForest.trees.at(target-1).x, newForest.trees.at(target-1).y, newForest.trees.at(target-1).z, power);
-			 cout << "Fire has been started." <<endl;
+			 std::cout << "Fire has been started." <<"\n";
 		 }
    }
    if (interaction==2)
    {
 		newForest.trees.at(target-1).isAlive=false;
-		cout << "Tree " << target << " is dead. Because you killed it. You monster."<< endl;
+		std::cout << "Tree " << target << " is dead. Because you killed it. You monster."<< "\n";
    }
    if (interaction==3)
    {
@@ -969,47 +973,49 @@ forest userInteraction(int interaction, int target, forest& newForest, Dimension
 		int phosphorusToAdd;
 		int potassiumToAdd;
 		int nitrogenToAdd;
-		cout << "How much water are you adding?" << endl;
-		cin >> waterToAdd;
-		cout << "How much phosphorus are you adding?" << endl;
-		cin >> phosphorusToAdd;
-		cout << "How much potassium are you adding?" << endl;
-		cin >> potassiumToAdd;
-		cout << "How much nitrogen are you adding?" << endl;
-		cin >> nitrogenToAdd;
+		std::cout << "How much water are you adding?" << "\n";
+		std::cin >> waterToAdd;
+		std::cout << "How much phosphorus are you adding?" << "\n";
+		std::cin >> phosphorusToAdd;
+		std::cout << "How much potassium are you adding?" << "\n";
+		std::cin >> potassiumToAdd;
+		std::cout << "How much nitrogen are you adding?" << "\n";
+		std::cin >> nitrogenToAdd;
 		newForest.trees.at(target-1).water+=waterToAdd;
 		newForest.trees.at(target-1).phosphorus+=phosphorusToAdd;
 		newForest.trees.at(target-1).potassium+=potassiumToAdd;
 		newForest.trees.at(target-1).nitrogen+=nitrogenToAdd;
-		cout << "Tree " << target << " has been fed. Om Nom Nom."<< endl;
+		std::cout << "Tree " << target << " has been fed. Om Nom Nom."<< "\n";
 	}
 	if (interaction==4)
 	{
 		int clonex;
 		int cloney;
 		int clonez;
-		cout << "Where do you want to put the clone?"<< endl
-		<< "X: " << endl;
-		cin >> clonex;
-		cout << "Y:" << endl;
-		cin >> cloney;
-		cout << "Z:" << endl;
-		cin >> clonez;
+		std::cout << "Where do you want to put the clone?"<< "\n"
+		<< "X: " << "\n";
+		std::cin >> clonex;
+		std::cout << "Y:" << "\n";
+		std::cin >> cloney;
+		std::cout << "Z:" << "\n";
+		std::cin >> clonez;
 		char PlantIDArray[10];
 		sprintf( PlantIDArray, "%d",newForest.trees.size());
-		string newPlantID=PlantIDArray;
+		std::string newPlantID=PlantIDArray;
 		tree newTree=spawnTree(clonex ,cloney ,clonez , newForest.trees.at(target-1).treeSeed , DimInfo, ResourceVector, newPlantID);
 		newForest.trees.push_back(newTree);
 
 	}
 	if (interaction==5)
 	{
-		cout << "WARNING: Weird things happen when you change the seed of a tree mid-growth. They will look even more unnatural than they already do." << endl;
+		std::cout << "WARNING: Weird things happen when you change the seed of a tree mid-growth. They will look even more unnatural than they already do." << "\n";
 		newForest.trees.at(target-1).treeSeed=changeSeed(newForest.trees.at(target-1).treeSeed);
 	}
 	if (interaction==99)
 	{
 		newForest.trees.at(target-1).isAlive=false;
-		cout << "Unable to bear the existential dread of living in a simulation, Tree " << target << " killed itself."<< endl;
+		std::cout << "Unable to bear the existential dread of living in a simulation, Tree " << target << " killed itself."<< "\n";
 	}
+}
+
 }

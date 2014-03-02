@@ -5,12 +5,13 @@
 #include <cstdlib>
 #include <ctime>
 #include "../Resources/VectorIntLib.h" //delete 'Resources/' if broken
-#include "../TreeGen/Tree generation.h"
+#include "../TreeGen/TreeGen.h"
 #include "../TreeRender/TreeRender.h"
 #include "../Engine/Engine.h"
 
-//using namespace std;
-//using namespace veclib;
+using namespace std;
+using namespace veclib;
+using namespace TreeGen;
 
 int main(int argc, char **argv)
 {

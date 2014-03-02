@@ -33,9 +33,6 @@ namespace Engine {
 
 	SDL_mutex *renderLock = NULL;
 
-	float renderMin=1.0;
-	float renderMax=2048.0;
-
 	void setupSDL() {
 		SDL_Init( SDL_INIT_EVERYTHING );
 		int mode = SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE;
@@ -196,7 +193,7 @@ namespace Engine {
 			glViewport(0, 0, engine->w_width/2, engine->w_height); // Left
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
-			gluPerspective(60,(float)engine->w_width/(float)engine->w_height/2,renderMin,renderMax);
+			gluPerspective(60,(float)engine->w_width/(float)engine->w_height,1.,512.);
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
 			gluLookAt(0, 0, 0,
@@ -211,7 +208,7 @@ namespace Engine {
 			glViewport(engine->w_width/2, 0, engine->w_width/2, engine->w_height); // Right
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
-			gluPerspective(60,(float)engine->w_width/(float)engine->w_height/2,renderMin,renderMax);
+			gluPerspective(60,(float)engine->w_width/(float)engine->w_height,1.,512.);
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
 			gluLookAt(0, 0, 0,
@@ -232,7 +229,7 @@ namespace Engine {
 
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
-			gluPerspective(60,(float)engine->w_width/(float)engine->w_height,renderMin,renderMax);
+			gluPerspective(60,(float)engine->w_width/(float)engine->w_height,1.,512.);
 
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
@@ -241,8 +238,8 @@ namespace Engine {
 				 0., 1., 0.);*/
 			//glTranslatef(-camera->x, -camera->y, -camera->z);
 			gluLookAt(camera->x, camera->y, camera->z,
-					 -sin(camera->yaw)*cos(camera->pitch)+camera->x, sin(camera->pitch)+camera->y, cos(camera->yaw)*cos(camera->pitch)+camera->z,
-					 0., 1., 0.);
+					 -sin(camera->yaw)*cos(camera->pitch)+camera->x, cos(camera->yaw)*cos(camera->pitch)+camera->y, sin(camera->pitch)+camera->z,
+					 0., 0., 1.);
 			// TODO: Consider changing the above gluLookAt to be similar to that used for riftmode -
 			//   Will make using GL to render a HUD or GUI much easier!  (Eye-space coordinates before transforms)
 
@@ -288,16 +285,6 @@ namespace Engine {
 					camera->lr_speed/=1.01;
 					camera->fb_speed/=1.01;
 					camera->ud_speed/=1.01;
-					break;
-				case (SDLK_r):
-					engine->riftmode = !engine->riftmode;
-					break;
-				case (SDLK_F11):
-					engine->fullscreen = !engine->fullscreen;
-					//SDL_SetWindowFullscreen(sdlWindow, engine->fullscreen);
-					SDL_DestroyWindow(sdlWindow);
-					setupSDL();
-					setupGL();
 					break;
 				}
 				for (int i=0; i<keyDownBindings.size(); i++) {
@@ -348,10 +335,10 @@ namespace Engine {
 			camera->lr_v-=camera->lr_speed;
 		}
 		if (keystate[SDL_SCANCODE_SPACE]) {
-			camera->y+=camera->ud_speed;
+			camera->z+=camera->ud_speed;
 		}
 		if (keystate[SDL_SCANCODE_LSHIFT]) {
-			camera->y-=camera->ud_speed;
+			camera->z-=camera->ud_speed;
 		}
 		if (keystate[SDL_SCANCODE_R]) {
 			//voxel_test.updateMesh();
@@ -388,7 +375,7 @@ namespace Engine {
 		}
 
 		camera->x+= -sin(camera->yaw)*camera->fb_v + cos(camera->yaw)*camera->lr_v;
-		camera->z+= cos(camera->yaw)*camera->fb_v + sin(camera->yaw)*camera->lr_v;
+		camera->y+= cos(camera->yaw)*camera->fb_v + sin(camera->yaw)*camera->lr_v;
 
 		//camera->x+=camera->fb_v;
 		//camera->z+=camera->rl_v;
@@ -410,7 +397,7 @@ namespace Engine {
 			glBufferData(GL_ARRAY_BUFFER, nbufferdata * 3 * sizeof(float), vertexbufferdata, GL_STATIC_DRAW);
 			glBufferData(GL_ARRAY_BUFFER, nbufferdata * 3 * sizeof(float), normalbufferdata, GL_STATIC_DRAW);
 		}*/
-		//printf("Camera at (%f,%f,%f)\n",camera->x,camera->y,camera->z);
+
 	}
 
 	int updateLoop(void *p) {
@@ -427,9 +414,9 @@ namespace Engine {
 			int ups=60; // Updates per second
 			SDL_Delay(1000/ups);
 			//printf("Update\n");
-			//int framessinceupdate = framecounter-updatelastframe;
-			//float fps = framessinceupdate*ups;
-			//printf("FPS: %f\n",fps);
+			int framessinceupdate = framecounter-updatelastframe;
+			float fps = framessinceupdate*ups;
+			printf("FPS: %f\n",fps);
 			updatelastframe = framecounter;
 		}
 		return 0;
