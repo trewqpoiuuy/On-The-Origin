@@ -117,7 +117,7 @@ TreeGen::tree CalcXYZ(TreeGen::tree Wtree)
 //TreeGen::forest renderforest;
 // VertexArrayUtils::Data drawdata;
 
-void drawBranch(VertexArrayUtils::Data* drawdata, float x1, float y1, float z1, float len1, float x2, float y2, float z2, float len2, float resize, bool cap)
+void drawBranch(VertexArrayUtils::Data* drawdata, float x1, float y1, float z1, float len1, float x2, float y2, float z2, float len2, float resize, bool cap, bool isLeaf)
 {
 	/*glBegin(GL_QUADS);
 	glVertex3f(x2 / resize, y2 / resize, z2 / resize + len2);
@@ -178,29 +178,32 @@ void drawBranch(VertexArrayUtils::Data* drawdata, float x1, float y1, float z1, 
 		VertexArrayUtils::addVertex(drawdata, x1 / resize - len1, y1 / resize, z1 / resize);
 		VertexArrayUtils::addVertex(drawdata, x1 / resize, y1 / resize, z1 / resize - len1);
 	}
+	if (isLeaf == true)
+	{
+		VertexArrayUtils::addVertex(drawdata, x2 / resize, y2 / resize, z2 / resize + len1);
+		VertexArrayUtils::addVertex(drawdata, x2 / resize + len1, y2 / resize, z2 / resize);
+		VertexArrayUtils::addVertex(drawdata, x2 / resize, y2 / resize, z2 / resize - len1);
+		VertexArrayUtils::addVertex(drawdata, x2 / resize - len1, y2 / resize, z2 / resize);
+	}
 }
 
 void drawForest(TreeGen::forest* renderforest, VertexArrayUtils::Data* drawdata, float drawfromX, float drawfromZ, float drawRadius)
 {
-	int correction = 0;
-	float zpos = 0;
+	VertexArrayUtils::setColor(drawdata, 0.2f, 0.3f, 0.0f);
+
+	VertexArrayUtils::addVertex(drawdata, -10.0f, 45.0f, 1010.0f);
+	VertexArrayUtils::addVertex(drawdata, -10.0f, 45.0f, -10.0f);
+	VertexArrayUtils::addVertex(drawdata, 1010.0f, 45.0f, -10.0f);
+	VertexArrayUtils::addVertex(drawdata, 1010.0f, 45.0f, 1010.0f);
 
 	for (unsigned int i = 0; i < renderforest->trees.size();)
 	{
-		int forestdim;
-		
-		forestdim = sqrt(renderforest->trees.size()) + 0.5;
-		if ((i - correction) > forestdim)
-		{
-			correction = i;
-			zpos += 1;
-		}
 
 		//glTranslatef(renderforest->trees.at(i).x,renderforest->trees.at(i).z,renderforest->trees.at(i).y);
 		//if (pythag(*renderforest->trees.at(i).x+drawfromX,*renderforest->trees.at(i).z+drawfromZ,0)<drawRadius) {
 		if (true) {
 
-			VertexArrayUtils::setOffset(drawdata, renderforest->trees.at(i).x * 2,renderforest->trees.at(i).z * 2,renderforest->trees.at(i).y * 2);
+			VertexArrayUtils::setOffset(drawdata, renderforest->trees.at(i).x,renderforest->trees.at(i).z,renderforest->trees.at(i).y);
 
 			for (unsigned int f = 0; f < renderforest->trees.at(i).branches.size();)
 			{
@@ -246,7 +249,7 @@ void drawForest(TreeGen::forest* renderforest, VertexArrayUtils::Data* drawdata,
 						renderforest->trees.at(i).branches.at(f).diameter * renderforest->trees.at(i).thickness * 0.5,
 						0.0f, 0.0f, 0.0f,
 						renderforest->trees.at(i).thickness,
-						10.0f, cap);
+						10.0f, cap, false);
 				}
 				else
 				{
@@ -254,7 +257,17 @@ void drawForest(TreeGen::forest* renderforest, VertexArrayUtils::Data* drawdata,
 						renderforest->trees.at(i).branches.at(f).diameter  * renderforest->trees.at(i).thickness * 0.5,
 						renderforest->trees.at(i).branches.at(ch).xyzPos.at(0), renderforest->trees.at(i).branches.at(ch).xyzPos.at(1), renderforest->trees.at(i).branches.at(ch).xyzPos.at(2),
 						renderforest->trees.at(i).branches.at(ch).diameter  * renderforest->trees.at(i).thickness * 0.5,
-						10.0f, cap);
+						10.0f, cap, false);
+				}
+
+				if (renderforest->trees.at(i).branches.at(f).children.size() == 0)
+				{
+					VertexArrayUtils::setColor(drawdata, (float)renderforest->trees.at(i).treeSeed.tertiaryColor[0] / 255, (float)renderforest->trees.at(i).treeSeed.tertiaryColor[1] / 255, (float)renderforest->trees.at(i).treeSeed.tertiaryColor[2] / 255);
+					drawBranch(drawdata, renderforest->trees.at(i).branches.at(f).xyzPos.at(0), (float)renderforest->trees.at(i).branches.at(f).xyzPos.at(1) + (((renderforest->trees.at(i).branches.at(f).diameter + renderforest->trees.at(i).treeSeed.leafSize) * renderforest->trees.at(i).thickness) * 5), renderforest->trees.at(i).branches.at(f).xyzPos.at(2),
+						((renderforest->trees.at(i).branches.at(f).diameter + renderforest->trees.at(i).treeSeed.leafSize) * renderforest->trees.at(i).thickness) * 0.5,
+						renderforest->trees.at(i).branches.at(f).xyzPos.at(0), renderforest->trees.at(i).branches.at(f).xyzPos.at(1), renderforest->trees.at(i).branches.at(f).xyzPos.at(2),
+						((renderforest->trees.at(i).branches.at(f).diameter + renderforest->trees.at(i).treeSeed.leafSize) * renderforest->trees.at(i).thickness) * 0.5,
+						10.0f, true, true);
 				}
 
 				f++;
