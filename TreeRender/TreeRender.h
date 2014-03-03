@@ -263,7 +263,9 @@ void drawForest(TreeGen::forest* renderforest, VertexArrayUtils::Data* drawdata,
 				if (renderforest->trees.at(i).branches.at(f).children.size() == 0)
 				{
 					VertexArrayUtils::setColor(drawdata, (float)renderforest->trees.at(i).treeSeed.tertiaryColor[0] / 255, (float)renderforest->trees.at(i).treeSeed.tertiaryColor[1] / 255, (float)renderforest->trees.at(i).treeSeed.tertiaryColor[2] / 255);
-					drawBranch(drawdata, renderforest->trees.at(i).branches.at(f).xyzPos.at(0), (float)renderforest->trees.at(i).branches.at(f).xyzPos.at(1) + (((renderforest->trees.at(i).branches.at(f).diameter + renderforest->trees.at(i).treeSeed.leafSize) * renderforest->trees.at(i).thickness) * 5), renderforest->trees.at(i).branches.at(f).xyzPos.at(2),
+					drawBranch(drawdata, renderforest->trees.at(i).branches.at(f).xyzPos.at(0), (float)renderforest->trees.at(i).branches.at(f).xyzPos.at(1) + 1.0f
+						//(((renderforest->trees.at(i).branches.at(f).diameter + renderforest->trees.at(i).treeSeed.leafSize) * renderforest->trees.at(i).thickness) * 5)
+						, renderforest->trees.at(i).branches.at(f).xyzPos.at(2),
 						((renderforest->trees.at(i).branches.at(f).diameter + renderforest->trees.at(i).treeSeed.leafSize) * renderforest->trees.at(i).thickness) * 0.5,
 						renderforest->trees.at(i).branches.at(f).xyzPos.at(0), renderforest->trees.at(i).branches.at(f).xyzPos.at(1), renderforest->trees.at(i).branches.at(f).xyzPos.at(2),
 						((renderforest->trees.at(i).branches.at(f).diameter + renderforest->trees.at(i).treeSeed.leafSize) * renderforest->trees.at(i).thickness) * 0.5,
