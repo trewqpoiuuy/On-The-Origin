@@ -210,8 +210,8 @@ void drawForest(TreeGen::forest* renderforest, VertexArrayUtils::Data* drawdata,
 
 				float colorwheel = (renderforest->trees.at(i).branches.at(f).xyzPos.at(1) / renderforest->trees.at(i).maxvals[1]);
 				//cout << colorwheel << endl;
-				float primColor = 2 * (-colorwheel + 0.5f);
-				float tertColor = 2 * (colorwheel - 0.5f);
+				float primColor = 1 - colorwheel; //2 * (-colorwheel + 0.5f);
+				/*float tertColor = 2 * (colorwheel - 0.5f);
 				if (primColor < 0)
 				{
 					primColor = 0;
@@ -219,8 +219,8 @@ void drawForest(TreeGen::forest* renderforest, VertexArrayUtils::Data* drawdata,
 				if (tertColor < 0)
 				{
 					tertColor = 0;
-				}
-				float secoColor = 1 - (primColor + tertColor);
+				}*/
+				float secoColor = colorwheel;
 
 				int ch = renderforest->trees.at(i).branches.at(f).connection - 1;
 				bool cap = false;
@@ -237,9 +237,9 @@ void drawForest(TreeGen::forest* renderforest, VertexArrayUtils::Data* drawdata,
 				/*glColor3f(((renderforest->trees.at(i).treeSeed.primaryColor[0] * primColor) + (renderforest->trees.at(i).treeSeed.secondaryColor[0] * secoColor) + (renderforest->trees.at(i).treeSeed.tertiaryColor[0] * tertColor)) / 255,
 					((renderforest->trees.at(i).treeSeed.primaryColor[1] * primColor) + (renderforest->trees.at(i).treeSeed.secondaryColor[1] * secoColor) + (renderforest->trees.at(i).treeSeed.tertiaryColor[1] * tertColor)) / 255,
 					((renderforest->trees.at(i).treeSeed.primaryColor[2] * primColor) + (renderforest->trees.at(i).treeSeed.secondaryColor[2] * secoColor) + (renderforest->trees.at(i).treeSeed.tertiaryColor[2] * tertColor)) / 255);*/
-				VertexArrayUtils::setColor(drawdata, ((renderforest->trees.at(i).treeSeed.primaryColor[0] * primColor) + (renderforest->trees.at(i).treeSeed.secondaryColor[0] * secoColor) + (renderforest->trees.at(i).treeSeed.tertiaryColor[0] * tertColor)) / 255,
-								((renderforest->trees.at(i).treeSeed.primaryColor[1] * primColor) + (renderforest->trees.at(i).treeSeed.secondaryColor[1] * secoColor) + (renderforest->trees.at(i).treeSeed.tertiaryColor[1] * tertColor)) / 255,
-								((renderforest->trees.at(i).treeSeed.primaryColor[2] * primColor) + (renderforest->trees.at(i).treeSeed.secondaryColor[2] * secoColor) + (renderforest->trees.at(i).treeSeed.tertiaryColor[2] * tertColor)) / 255);
+				VertexArrayUtils::setColor(drawdata, ((renderforest->trees.at(i).treeSeed.primaryColor[0] * primColor) + (renderforest->trees.at(i).treeSeed.secondaryColor[0] * secoColor)) / 255,
+								((renderforest->trees.at(i).treeSeed.primaryColor[1] * primColor) + (renderforest->trees.at(i).treeSeed.secondaryColor[1] * secoColor)) / 255,
+								((renderforest->trees.at(i).treeSeed.primaryColor[2] * primColor) + (renderforest->trees.at(i).treeSeed.secondaryColor[2] * secoColor)) / 255);
 
 
 				//cout << "diam: " << renderforest->trees.at(i).branches.at(f).diameter << " thick: " << renderforest->trees.at(i).thickness << endl;
