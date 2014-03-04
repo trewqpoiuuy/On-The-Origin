@@ -70,7 +70,7 @@ namespace Engine {
 	void setupGL() {
 		glContext = SDL_GL_CreateContext(sdlWindow);
 		glEnable(GL_DEPTH_TEST);
-		glClearColor(0, 0, 0, 0);
+		glClearColor(0.4f, 0.7f, 1.0f, 0.0f); // Sky color (glClear)
 		glFrontFace(GL_CW);
 		glCullFace(GL_BACK);
 		glEnable(GL_CULL_FACE);
@@ -287,7 +287,6 @@ namespace Engine {
 		}
 		else { // Normal fullscreen viewport
 			glViewport(0, 0, engine->w_width, engine->w_height);
-			glClearColor(.0, .0, .0, .0);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			glMatrixMode(GL_PROJECTION);
