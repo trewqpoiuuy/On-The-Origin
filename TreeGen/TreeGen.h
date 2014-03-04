@@ -5,9 +5,11 @@
 #include <cstdlib>
 #include <ctime>
 #include <tuple>
+#include "../Resources/VectorIntLib.h"
 #define PI 3.14159265
 #define treeMax 8000
 
+using namespace std;
 using namespace veclib;
 
 namespace TreeGen {
@@ -30,7 +32,7 @@ std::tuple<int,int,int> sphericalToCartesian(float xAngle,float yAngle,int lengt
 	int x=(length*cos(xAngle*(PI/180))*sin(yAngle*(PI/180)))+originX;
 	int y=(length*sin(xAngle*(PI/180))*sin(yAngle*(PI/180)))+originY;
 	int z=(length*cos(yAngle*(PI/180)))+originZ;
-	tuple<int,int,int> coords (x,y,z);
+	std::tuple<int,int,int> coords (x,y,z);
 	return coords;
 }
 struct fire
@@ -304,7 +306,7 @@ seed userDefinedSeed()
 }
 seed changeSeed(seed& treeSeed)
 {
-	string choice="y";
+	std::string choice="y";
 	while (choice=="y")
 	{
 		std::cout << "What variable would you like to edit?" << "\n"
@@ -319,7 +321,7 @@ seed changeSeed(seed& treeSeed)
 		<< "ad(u)lt" << "\n"// age that branch stops growing more branches and grows features instead
 		<< "th(i)ckness" << "\n";// aspiring thickness of the trunk
 
-		string toEdit;
+		std::string toEdit;
 		std::cin >> toEdit;
 		if (toEdit=="b")
 		{
@@ -846,7 +848,7 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, std::vector<Ve
 	{
 		  feed=0;
 	} */
-	int rootRate=10000;
+	int rootRate=3;
 	for(unsigned int f=0; f<newForest.trees.size(); f++) //feed the trees
 	{
 		  //std::cout << f;

@@ -57,7 +57,8 @@ namespace Engine {    // This is the proper way to set and use namespaces for li
 		float ud_v=0;
 		float ud_speed=2;   // Defaults, defaults, defaults ...
 		float speed2powexpoffset=-4;
-		float eyespread=1;  // For riftmode
+		float eyespread=0.5;  // For riftmode
+		float riftoffset=0.14;
 		#ifdef _WIN32
 		float sensitivity=200;  // Sensitivity needs to be set to less (more sensitive) on Windows...
 		#else

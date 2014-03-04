@@ -1,0 +1,134 @@
+/*
+ * VectorLib.h
+ *
+ *  Created on: Jan 16, 2014
+ *      Author: WBoettcher
+ */
+
+#ifndef VECTORLIB_H_
+#define VECTORLIB_H_
+#include <string.h>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <vector>
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
+#include <cmath>
+#include <limits.h>
+#include <algorithm>
+#include <iterator>
+
+using namespace std;
+namespace veclib
+{
+//for testing purposes, ignore
+class TestCondition {
+public:
+	bool water;
+	bool nitrogen;
+	bool phosphorus;
+	bool potassium;
+
+	bool alltrue();
+
+	void clear();
+};
+
+//for storing base values for each resource pre-generation
+struct ResourceStruct {
+	long long int base;
+	long long int mod;
+	long long int baseT;
+	long long int modT;
+};
+
+//for holding resource values in the resource vector
+struct VectorStruct {
+	unsigned int water;
+	unsigned int nitrogen;
+	unsigned int phosphorus;
+	unsigned int potassium;
+	vector<string> plantID;
+};
+
+//for holding dimensional information for the resource vector
+struct DimensionStruct {
+	long int length;
+	long int width;
+	long int depth;
+	long int TopsoilDepth;
+};
+
+//for holding resources outside of soil, such as in Mycelium
+struct ResourceCache {
+	signed long long int water;
+	signed long long int nitrogen;
+	signed long long int phosphorus;
+	signed long long int potassium;
+};
+
+//Fills ResourceStructs water, nitrogen, phosphorus and potassium with variables (which must be defined before this function is executed)
+void CreateResource(ResourceStruct& TypeName, long long int Base, long long int Mod, long long int BaseT, long long int ModT);
+
+//takes the absolute difference of 2 values.
+long long int absdiff(long long int a, long long int b = 0);
+
+//returns the sign of a value (1 or -1)
+int sign(long long int value);
+
+//returns the int value for the water resource at a given position
+unsigned int WaterGrab(int x, int y, int z, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector);
+
+//returns the int value for the nitrogen resource at a given position
+unsigned int NitrogenGrab(int x, int y, int z, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector);
+
+//returns the int value for the phosphorus resource at a given position
+unsigned int PhosphorusGrab(int x, int y, int z, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector);
+
+//returns the int value for the potassium resource at a given position
+unsigned int PotassiumGrab(int x, int y, int z, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector);
+
+//returns all plantIDs at a given position
+vector<string> PlantIDGrab(int x, int y, int z, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector);
+
+//adds a given plantID at a given position
+void PlantIDAssign(int x, int y, int z, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector, string plantID);
+
+//removes a given plantID at a given position
+void PlantIDRemove(int x, int y, int z, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector, string plantID);
+
+//checks for a given plantID at a given position; if no plantID is provided, checks for the presence of any plantIDs
+bool PlantIDCheck(int x, int y, int z, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector, string plantID = " ");
+
+//changes the specified resource at the specified point the specified amount, and returns the negative amount that it was changed.
+long long int ResourceChange(int x, int y, int z, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector, string resource, signed long long int change, long long int min = 0, long long int max = UINT_MAX);
+
+//spreads out resources at a given depth to the degree specified for each resource.
+vector<ResourceCache> Mycelium(int z, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector, vector<ResourceCache>& MyceliumCache,
+		signed long long int waterchange,
+		signed long long int nitrogenchange,
+		signed long long int phosphoruschange,
+		signed long long int potassiumchange
+		);
+
+//initializes and fills the mycelium resource cache
+vector<ResourceCache> initializeMycelium(DimensionStruct DimInfo);
+
+//initializes ResourceVector and fills it with resources in quantities determined by the presets
+vector<VectorStruct> initializeResources(DimensionStruct DimInfo);
+
+//writes DimInfo, ResourceVector, and MyceliumCache to a save file
+void saveresources(DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector, vector<ResourceCache>& MyceliumCache);
+
+void loadresources(DimensionStruct& DimInfo, vector<VectorStruct>& ResourceVector, vector<ResourceCache>& MyceliumCache);
+
+long long int resourcedrop(int x, int y, DimensionStruct DimInfo, vector<VectorStruct>& ResourceVector, string resource, long long int change, long long int change_per_z);
+
+};
+
+
+
+#endif /* VECTORLIB_H_ */

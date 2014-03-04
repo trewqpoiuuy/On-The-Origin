@@ -36,6 +36,26 @@ namespace Engine {
 	float renderMin=1.0;
 	float renderMax=2048.0;
 
+	GLuint consoleFontTexture;
+
+	void loadConsoleFontTexture() {
+		glEnable( GL_TEXTURE_2D );
+		SDL_Surface *Image = SDL_LoadBMP("Resource/font6x8_rgb.bmp");  //TODO NEED RELATIVE PATH
+	    if (Image==NULL) {
+	        printf("Error: %s\n",SDL_GetError());
+	        return;
+	    }
+		glGenTextures( 1, &consoleFontTexture);
+		glBindTexture( GL_TEXTURE_2D, consoleFontTexture);
+		//glTexImage2D( GL_TEXTURE_2D, 0, 3, Image->w, Image->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, Image->pixels);
+		printf("Width x Height: %dx%d\n",Image->w,Image->h);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Image->w,Image->h, 0, GL_RGB,GL_UNSIGNED_BYTE,Image->pixels);
+	    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+	    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+		SDL_FreeSurface(Image);
+		glDisable( GL_TEXTURE_2D );
+	}
+
 	void setupSDL() {
 		SDL_Init( SDL_INIT_EVERYTHING );
 		int mode = SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE;
@@ -58,7 +78,7 @@ namespace Engine {
 
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-
+		loadConsoleFontTexture();
 	}
 
 	int setupSDL_thread(void *p) {
@@ -99,6 +119,44 @@ namespace Engine {
 	}
 	void addKeyPressedBinding(int keyid, void (*funcp)()) {
 		keyPressedBindings.push_back(keyBind{keyid,funcp});
+	}
+
+	void draw2Dgl() {  //TODO text drawing function
+		float chrW=10;
+		float chrH=16;
+		std::string text="\n Hello world";
+		glEnable( GL_TEXTURE_2D );
+		glBindTexture( GL_TEXTURE_2D, consoleFontTexture );
+		glColor3f(0,0,1);
+		int cursorX=0;
+		int cursorY=0;
+		for (unsigned int i=0; i<text.size(); i++) {
+			int asciin=text[i];
+			int texaddrX = asciin%16;
+			int texaddrY = asciin/16;
+			glBegin(GL_QUADS);
+			glTexCoord2f((texaddrX)/16.,(texaddrY)/16.);  glVertex2f(chrW*(cursorX),chrH*(cursorY));
+			glTexCoord2f((texaddrX+1)/16.,(texaddrY)/16.);  glVertex2f(chrW*(cursorX+1),chrH*(cursorY));
+			glTexCoord2f((texaddrX+1)/16.,(texaddrY+1)/16.);  glVertex2f(chrW*(cursorX+1),chrH*(cursorY+1));
+			glTexCoord2f((texaddrX)/16.,(texaddrY+1)/16.);  glVertex2f(chrW*(cursorX),chrH*(cursorY+1));
+			glEnd();
+			if (asciin=='\n' /*ASCII for '\n' */) {
+				cursorX=0;
+				cursorY+=1;
+			}
+			else {
+				cursorX+=1;
+			}
+		}
+
+		/*		glBegin(GL_QUADS);
+		glTexCoord2f(0,0);  glVertex2f(10,10);
+		glTexCoord2f(1,0);  glVertex2f(200,10);
+		glTexCoord2f(1,1);  glVertex2f(200,200);
+		glTexCoord2f(0,1);  glVertex2f(10,200);
+		glEnd();*/
+
+		glDisable( GL_TEXTURE_2D );
 	}
 
 	void display() {
@@ -191,11 +249,12 @@ namespace Engine {
 
 			SDL_GL_SwapWindow(sdlWindow);
 		}
-		else if (engine->riftmode) { // Split-eye.  Not rift compatible!
+		else if (engine->riftmode) { // Split-eye.  Almost rift compatible!
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glViewport(0, 0, engine->w_width/2, engine->w_height); // Left
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
+			glTranslatef(camera->riftoffset,0,0);
 			gluPerspective(60,(float)engine->w_width/(float)engine->w_height/2,renderMin,renderMax);
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
@@ -211,6 +270,7 @@ namespace Engine {
 			glViewport(engine->w_width/2, 0, engine->w_width/2, engine->w_height); // Right
 			glMatrixMode(GL_PROJECTION);
 			glLoadIdentity();
+			glTranslatef(-camera->riftoffset,0,0);
 			gluPerspective(60,(float)engine->w_width/(float)engine->w_height/2,renderMin,renderMax);
 			glMatrixMode(GL_MODELVIEW);
 			glLoadIdentity();
@@ -247,6 +307,15 @@ namespace Engine {
 			//   Will make using GL to render a HUD or GUI much easier!  (Eye-space coordinates before transforms)
 
 			engineDrawScene(); // Draw OpenGL polygons
+
+			glClear(GL_DEPTH_BUFFER_BIT);
+			glMatrixMode(GL_PROJECTION);
+			glLoadIdentity();
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity();
+			glOrtho(0,800,600,0,-1,1);
+			glDisable(GL_LIGHTING);
+			//draw2Dgl();
 
 			//SDL_GL_SwapBuffers();    // SDL 1.2
 			SDL_GL_SwapWindow(sdlWindow);

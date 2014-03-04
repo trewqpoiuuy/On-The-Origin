@@ -17,6 +17,12 @@ void drawData(Data* data) {
 	while (data->lockdata) { // Thread safety
 		//pass
 	}
+	/*bool trippy=true;
+	if (trippy) {
+		for (unsigned int i=0; i<data->verts.size(); i++) {
+			data->verts[i] += TreeGen::randFloat(-1,1);
+		}
+	}*/
 	glColorMaterial(GL_FRONT, GL_DIFFUSE);  // Thanks Nathan!
 	glEnable(GL_COLOR_MATERIAL);
     glEnableClientState(GL_VERTEX_ARRAY);

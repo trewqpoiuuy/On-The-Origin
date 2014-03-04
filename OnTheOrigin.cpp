@@ -77,8 +77,55 @@ void createForest() {
     }
 }
 
+bool lighting=false;
+
+void toggleLighting() {
+	lighting = !lighting;
+	if (lighting) {
+		printf("Toggleing lighting ON\n");
+	}
+	else {
+		printf("Toggleing lighting OFF\n");
+	}
+}
+
 void renderScene() {
-	glDisable(GL_LIGHTING);
+	if (lighting) {
+		glEnable(GL_LIGHTING);
+	}
+	else {
+		glDisable(GL_LIGHTING);
+	}
+	float light0pos[4] = {0,70-128,0,1};
+	float light0color[4] = {.6,.45,.4,0};
+	float light1pos[4] = {5,20,7,0};
+	float light1color[4] = {0.2,0.2,0.5};
+
+	/*for (int i=0; i<3; i++) {
+		light0color[i]*=.5;
+		light1color[i]*=.5;
+	}*/
+	//float light1spec[4] = {1,1,1,0};
+
+	glEnable(GL_LIGHT0);
+	glLightfv(GL_LIGHT0, GL_POSITION, light0pos);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, light0color);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, light0color);
+
+	glEnable(GL_LIGHT1);
+	glLightfv(GL_LIGHT1, GL_POSITION, light1pos);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, light1color);
+	//glLightfv(GL_LIGHT1, GL_SPECULAR, light1spec);
+
+	// Draw ground
+	glColor3f(0.5f, 0.5f, 0.5f);
+	glBegin(GL_QUADS);
+	glVertex3f(-10.0f, 0.0f, 10.0f);
+	glVertex3f(-10.0f, 0.0f, -10.0f);
+	glVertex3f(10.0f, 0.0f, -10.0f);
+	glVertex3f(10.0f, 0.0f, 10.0f);
+	glEnd();
+
 	VertexArrayUtils::drawData(&drawdata);
 }
 
@@ -88,6 +135,7 @@ int main(int argc, char **argv) {
 
 	Engine::setup(&engine, &camera);
 	Engine::setDrawFunc(&renderScene);
+	Engine::addKeyDownBinding(SDLK_F6,&toggleLighting);
 	engine.run = true;
 #define threaded
 #ifdef threaded
