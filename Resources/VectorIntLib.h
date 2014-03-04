@@ -428,10 +428,10 @@ vector<VectorStruct> initializeResources(DimensionStruct DimInfo)
 	ResourceStruct phosphorus;
 	ResourceStruct potassium;
 	//populates ResourceStructs with presets
-	CreateResource(water, UINT_MAX/4, UINT_MAX/10, UINT_MAX/3, UINT_MAX/8);
-	CreateResource(nitrogen, UINT_MAX/8, UINT_MAX/20, UINT_MAX/6, UINT_MAX/16);
-	CreateResource(phosphorus, UINT_MAX/10, UINT_MAX/24, UINT_MAX/8, UINT_MAX/20);
-	CreateResource(potassium, UINT_MAX/12, UINT_MAX/28, UINT_MAX/10, UINT_MAX/24);
+	CreateResource(water, 1500, 500, 1500, 500);
+	CreateResource(nitrogen, 1500, 500, 1500, 500);
+	CreateResource(phosphorus, 1500, 500, 1500, 500);
+	CreateResource(potassium, 1500, 500, 1500, 500);
 
 	//creates the vector for storing resources
 	vector<VectorStruct> ResourceVector;
