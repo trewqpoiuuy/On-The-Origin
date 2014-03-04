@@ -6,7 +6,8 @@
 #include <ctime>
 #include <tuple>
 #define PI 3.14159265
-#define treeMax 8000
+#define treeMax 1000
+#define rootsOn 0
 
 using namespace veclib;
 
@@ -62,6 +63,7 @@ struct branch
        std::vector<float> xyzPos;
        std::vector<float> pRot;
 };
+#if rootsOn==1
 struct root
 {
        int connection; //What the branch connects to
@@ -78,6 +80,7 @@ struct root
        std::vector<float> xyzPos;
        std::vector<float> pRot;
 };
+#endif
 struct seed
 {
        float branchDensity; //The higher the value, the lower branches attach
@@ -101,11 +104,11 @@ struct seed
 struct tree
 {
 	   int fire;
-       int sunlight;   //
-       int water;      //
-       int phosphorus; // Current Resources
-       int nitrogen;   //
-       int potassium;  //
+       unsigned int sunlight;   //
+       unsigned int water;      //
+       unsigned int phosphorus; // Current Resources
+       unsigned int nitrogen;   //
+       unsigned int potassium;  //
        int sunlightcap;  //
        int watercap;     //
        int phosphoruscap; // Max capacity of resource that the tree can hold
@@ -117,12 +120,16 @@ struct tree
        int z;
        bool isAlive;
        int reproduced; // 0 = nil 1 = ready 2 = done
+	   #if rootsOn==0
+	   int roots;
+	   #endif
 
        float thickness; // thickness of the tree
-
+	   #if rootsOn==1
        std::vector<std::tuple<int,int,int>> rootsIn;
-	   std::vector<branch> branches;
 	   std::vector<root> roots;
+	   #endif
+	   std::vector<branch> branches;
        std::vector<branch> deadBranches;
        seed treeSeed;
  
@@ -389,6 +396,7 @@ seed changeSeed(seed& treeSeed)
 	}
 	return treeSeed;
 }
+#if rootsOn==1
 tree growRoot(tree& newTree, std::vector<VectorStruct>& ResourceVector,DimensionStruct DimInfo)
 {
 	root newRoot;
@@ -444,8 +452,9 @@ tree growRoot(tree& newTree, std::vector<VectorStruct>& ResourceVector,Dimension
 	newTree.roots.push_back(newRoot);
     return newTree;
 }
+#endif
 tree spawnTree(int x, int y, int z, seed& treeSeed, DimensionStruct DimInfo, std::vector<VectorStruct>& ResourceVector, string plantID)
-{     
+{      
 	   tree newTree;
        newTree.sunlight=0;   //
        newTree.water=0;      //
@@ -463,11 +472,16 @@ tree spawnTree(int x, int y, int z, seed& treeSeed, DimensionStruct DimInfo, std
        newTree.x=x;
        newTree.y=y;
        newTree.z=z;
-	   int newRoots=randInt(10,40);
+	   int newRoots=randInt(5,20);
+	   #if rootsOn==1
 	   for(int q=0; q<newRoots; q++)
 	   {
 			newTree=growRoot(newTree, ResourceVector, DimInfo);
 	   }
+	   #endif
+	   #if rootsOn==0
+	   newTree.roots=newRoots;
+	   #endif
 	   PlantIDAssign(x, y, z, DimInfo, ResourceVector, plantID);
        newTree.age=0;
        newTree.treeSeed=treeSeed;
@@ -497,7 +511,7 @@ tree spawnTree(int x, int y, int z, seed& treeSeed, DimensionStruct DimInfo, std
 }
 tree growBranch(tree& newTree, std::vector<VectorStruct>& ResourceVector,DimensionStruct DimInfo)
 {
-       if(newTree.sunlight>=1 && newTree.water>=2 && newTree.nitrogen>=2 && newTree.potassium>=3 && newTree.phosphorus>=3)
+       if(newTree.sunlight>=10 && newTree.water>=20 && newTree.nitrogen>=20 && newTree.potassium>=30 && newTree.phosphorus>=30)
        {
 			branch newBranch;
 			int branchWeighting=randInt(0,newTree.branches.size())*newTree.treeSeed.branchDensity; //Weights connection points
@@ -525,20 +539,26 @@ tree growBranch(tree& newTree, std::vector<VectorStruct>& ResourceVector,Dimensi
 			}
 			newTree.branches.push_back(newBranch);
 			int newRoots=randInt(2,8);
+			#if rootsOn==1
 			for(int q=0; q<newRoots; q++)
 		    {
 				newTree=growRoot(newTree, ResourceVector, DimInfo);
 		    }
+			#endif
+			#if rootsOn==0
+			newTree.roots+=newRoots;
+			#endif
+			//newTree=growRoot(newTree, ResourceVector, DimInfo);
 			newTree.sunlightcap+=newBranch.leafCount*newTree.treeSeed.leafSize*50;
 			newTree.watercap+=newBranch.leafCount*newTree.treeSeed.leafSize*100;
 			newTree.phosphoruscap+=newBranch.length*10;
 			newTree.nitrogencap+=newBranch.length/7.5;
 			newTree.potassiumcap+=newBranch.length*7.5;
-			newTree.sunlight=newTree.sunlight-(newBranch.length*.025+newBranch.feature*3);
-			newTree.water=newTree.water+(ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "water", (newBranch.length*.05+newBranch.feature*5))-(newBranch.leafCount*(newTree.treeSeed.leafSize)));
-			newTree.nitrogen=newTree.nitrogen+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "nitrogen", (newBranch.length*.0375+newBranch.feature*10));
-			newTree.potassium=newTree.potassium+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "potassium", (newBranch.length*.075)+newBranch.feature*6);
-			newTree.phosphorus=newTree.phosphorus+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "phosphorus", (newBranch.length*.0625+newBranch.feature*7));
+			newTree.sunlight=newTree.sunlight-(newBranch.length*.25+newBranch.feature*3);
+			newTree.water=newTree.water+(ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "water", (newBranch.length*.5+newBranch.feature*5))-(newBranch.leafCount*(newTree.treeSeed.leafSize)));
+			newTree.nitrogen=newTree.nitrogen+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "nitrogen", (newBranch.length*.375+newBranch.feature*10));
+			newTree.potassium=newTree.potassium+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "potassium", (newBranch.length*.75)+newBranch.feature*6);
+			newTree.phosphorus=newTree.phosphorus+ResourceChange(newTree.x, newTree.y, newTree.z, DimInfo, ResourceVector, "phosphorus", (newBranch.length*.625+newBranch.feature*7));
        }
        /* if(newTree.branches.size() == 20)
        {
@@ -553,11 +573,17 @@ tree growBranch(tree& newTree, std::vector<VectorStruct>& ResourceVector,Dimensi
 tree upkeep(tree& newTree, std::vector<VectorStruct>& ResourceVector,DimensionStruct DimInfo)
 {
        //std::cout << "Upkeepan";
+	   #if rootsOn==1
        int totalLength=newTree.roots.size();
+	   #else
+	   int totalLength=newTree.roots;
+	   #endif
        for(unsigned int i=0; i<newTree.branches.size(); i++)
        {
+			 
               totalLength+=newTree.branches.at(i).length;
-              if(newTree.sunlight-totalLength*.005<0 || newTree.water-totalLength*.01<0 || newTree.nitrogen-totalLength*.0075<0 || newTree.potassium-totalLength*.015<0 || newTree.phosphorus-totalLength*.0125<0)
+			  
+              if(newTree.sunlight-totalLength*.05<0 || newTree.water-totalLength*.1<0 || newTree.nitrogen-totalLength*.075<0 || newTree.potassium-totalLength*.15<0 || newTree.phosphorus-totalLength*.125<0)
               {
               //std::cout << "test2";
                      for(unsigned int j=1; j<newTree.branches.size()-i; j++)
@@ -573,9 +599,13 @@ tree upkeep(tree& newTree, std::vector<VectorStruct>& ResourceVector,DimensionSt
 							ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "nitrogen", -(newTree.branches.at(newTree.branches.size()-1).length/1.5));
 							ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "potassium", -(newTree.branches.at(newTree.branches.size()-1).length*1.5));
 							ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "phosphorus", -(newTree.branches.at(newTree.branches.size()-1).length*1.25));
+							#if rootsOn==1
 							newTree.roots.pop_back();
 							newTree.roots.pop_back();
 							newTree.roots.pop_back();
+							#else
+							newTree.roots-=3;
+							#endif
 							//std::cout << "test";
 							newTree.branches.at(newTree.branches.at(newTree.branches.size()-1).connection-1).children.pop_back();
 							//std::cout << "adding it to dead branches";
@@ -592,12 +622,12 @@ tree upkeep(tree& newTree, std::vector<VectorStruct>& ResourceVector,DimensionSt
                      }
               }
        }
-       newTree.sunlight=newTree.sunlight-totalLength*.005;
+       newTree.sunlight=newTree.sunlight-totalLength*.05;
       
-       newTree.water=newTree.water-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "water",-(totalLength*.01));
-       newTree.nitrogen=newTree.nitrogen-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "nitrogen", -(totalLength*.0075));
-       newTree.potassium=newTree.potassium-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "potassium", -(totalLength*.015));
-       newTree.phosphorus=newTree.phosphorus-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "phosphorus", -(totalLength*.0125));
+       newTree.water=newTree.water-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "water",-(totalLength*.1));
+       newTree.nitrogen=newTree.nitrogen-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "nitrogen", -(totalLength*.075));
+       newTree.potassium=newTree.potassium-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "potassium", -(totalLength*.15));
+       newTree.phosphorus=newTree.phosphorus-ResourceChange(newTree.x, newTree.y, newTree.z,  DimInfo, ResourceVector, "phosphorus", -(totalLength*.125));
        return newTree;
  
 }
@@ -612,7 +642,10 @@ forest reaper(forest& newForest) //checks forest for trees with isAlive false, a
               {
                   newForest.trees.at(f).thickness += (newForest.trees.at(f).treeSeed.thickness) / (newForest.trees.at(f).treeSeed.adult);
               }*/
-
+			  if(f>treeMax)
+			  {
+					newForest.trees.at(f).isAlive = false;
+			  }
               if(newForest.trees.at(f).isAlive == false || newForest.trees.at(f).age > newForest.trees.at(f).treeSeed.youth+newForest.trees.at(f).treeSeed.adult)
               {
                      //std::cout << "Don't fear the reaper";
@@ -696,62 +729,66 @@ forest firefight(forest& newForest)
 
 forest reproduce(forest& newForest, DimensionStruct DimInfo, std::vector<VectorStruct>& ResourceVector)
 {
-    if(newForest.trees.size()<treeMax)
-	{
-		for(unsigned int f = 0; f < newForest.trees.size(); f++)
-       {
-              std::vector<tree> canReproduce;
-              for(unsigned int g = 0; g < newForest.trees.at(f).branches.size(); g++)
-              {
-                     if(newForest.trees.at(f).branches.at(g).feature==3) //&& find(canReproduce.begin(),canReproduce.end(), newForest.trees.at(f))==canReproduce.end()
-                     {
-                           canReproduce.push_back(newForest.trees.at(f));
-                           /* std::cout << "Tree: " << f << " Branch: "<< g<< " Reproduced" << "\n";
-                           newForest.trees.at(f).reproduced = 2;
-                           tree oldTree = newForest.trees.at(f);
-                           seed newSeed = generateSeed();
-                           tree newTree = spawnTree(oldTree.x+randFloat(-1,1), oldTree.y, oldTree.z+randFloat(-1,1), newSeed, DimInfo, ResourceVector);
-                           newForest.trees.push_back(newTree);*/
-                           newForest.trees.at(f).branches.at(g).feature=0;
-                     }
-                     if(canReproduce.size()>=2)
-                     {
-                           seed newSeed=goForthAndMultiply(canReproduce.at(0).treeSeed, canReproduce.at(1).treeSeed);
-                           canReproduce.erase(canReproduce.begin());
-                           canReproduce.erase(canReproduce.begin());
-						   int newX=newForest.trees.at(f).x+randInt(-30,30);
-						   int newY=newForest.trees.at(f).y+randInt(-30,30);
-						   int newZ=newForest.trees.at(f).z;
-						   if (newX<0)
-						   {
-								newX=0;
-						   }
-						   if (newX>DimInfo.width-1)
-						   {
-								newX=DimInfo.width-1;
-						   }
-						   if (newY<0)
-						   {
-								newY=0;
-						   }
-						   if (newY>DimInfo.length-1)
-						   {
-								newY=DimInfo.length-1;
-						   }
-						   char PlantIDArray[10];
-						   sprintf( PlantIDArray, "%d",newForest.trees.size());
-						   string newPlantID=PlantIDArray;
-                           tree newTree = spawnTree(newX, newY, newZ, newSeed, DimInfo, ResourceVector, newPlantID);
-                           newForest.trees.push_back(newTree);
-                     }
-              }
+    
+	for(unsigned int f = 0; f < newForest.trees.size(); f++)
+   {
+		  if (newForest.trees.size()>treeMax)
+		  {
+			break;
+		  }
+		  std::vector<tree> canReproduce;
+		  for(unsigned int g = 0; g < newForest.trees.at(f).branches.size(); g++)
+		  {
+				 if(newForest.trees.at(f).branches.at(g).feature==3) //&& find(canReproduce.begin(),canReproduce.end(), newForest.trees.at(f))==canReproduce.end()
+				 {
+					   canReproduce.push_back(newForest.trees.at(f));
+					   /* std::cout << "Tree: " << f << " Branch: "<< g<< " Reproduced" << "\n";
+					   newForest.trees.at(f).reproduced = 2;
+					   tree oldTree = newForest.trees.at(f);
+					   seed newSeed = generateSeed();
+					   tree newTree = spawnTree(oldTree.x+randFloat(-1,1), oldTree.y, oldTree.z+randFloat(-1,1), newSeed, DimInfo, ResourceVector);
+					   newForest.trees.push_back(newTree);*/
+					   newForest.trees.at(f).branches.at(g).feature=0;
+				 }
+				 if(canReproduce.size()>=2)
+				 {
+					   seed newSeed=goForthAndMultiply(canReproduce.at(0).treeSeed, canReproduce.at(1).treeSeed);
+					   canReproduce.erase(canReproduce.begin());
+					   canReproduce.erase(canReproduce.begin());
+					   int newX=newForest.trees.at(f).x+randInt(-30,30);
+					   int newY=newForest.trees.at(f).y+randInt(-30,30);
+					   int newZ=newForest.trees.at(f).z;
+					   if (newX<0)
+					   {
+							newX=0;
+					   }
+					   if (newX>DimInfo.width-1)
+					   {
+							newX=DimInfo.width-1;
+					   }
+					   if (newY<0)
+					   {
+							newY=0;
+					   }
+					   if (newY>DimInfo.length-1)
+					   {
+							newY=DimInfo.length-1;
+					   }
+					   char PlantIDArray[10];
+					   sprintf( PlantIDArray, "%d",newForest.trees.size());
+					   string newPlantID=PlantIDArray;
+					   tree newTree = spawnTree(newX, newY, newZ, newSeed, DimInfo, ResourceVector, newPlantID);
+					   newForest.trees.push_back(newTree);
+				 }
+		  }
 
-       }
-	}
+   }
     return newForest;
 }
+
 forest generateTree(forest& newForest, DimensionStruct DimInfo, std::vector<VectorStruct>& ResourceVector,int turns)
 {
+	#if rootsOn==1
 	 for(int turn=0;turn<turns; turn++)
 	 {
 		  std::cout << "Turn " << turn << "\n";
@@ -808,6 +845,64 @@ forest generateTree(forest& newForest, DimensionStruct DimInfo, std::vector<Vect
 			ResourceChange(newForest.trees.at(0).x, newForest.trees.at(0).y, newForest.trees.at(0).z, DimInfo, ResourceVector, "nitrogen", -(newForest.trees.at(0).nitrogencap-newForest.trees.at(0).nitrogen));
 			newForest.trees.at(0).nitrogen = newForest.trees.at(0).nitrogencap;
 		  }
+		  #else
+		  for(int turn=0;turn<turns; turn++)
+	 {
+		  std::cout << "Turn " << turn << "\n";
+		  newForest.trees.at(0).sunlight=newForest.trees.at(0).sunlight+(newForest.trees.at(0).sunlightcap*.1);
+		  if(newForest.trees.at(0).sunlight > newForest.trees.at(0).sunlightcap)
+		  {
+			//std::cout << "threw out " <<newForest.trees.at(0).sunlightcap-newForest.trees.at(0).sunlight << " sunlight.";
+			newForest.trees.at(0).sunlight = newForest.trees.at(0).sunlightcap;
+		  }
+		  if(WaterGrab(newForest.trees.at(0).x, newForest.trees.at(0).y, newForest.trees.at(0).z, DimInfo, ResourceVector)> newForest.trees.at(0).roots)
+		  {
+			newForest.trees.at(0).water=newForest.trees.at(0).water+ResourceChange(newForest.trees.at(0).x, newForest.trees.at(0).y, newForest.trees.at(0).z, DimInfo, ResourceVector, "water", -newForest.trees.at(0).roots);
+		  } else {
+			newForest.trees.at(0).water=newForest.trees.at(0).water+ResourceChange(newForest.trees.at(0).x, newForest.trees.at(0).y, newForest.trees.at(0).z, DimInfo, ResourceVector, "water", -WaterGrab(newForest.trees.at(0).x, newForest.trees.at(0).y, newForest.trees.at(0).z, DimInfo, ResourceVector));
+		  }
+		  if(newForest.trees.at(0).water > newForest.trees.at(0).watercap)
+		  {
+			ResourceChange(newForest.trees.at(0).x, newForest.trees.at(0).y, newForest.trees.at(0).z, DimInfo, ResourceVector, "water", -(newForest.trees.at(0).watercap-newForest.trees.at(0).water)) ;
+			newForest.trees.at(0).water = newForest.trees.at(0).watercap;
+		  }
+		  if(PotassiumGrab(newForest.trees.at(0).x, newForest.trees.at(0).y, newForest.trees.at(0).z, DimInfo, ResourceVector)> newForest.trees.at(0).roots)
+		  {
+			newForest.trees.at(0).potassium=newForest.trees.at(0).potassium+ResourceChange(newForest.trees.at(0).x, newForest.trees.at(0).y, newForest.trees.at(0).z, DimInfo, ResourceVector, "potassium", -newForest.trees.at(0).roots);
+		  } else {
+			newForest.trees.at(0).potassium=newForest.trees.at(0).potassium+ResourceChange(newForest.trees.at(0).x, newForest.trees.at(0).y, newForest.trees.at(0).z, DimInfo, ResourceVector, "potassium", -PotassiumGrab(newForest.trees.at(0).x, newForest.trees.at(0).y, newForest.trees.at(0).z, DimInfo, ResourceVector));
+		  }
+
+		  if(newForest.trees.at(0).potassium > newForest.trees.at(0).potassiumcap)
+		  {
+			ResourceChange(newForest.trees.at(0).x, newForest.trees.at(0).y, newForest.trees.at(0).z, DimInfo, ResourceVector, "potassium", -(newForest.trees.at(0).potassiumcap-newForest.trees.at(0).potassium));
+			newForest.trees.at(0).potassium = newForest.trees.at(0).potassiumcap;
+		  }
+		  if(PhosphorusGrab(newForest.trees.at(0).x, newForest.trees.at(0).y, newForest.trees.at(0).z, DimInfo, ResourceVector)> newForest.trees.at(0).roots)
+		  {
+			newForest.trees.at(0).phosphorus=newForest.trees.at(0).phosphorus+ResourceChange(newForest.trees.at(0).x, newForest.trees.at(0).y, newForest.trees.at(0).z, DimInfo, ResourceVector, "phosphorus", -newForest.trees.at(0).roots);
+		  } else {
+			newForest.trees.at(0).phosphorus=newForest.trees.at(0).phosphorus+ResourceChange(newForest.trees.at(0).x, newForest.trees.at(0).y, newForest.trees.at(0).z, DimInfo, ResourceVector, "phosphorus", -PhosphorusGrab(newForest.trees.at(0).x, newForest.trees.at(0).y, newForest.trees.at(0).z, DimInfo, ResourceVector));
+		  }
+
+		  if(newForest.trees.at(0).phosphorus > newForest.trees.at(0).phosphoruscap)
+		  {
+			ResourceChange(newForest.trees.at(0).x, newForest.trees.at(0).y, newForest.trees.at(0).z, DimInfo, ResourceVector, "phosphorus", -(newForest.trees.at(0).phosphoruscap-newForest.trees.at(0).phosphorus));
+			newForest.trees.at(0).phosphorus = newForest.trees.at(0).phosphoruscap;
+		  }
+		  if(NitrogenGrab(newForest.trees.at(0).x, newForest.trees.at(0).y, newForest.trees.at(0).z, DimInfo, ResourceVector)> newForest.trees.at(0).roots)
+		  {
+			newForest.trees.at(0).nitrogen=newForest.trees.at(0).nitrogen+ResourceChange(newForest.trees.at(0).x, newForest.trees.at(0).y, newForest.trees.at(0).z, DimInfo, ResourceVector, "nitrogen", -newForest.trees.at(0).roots);
+		  } else {
+			newForest.trees.at(0).nitrogen=newForest.trees.at(0).nitrogen+ResourceChange(newForest.trees.at(0).x, newForest.trees.at(0).y, newForest.trees.at(0).z, DimInfo, ResourceVector, "nitrogen", -NitrogenGrab(newForest.trees.at(0).x, newForest.trees.at(0).y, newForest.trees.at(0).z, DimInfo, ResourceVector));
+		  }
+
+		  if(newForest.trees.at(0).nitrogen > newForest.trees.at(0).nitrogencap)
+		  {
+			ResourceChange(newForest.trees.at(0).x, newForest.trees.at(0).y, newForest.trees.at(0).z, DimInfo, ResourceVector, "nitrogen", -(newForest.trees.at(0).nitrogencap-newForest.trees.at(0).nitrogen));
+			newForest.trees.at(0).nitrogen = newForest.trees.at(0).nitrogencap;
+		  }
+		  #endif
 		   while(newForest.trees.at(0).sunlight>=10 && newForest.trees.at(0).water>=20 && newForest.trees.at(0).nitrogen>=15 && newForest.trees.at(0).potassium>=30 && newForest.trees.at(0).phosphorus>=25)
 		   {
 				  newForest.trees.at(0)=growBranch(newForest.trees.at(0), ResourceVector, DimInfo);
@@ -846,19 +941,22 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, std::vector<Ve
 	{
 		  feed=0;
 	} */
-	int rootRate=10000;
+	std::cout << "start";
+	int rootRate=1;
 	for(unsigned int f=0; f<newForest.trees.size(); f++) //feed the trees
 	{
 		  //std::cout << f;
-		  newForest.trees.at(f).sunlight=newForest.trees.at(f).sunlight+(newForest.trees.at(f).sunlightcap*100);
+		  newForest.trees.at(f).sunlight=newForest.trees.at(f).sunlight+(newForest.trees.at(f).sunlightcap*.1);
 
-		  if(newForest.trees.at(f).sunlight > newForest.trees.at(f).sunlightcap*100)
+		  if(newForest.trees.at(f).sunlight > newForest.trees.at(f).sunlightcap*.1)
 		  {
 			//std::cout << "threw out " <<newForest.trees.at(f).sunlightcap-newForest.trees.at(f).sunlight << " sunlight.";
-			newForest.trees.at(f).sunlight = newForest.trees.at(f).sunlightcap*100;
+			newForest.trees.at(f).sunlight = newForest.trees.at(f).sunlightcap*.1;
 		  }
+		#if rootsOn==1
 		for(unsigned int v=0; v<newForest.trees.at(f).rootsIn.size(); v++)
 		{
+			
 			//std::cout << v;
 			//std::cout << get<0>(newForest.trees.at(f).rootsIn.at(v)) << " " << get<1>(newForest.trees.at(f).rootsIn.at(v)) << " " <<get<2>(newForest.trees.at(f).rootsIn.at(v));
 			if(WaterGrab(get<0>(newForest.trees.at(f).rootsIn.at(v)), get<1>(newForest.trees.at(f).rootsIn.at(v)), get<2>(newForest.trees.at(f).rootsIn.at(v)), DimInfo, ResourceVector)> newForest.trees.at(f).roots.size()*rootRate)//newForest.trees.at(f).rootsIn.size())
@@ -907,35 +1005,90 @@ forest generateForest(forest& newForest, DimensionStruct DimInfo, std::vector<Ve
 			ResourceChange(get<0>(newForest.trees.at(f).rootsIn.at(v)), get<1>(newForest.trees.at(f).rootsIn.at(v)), get<2>(newForest.trees.at(f).rootsIn.at(v)), DimInfo, ResourceVector, "nitrogen", -(newForest.trees.at(f).nitrogencap-newForest.trees.at(f).nitrogen));
 			newForest.trees.at(f).nitrogen = newForest.trees.at(f).nitrogencap;
 			}
-			//std::cout <<NitrogenGrab(get<0>(newForest.trees.at(f).rootsIn.at(v)), get<1>(newForest.trees.at(f).rootsIn.at(v)), get<2>(newForest.trees.at(f).rootsIn.at(v)), DimInfo, ResourceVector);
 		}
+			#else
+			if(WaterGrab(newForest.trees.at(f).x,newForest.trees.at(f).y,newForest.trees.at(f).z, DimInfo, ResourceVector)> newForest.trees.at(f).roots*rootRate)//newForest.trees.at(f).rootsIn.size())
+			{
+			newForest.trees.at(f).water=newForest.trees.at(f).water+ResourceChange(newForest.trees.at(f).x,newForest.trees.at(f).y,newForest.trees.at(f).z, DimInfo, ResourceVector, "water", -newForest.trees.at(f).roots*rootRate);//newForest.trees.at(f).rootsIn.size());
+			} else {
+			newForest.trees.at(f).water=newForest.trees.at(f).water+ResourceChange(newForest.trees.at(f).x,newForest.trees.at(f).y,newForest.trees.at(f).z, DimInfo, ResourceVector, "water", -WaterGrab(newForest.trees.at(f).x,newForest.trees.at(f).y,newForest.trees.at(f).z, DimInfo, ResourceVector));
+			}
+			if(newForest.trees.at(f).water > newForest.trees.at(f).watercap)
+			{
+			ResourceChange(newForest.trees.at(f).x,newForest.trees.at(f).y,newForest.trees.at(f).z, DimInfo, ResourceVector, "water", -(newForest.trees.at(f).watercap-newForest.trees.at(f).water)) ;
+			newForest.trees.at(f).water = newForest.trees.at(f).watercap;
+			}
+			if(PotassiumGrab(newForest.trees.at(f).x,newForest.trees.at(f).y,newForest.trees.at(f).z, DimInfo, ResourceVector)> newForest.trees.at(f).roots*rootRate)//newForest.trees.at(f).rootsIn.size())
+			{
+			newForest.trees.at(f).potassium=newForest.trees.at(f).potassium+ResourceChange(newForest.trees.at(f).x,newForest.trees.at(f).y,newForest.trees.at(f).z, DimInfo, ResourceVector, "potassium", -newForest.trees.at(f).roots*rootRate);//newForest.trees.at(f).rootsIn.size());
+			} else {
+			newForest.trees.at(f).potassium=newForest.trees.at(f).potassium+ResourceChange(newForest.trees.at(f).x,newForest.trees.at(f).y,newForest.trees.at(f).z, DimInfo, ResourceVector, "potassium", -PotassiumGrab(newForest.trees.at(f).x,newForest.trees.at(f).y,newForest.trees.at(f).z, DimInfo, ResourceVector));
+			}
+
+			if(newForest.trees.at(f).potassium > newForest.trees.at(f).potassiumcap)
+			{
+			ResourceChange(newForest.trees.at(f).x,newForest.trees.at(f).y,newForest.trees.at(f).z, DimInfo, ResourceVector, "potassium", -(newForest.trees.at(f).potassiumcap-newForest.trees.at(f).potassium));
+			newForest.trees.at(f).potassium = newForest.trees.at(f).potassiumcap;
+			}
+			if(PhosphorusGrab(newForest.trees.at(f).x,newForest.trees.at(f).y,newForest.trees.at(f).z, DimInfo, ResourceVector)> newForest.trees.at(f).roots*rootRate)//newForest.trees.at(f).rootsIn.size())
+			{
+			newForest.trees.at(f).phosphorus=newForest.trees.at(f).phosphorus+ResourceChange(newForest.trees.at(f).x,newForest.trees.at(f).y,newForest.trees.at(f).z, DimInfo, ResourceVector, "phosphorus", -newForest.trees.at(f).roots*rootRate);//newForest.trees.at(f).rootsIn.size());
+			} else {
+			newForest.trees.at(f).phosphorus=newForest.trees.at(f).phosphorus+ResourceChange(newForest.trees.at(f).x,newForest.trees.at(f).y,newForest.trees.at(f).z, DimInfo, ResourceVector, "phosphorus", -PhosphorusGrab(newForest.trees.at(f).x,newForest.trees.at(f).y,newForest.trees.at(f).z, DimInfo, ResourceVector));
+			}
+
+			if(newForest.trees.at(f).phosphorus > newForest.trees.at(f).phosphoruscap)
+			{
+			ResourceChange(newForest.trees.at(f).x,newForest.trees.at(f).y,newForest.trees.at(f).z, DimInfo, ResourceVector, "phosphorus", -(newForest.trees.at(f).phosphoruscap-newForest.trees.at(f).phosphorus));
+			newForest.trees.at(f).phosphorus = newForest.trees.at(f).phosphoruscap;
+			}
+			if(NitrogenGrab(newForest.trees.at(f).x,newForest.trees.at(f).y,newForest.trees.at(f).z, DimInfo, ResourceVector)> newForest.trees.at(f).roots*rootRate)//newForest.trees.at(f).rootsIn.size())
+			{
+			newForest.trees.at(f).nitrogen=newForest.trees.at(f).nitrogen+ResourceChange(newForest.trees.at(f).x,newForest.trees.at(f).y,newForest.trees.at(f).z, DimInfo, ResourceVector, "nitrogen", -newForest.trees.at(f).roots*rootRate);//newForest.trees.at(f).rootsIn.size());
+			} else {
+			newForest.trees.at(f).nitrogen=newForest.trees.at(f).nitrogen+ResourceChange(newForest.trees.at(f).x,newForest.trees.at(f).y,newForest.trees.at(f).z, DimInfo, ResourceVector, "nitrogen", -NitrogenGrab(newForest.trees.at(f).x,newForest.trees.at(f).y,newForest.trees.at(f).z, DimInfo, ResourceVector));
+			}
+			if(newForest.trees.at(f).nitrogen > newForest.trees.at(f).nitrogencap)
+			{
+			ResourceChange(newForest.trees.at(f).x,newForest.trees.at(f).y,newForest.trees.at(f).z, DimInfo, ResourceVector, "nitrogen", -(newForest.trees.at(f).nitrogencap-newForest.trees.at(f).nitrogen));
+			newForest.trees.at(f).nitrogen = newForest.trees.at(f).nitrogencap;
+			}
+			#endif
+			//std::cout <<NitrogenGrab(newForest.trees.at(f).x,newForest.trees.at(f).y,newForest.trees.at(f).z, DimInfo, ResourceVector);
 		  //let the trees do their tree thing
+		  //std::cout << "Number of trees: " << newForest.trees.size() << "\n";
 		  newForest.trees.at(f)=upkeep(newForest.trees.at(f), ResourceVector, DimInfo);
-		  while(newForest.trees.at(f).age < newForest.trees.at(f).treeSeed.youth && newForest.trees.at(f).sunlight>=1 && newForest.trees.at(f).water>=2 && newForest.trees.at(f).nitrogen>=2 && newForest.trees.at(f).potassium>=3 && newForest.trees.at(f).phosphorus>=3)
+		  //std::cout << "Number of trees: " << newForest.trees.size() << "\n";
+		  //std::cout << "Sunlight: " << newForest.trees.at(f).sunlight << " Water: " << newForest.trees.at(f).water << " Phosphorus: " << newForest.trees.at(f).phosphorus << " Potassium: " << newForest.trees.at(f).potassium << " Nitrogen: " << newForest.trees.at(f).nitrogen << "\n";
+		  while(newForest.trees.at(f).age < newForest.trees.at(f).treeSeed.youth && newForest.trees.at(f).sunlight>=10 && newForest.trees.at(f).water>=20 && newForest.trees.at(f).nitrogen>=20 && newForest.trees.at(f).potassium>=30 && newForest.trees.at(f).phosphorus>=30)
 		  {
 				 newForest.trees.at(f)=growBranch(newForest.trees.at(f), ResourceVector, DimInfo);
 				 
 				 //std::cout << "Tree " << f+1 << " grew a branch."<< "\n";
 		  }
 		
-		  //std::cout << "Tree " << f+1 << " has "<< newForest.trees.at(f).roots.size()<<" roots." << "\n";
+		  //std::cout << "Tree " << f+1 << " has "<< newForest.trees.at(f).roots<<" roots." << "\n";
 	}
+	//std::cout << "reproduce";
 	newForest = reproduce(newForest, DimInfo, ResourceVector);
+	//std::cout << "reap";
 	newForest = reaper(newForest);
+	//std::cout << "fire";
 	newForest = firefight(newForest);
 
 
 	
 	std::cout << "Number of trees: " << newForest.trees.size() << "\n";
-	/*std::cout << "Number of dead trees: " << newForest.deadtrees.size() << "\n";
+	/* std::cout << "Number of dead trees: " << newForest.deadtrees.size() << "\n";
 	
 	for(int f=0; f<newForest.trees.size();f++)
 	{
 		  std::cout << "Tree number: " << f+1 << "\n";
 		  std::cout << "Number of Branches: " << newForest.trees.at(f).branches.size() << "\n";
 		  std::cout << "Number of Dead Branches: " << newForest.trees.at(f).deadBranches.size() << "\n";
-	}*/
+	} */
 	turnstogo -= 1;
+	//std::cin >> turnstogo;
 	return newForest;
 		  
 }
