@@ -6,7 +6,7 @@
 #include <ctime>
 #include <tuple>
 #define PI 3.14159265
-#define treeMax 1000
+#define treeMax 5000
 #define rootsOn 0
 
 using namespace veclib;
