@@ -70,8 +70,7 @@ namespace Engine {
 	void setupGL() {
 		glContext = SDL_GL_CreateContext(sdlWindow);
 		glEnable(GL_DEPTH_TEST);
-		//glClearColor(0.2f, 0.35f, 0.5f, 0.0f); // Sky color (glClear)
-		glClearColor(0,0,0,0);
+		glClearColor(0.2f, 0.35f, 0.5f, 0.0f); // Sky color (glClear)
 		glFrontFace(GL_CW);
 		glCullFace(GL_BACK);
 		glEnable(GL_CULL_FACE);
