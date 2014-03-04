@@ -117,15 +117,7 @@ void renderScene() {
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, light1color);
 	//glLightfv(GL_LIGHT1, GL_SPECULAR, light1spec);
 
-	// Draw ground
-	glColor3f(0.5f, 0.5f, 0.5f);
-	glBegin(GL_QUADS);
-	glVertex3f(-10.0f, 0.0f, 10.0f);
-	glVertex3f(-10.0f, 0.0f, -10.0f);
-	glVertex3f(10.0f, 0.0f, -10.0f);
-	glVertex3f(10.0f, 0.0f, 10.0f);
-	glEnd();
-
+	glColor3f(1,1,1);
 	VertexArrayUtils::drawData(&drawdata);
 }
 
@@ -153,10 +145,11 @@ int main(int argc, char **argv) {
 			forest.trees.at(i) = TreeRender::CalcXYZ(forest.trees.at(i));
 			i++;
 		}
+		TreeRender::drawForest(&forest,&drawdata,0,0,10000.);
 #ifdef threaded
 		SDL_mutexP(Engine::renderLock);
 #endif
-		TreeRender::drawForest(&forest,&drawdata,0,0,10000.);
+
 		VertexArrayUtils::finishData(&drawdata);
 #ifdef threaded
 		SDL_mutexV(Engine::renderLock);
